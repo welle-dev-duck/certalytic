@@ -1,10 +1,12 @@
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 
 import { AppError } from '../lib/errors';
+import type { AuthService } from '../modules/auth/auth.service';
 import type { OrganizationsService } from '../modules/organizations/organizations.service';
 
 export function createRequireOrganization(
   organizationsService: OrganizationsService,
+  authService: AuthService,
 ): RequestHandler {
   return async (
     req: Request,
@@ -16,17 +18,31 @@ export function createRequireOrganization(
       return;
     }
 
-    const activeOrganizationId = req.session.session.activeOrganizationId;
+    let activeOrganizationId = req.session.session.activeOrganizationId;
 
     if (!activeOrganizationId) {
-      next(
-        new AppError(
-          'No active organization',
-          403,
-          'NO_ACTIVE_ORGANIZATION',
-        ),
+      const defaultOrganizationId = await authService.getDefaultOrganization(
+        req.session.user.id,
       );
-      return;
+
+      if (!defaultOrganizationId) {
+        next(
+          new AppError(
+            'No active organization',
+            403,
+            'NO_ACTIVE_ORGANIZATION',
+          ),
+        );
+        return;
+      }
+
+      await authService.setSessionActiveOrganization(
+        req.session.session.id,
+        defaultOrganizationId,
+      );
+
+      activeOrganizationId = defaultOrganizationId;
+      req.session.session.activeOrganizationId = defaultOrganizationId;
     }
 
     const organization = await organizationsService.resolveActiveContext(

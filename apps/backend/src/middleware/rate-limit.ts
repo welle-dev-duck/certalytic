@@ -1,11 +1,10 @@
 import type { NextFunction, Request, Response } from 'express';
 import type Redis from 'ioredis';
 
-import { productConfig } from '../config/product';
+import { rateLimits, type RateLimitName } from '../config/env';
 import { AppError } from '../lib/errors';
 import { SlidingWindowRateLimiter } from '../lib/sliding-window-rate-limiter';
 
-type RateLimitName = keyof typeof productConfig.rateLimits;
 
 function resolveKey(
   req: Request,
@@ -23,7 +22,7 @@ export function createRateLimit(
   redis: Redis,
   limiter: RateLimitName,
 ): (req: Request, res: Response, next: NextFunction) => Promise<void> {
-  const config = productConfig.rateLimits[limiter];
+  const config = rateLimits[limiter];
   const rateLimiter = new SlidingWindowRateLimiter(redis);
 
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {

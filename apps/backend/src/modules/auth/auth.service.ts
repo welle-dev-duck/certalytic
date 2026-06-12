@@ -1,7 +1,7 @@
 import { desc, eq } from 'drizzle-orm';
 
 import type { Database } from '../../db/index';
-import { member } from '../../db/schema/auth.schema';
+import { member, session } from '../../db/schema/auth.schema';
 
 export class AuthService {
   constructor(private readonly db: Database) {}
@@ -14,5 +14,15 @@ export class AuthService {
     });
 
     return membership?.organizationId;
+  }
+
+  async setSessionActiveOrganization(
+    sessionId: string,
+    organizationId: string,
+  ): Promise<void> {
+    await this.db
+      .update(session)
+      .set({ activeOrganizationId: organizationId })
+      .where(eq(session.id, sessionId));
   }
 }

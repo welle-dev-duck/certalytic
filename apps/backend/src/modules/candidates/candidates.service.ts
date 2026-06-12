@@ -288,6 +288,36 @@ export class CandidatesService {
     return this.getById(organizationId, candidateId);
   }
 
+  async delete(organizationId: string, candidateId: string): Promise<void> {
+    const candidate = await this.db.query.candidates.findFirst({
+      where: and(
+        eq(candidates.id, candidateId),
+        eq(candidates.organizationId, organizationId),
+      ),
+    });
+
+    if (!candidate) {
+      throw new NotFoundError('Candidate not found');
+    }
+
+    if (candidate.cvPath) {
+      try {
+        await this.storage.deleteObject(candidate.cvPath);
+      } catch {
+        // Best-effort storage cleanup; DB row is still removed.
+      }
+    }
+
+    await this.db
+      .delete(candidates)
+      .where(
+        and(
+          eq(candidates.id, candidateId),
+          eq(candidates.organizationId, organizationId),
+        ),
+      );
+  }
+
   async retry(
     organizationId: string,
     candidateId: string,

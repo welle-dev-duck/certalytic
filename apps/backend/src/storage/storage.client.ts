@@ -6,7 +6,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-import { productConfig } from '../config/product';
+import { env } from '../config/env';
 
 export type StorageClient = {
   putObject(
@@ -64,20 +64,18 @@ export class S3StorageClient implements StorageClient {
   private readonly bucket: string;
 
   constructor() {
-    const { s3 } = productConfig;
-
-    this.bucket = s3.bucket;
+    this.bucket = env.AWS_BUCKET;
     this.client = new S3Client({
-      region: s3.region,
+      region: env.AWS_DEFAULT_REGION,
       credentials:
-        s3.accessKeyId && s3.secretAccessKey
+        env.AWS_ACCESS_KEY_ID && env.AWS_SECRET_ACCESS_KEY
           ? {
-              accessKeyId: s3.accessKeyId,
-              secretAccessKey: s3.secretAccessKey,
+              accessKeyId: env.AWS_ACCESS_KEY_ID,
+              secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
             }
           : undefined,
-      endpoint: s3.endpoint,
-      forcePathStyle: s3.usePathStyleEndpoint,
+      endpoint: env.AWS_ENDPOINT,
+      forcePathStyle: env.AWS_USE_PATH_STYLE_ENDPOINT,
     });
   }
 
@@ -133,7 +131,7 @@ export class S3StorageClient implements StorageClient {
 
   async signedUrl(
     key: string,
-    expiresInSeconds = productConfig.storage.signedUrlTtlMinutes * 60,
+    expiresInSeconds = env.CERTALYTIC_SIGNED_URL_TTL * 60,
   ): Promise<string> {
     return getSignedUrl(
       this.client,

@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { createPaginatedResponseSchema } from '../../dtos/pagination.dto';
 import { CANDIDATE_STATUSES } from '../../db/schema/candidates.schema';
-import { productConfig } from '../../config/product';
+import { limits } from '../../config/env';
 
 export const candidateListQuerySchema = z.object({
   limit: z.coerce
@@ -23,11 +23,11 @@ export const updateCandidateBodySchema = z.object({
     .string()
     .trim()
     .min(1)
-    .max(productConfig.limits.nameMaxCharacters)
+    .max(limits.nameMaxCharacters)
     .optional(),
   email: z
     .email()
-    .max(productConfig.limits.emailMaxCharacters)
+    .max(limits.emailMaxCharacters)
     .optional()
     .nullable(),
 });
@@ -85,6 +85,28 @@ export const candidateDetailSchema = candidateListItemSchema.extend({
 export const candidateListResponseSchema =
   createPaginatedResponseSchema(candidateListItemSchema);
 
+const platformMatrixRowSchema = z.object({
+  score: z.number().nullable(),
+  explanation: z.string(),
+});
+
+const supplementaryAnalysisSchema = z.object({
+  summary: z.string(),
+  traits: z.array(z.string()),
+  detailLabel: z.string(),
+  detail: z.string(),
+  indicators: z.array(z.string()),
+  motivationSignals: z.array(z.string()),
+  concerns: z.array(z.string()),
+});
+
+const platformAnalysisSchema = z.object({
+  provided: z.boolean(),
+  handle: z.string().nullable(),
+  status: z.enum(['authentic', 'insufficient', 'not_provided']),
+  statusLabel: z.string(),
+});
+
 export const candidateReportSchema = z.object({
   score: z.number(),
   level: z.enum(['high', 'medium', 'low']),
@@ -94,6 +116,30 @@ export const candidateReportSchema = z.object({
     s_cross: z.number().nullable(),
     s_id: z.number(),
   }),
+  crossSourceEvaluated: z.boolean(),
+  componentSummaries: z.object({
+    s_cv: z.string(),
+    s_int: z.string(),
+    s_cross: z.string(),
+    s_id: z.string(),
+  }),
+  componentIndicators: z.object({
+    s_cv: z.array(z.string()),
+    s_int: z.array(z.string()),
+    s_cross: z.array(z.string()),
+    s_id: z.array(z.string()),
+  }),
+  aiTextPercent: z.number(),
+  platformConsistency: z.number().nullable(),
+  platformMatrix: z.object({
+    linkedin_cv_match: platformMatrixRowSchema,
+    github_experience_match: platformMatrixRowSchema,
+    cross_platform_consistency: platformMatrixRowSchema,
+  }),
+  interviewVariance: z.number(),
+  responseScore: z.number(),
+  radar: z.array(z.object({ subject: z.string(), value: z.number() })),
+  riskVectors: z.array(z.object({ name: z.string(), value: z.number() })),
   flags: z.array(
     z.object({
       type: z.string(),
@@ -102,6 +148,14 @@ export const candidateReportSchema = z.object({
       confidence: z.number(),
     }),
   ),
+  linkedin: platformAnalysisSchema,
+  github: platformAnalysisSchema,
+  verdict: z.object({
+    level: z.enum(['high', 'medium', 'low']),
+    title: z.string(),
+    body: z.string(),
+  }),
+  recommendedActions: z.array(z.string()),
   rounds: z.array(
     z.object({
       roundNumber: z.number().int(),
@@ -113,8 +167,8 @@ export const candidateReportSchema = z.object({
       deepDivePrompts: z.array(z.string()),
     }),
   ),
-  behaviourAnalysis: z.record(z.string(), z.unknown()).nullable(),
-  personalityAnalysis: z.record(z.string(), z.unknown()).nullable(),
+  behaviourAnalysis: supplementaryAnalysisSchema,
+  personalityAnalysis: supplementaryAnalysisSchema,
 });
 
 export type UpdateCandidateBodyDto = z.infer<typeof updateCandidateBodySchema>;

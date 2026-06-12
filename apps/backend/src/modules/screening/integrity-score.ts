@@ -1,4 +1,4 @@
-import { productConfig } from '../../config/product';
+import { roundWeights, scoreWeights, varianceThreshold } from '../../config/env';
 
 type ScoreComponent = {
   score?: number | null;
@@ -30,7 +30,7 @@ export class IntegrityScoreCalculator {
   }
 
   calculate(components: Record<string, ScoreComponent>): number {
-    const weights = productConfig.scoreWeights;
+    const weights = scoreWeights;
     let weightedSum = 0;
     let totalWeight = 0;
 
@@ -83,7 +83,7 @@ export class IntegrityScoreCalculator {
       return Math.round(entries[0]![1] * 100) / 100;
     }
 
-    const weights = productConfig.roundWeights;
+    const weights = roundWeights;
     let weightedSum = 0;
     let totalWeight = 0;
 
@@ -103,7 +103,7 @@ export class IntegrityScoreCalculator {
   }
 
   hasHighInconsistency(varianceDelta: number): boolean {
-    return varianceDelta > productConfig.varianceThreshold;
+    return varianceDelta > varianceThreshold;
   }
 
   private componentScore(component: ScoreComponent): number {

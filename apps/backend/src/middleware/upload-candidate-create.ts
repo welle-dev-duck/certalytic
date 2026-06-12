@@ -6,7 +6,7 @@ import {
   CANDIDATE_CREATE_UPLOAD_MAX_BYTES,
 } from '../modules/candidates/candidates-create.constants';
 import { parseCandidateCreateRequest } from '../modules/candidates/candidates-create.parser';
-import { productConfig } from '../config/product';
+import { transcriptLimits } from '../config/env';
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -22,7 +22,7 @@ export function uploadCandidateCreate(
     { name: 'cv', maxCount: 1 },
     {
       name: 'transcript_files',
-      maxCount: productConfig.transcript.maxTranscriptFiles,
+      maxCount: transcriptLimits.maxTranscriptFiles,
     },
   ])(req, res, (error) => {
     if (error instanceof multer.MulterError) {

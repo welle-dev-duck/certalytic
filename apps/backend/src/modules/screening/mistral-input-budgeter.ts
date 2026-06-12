@@ -1,4 +1,4 @@
-import { productConfig } from '../../config/product';
+import { limits } from '../../config/env';
 import { TranscriptProcessor } from './transcript-processor';
 
 export type BudgetedInput = {
@@ -12,7 +12,6 @@ export class MistralInputBudgeter {
   constructor(private readonly transcriptProcessor: TranscriptProcessor) {}
 
   budget(cvText: string, transcriptText: string): BudgetedInput {
-    const { limits } = productConfig;
     const maxCharacters =
       limits.mistralMaxInputTokens * limits.charsPerTokenEstimate;
     const cvLength = cvText.length;

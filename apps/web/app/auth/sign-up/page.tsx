@@ -5,8 +5,8 @@ export default async function SignUp() {
   return (
     <>
       <AuthPageHeading
-        title="Sign-up and start screening"
-        description="Create an account to get started."
+        title="Create an account"
+        description="Enter your details below to create your account"
       />
 
       <SignUpForm />

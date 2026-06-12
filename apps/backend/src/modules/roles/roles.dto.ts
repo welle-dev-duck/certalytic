@@ -5,7 +5,7 @@ import {
   ROLE_DOCUMENT_STATUSES,
   ROLE_EXPORT_STATUSES,
 } from '../../db/schema/roles.schema';
-import { productConfig } from '../../config/product';
+import { limits } from '../../config/env';
 
 export const roleListQuerySchema = z.object({
   limit: z.coerce
@@ -24,11 +24,11 @@ export const createRoleBodySchema = z.object({
     .string()
     .trim()
     .min(1)
-    .max(productConfig.limits.roleTitleMaxCharacters),
+    .max(limits.roleTitleMaxCharacters),
   description: z
     .string()
     .trim()
-    .max(productConfig.limits.roleDescriptionMaxCharacters)
+    .max(limits.roleDescriptionMaxCharacters)
     .optional()
     .nullable(),
 });

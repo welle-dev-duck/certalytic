@@ -80,5 +80,12 @@ export class CandidatesRouter {
       validate({ params: candidateIdParamsSchema }),
       candidatesController.retry,
     );
+
+    this.router.delete(
+      '/:id',
+      ...withOrganization,
+      validate({ params: candidateIdParamsSchema }),
+      candidatesController.delete,
+    );
   }
 }

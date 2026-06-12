@@ -1,7 +1,7 @@
 import type { Request } from 'express';
 import { z } from 'zod';
 
-import { productConfig } from '../../config/product';
+import { limits, transcriptLimits } from '../../config/env';
 import type { CvFormat } from '../../db/schema/candidates.schema';
 import { AppError } from '../../lib/errors';
 import { limitCvText, limitTranscriptText } from '../../lib/text-content-limiter';
@@ -18,14 +18,14 @@ const captionFileParser = new CaptionFileParser();
 const transcriptMerger = new TranscriptMerger();
 
 const candidateCreateFormSchema = z.object({
-  name: z.string().trim().min(1).max(productConfig.limits.nameMaxCharacters),
+  name: z.string().trim().min(1).max(limits.nameMaxCharacters),
   email: z.preprocess(
     (value) => (value === '' || value === null || value === undefined ? undefined : value),
     z
       .string()
       .trim()
       .email()
-      .max(productConfig.limits.emailMaxCharacters)
+      .max(limits.emailMaxCharacters)
       .optional(),
   ),
   role_id: z.uuid(),
@@ -148,7 +148,7 @@ async function parseTranscriptFiles(
 
     if (file.size > TRANSCRIPT_FILE_MAX_BYTES) {
       throw new AppError(
-        `Transcript file exceeds the maximum size of ${productConfig.limits.transcriptFileMaxKilobytes} KB.`,
+        `Transcript file exceeds the maximum size of ${limits.transcriptFileMaxKilobytes} KB.`,
         400,
         'VALIDATION_ERROR',
       );
@@ -173,7 +173,7 @@ async function parseTranscriptFiles(
 
   if (limited.wasTruncated) {
     throw new AppError(
-      `Combined transcript exceeds the maximum of ${productConfig.limits.transcriptTextMaxWords.toLocaleString()} words.`,
+      `Combined transcript exceeds the maximum of ${limits.transcriptTextMaxWords.toLocaleString()} words.`,
       400,
       'VALIDATION_ERROR',
     );
@@ -230,7 +230,7 @@ export async function parseCandidateCreateRequest(
 
     if (limited.wasTruncated) {
       throw new AppError(
-        `CV text exceeds the maximum of ${productConfig.limits.cvTextMaxWords.toLocaleString()} words.`,
+        `CV text exceeds the maximum of ${limits.cvTextMaxWords.toLocaleString()} words.`,
         400,
         'VALIDATION_ERROR',
       );
@@ -255,7 +255,7 @@ export async function parseCandidateCreateRequest(
 
     if (cvFile.size > CV_UPLOAD_MAX_BYTES) {
       throw new AppError(
-        `CV file must not exceed ${Math.floor(productConfig.limits.cvMaxKilobytes / 1024)} MB.`,
+        `CV file must not exceed ${Math.floor(limits.cvMaxKilobytes / 1024)} MB.`,
         400,
         'VALIDATION_ERROR',
       );
@@ -282,7 +282,7 @@ export async function parseCandidateCreateRequest(
 
     if (limited.wasTruncated) {
       throw new AppError(
-        `Transcript exceeds the maximum of ${productConfig.limits.transcriptTextMaxWords.toLocaleString()} words.`,
+        `Transcript exceeds the maximum of ${limits.transcriptTextMaxWords.toLocaleString()} words.`,
         400,
         'VALIDATION_ERROR',
       );
@@ -298,9 +298,9 @@ export async function parseCandidateCreateRequest(
       );
     }
 
-    if (transcriptFiles.length > productConfig.transcript.maxTranscriptFiles) {
+    if (transcriptFiles.length > transcriptLimits.maxTranscriptFiles) {
       throw new AppError(
-        `You can upload up to ${productConfig.transcript.maxTranscriptFiles} transcript files.`,
+        `You can upload up to ${transcriptLimits.maxTranscriptFiles} transcript files.`,
         400,
         'VALIDATION_ERROR',
       );

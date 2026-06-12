@@ -16,7 +16,9 @@ import { LoadingSwap } from "@/components/loading-swap";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+
 import Link from "@/components/ui/link";
+import { routes } from "@/lib/routes";
 import {
   signInSchema,
   SignInSchema,
@@ -36,7 +38,7 @@ export function SignInForm() {
 
   async function handleSignIn(data: SignInSchema) {
     await authClient.signIn.email(
-      { ...data, callbackURL: "/" },
+      { ...data, callbackURL: process.env.NEXT_PUBLIC_WEB_APP_DASHBOARD_URL },
       {
         onError: (error) => {
           if (error.error.code === "EMAIL_NOT_VERIFIED") {
@@ -49,7 +51,7 @@ export function SignInForm() {
 
         onSuccess: () => {
           toast.success("Successfully signed in.");
-          router.push("/");
+          router.refresh();
         },
       },
     );
@@ -86,14 +88,24 @@ export function SignInForm() {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="sign-in-form-password">
-                  <Required>Password</Required>
-                </FieldLabel>
+                <div className="flex w-full items-center justify-between gap-2">
+                  <FieldLabel htmlFor="sign-in-form-password">
+                    <Required>Password</Required>
+                  </FieldLabel>
+                  <Link
+                    href={routes.forgotPassword()}
+                    className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+                  >
+                    Forgot your password?
+                  </Link>
+                </div>
                 <Input
                   {...field}
                   type="password"
                   id="sign-in-form-password"
                   aria-invalid={fieldState.invalid}
+                  autoComplete="current-password"
+                  placeholder="Password"
                   required
                 />
                 {fieldState.invalid && (
@@ -111,17 +123,14 @@ export function SignInForm() {
         >
           <LoadingSwap isLoading={isSubmitting}>Sign in</LoadingSwap>
         </Button>
-      </form>
 
-      <p className="text-center text-sm text-muted-foreground">
-        Having trouble signing in? Contact our
-        <Link
-          href="/support"
-          className="font-medium text-[#1264A3] hover:underline"
-        >
-          support team.
-        </Link>
-      </p>
+        <p className="text-center text-sm text-muted-foreground">
+          Don&apos;t have an account?{" "}
+          <Link href={routes.signUp()} className="font-medium hover:underline">
+            Sign up
+          </Link>
+        </p>
+      </form>
     </div>
   );
 }

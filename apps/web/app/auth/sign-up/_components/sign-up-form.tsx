@@ -44,7 +44,7 @@ export function SignUpForm() {
         name: data.name,
         email: data.email,
         password: data.password,
-        callbackURL: process.env.NEXT_PUBLIC_WEB_APP_URL,
+        callbackURL: process.env.NEXT_PUBLIC_WEB_APP_DASHBOARD_URL,
       },
       {
         onError: (error) => {
@@ -132,6 +132,8 @@ export function SignUpForm() {
                   type="password"
                   id="sign-up-form-password"
                   aria-invalid={fieldState.invalid}
+                  autoComplete="new-password"
+                  placeholder="Password"
                   required
                 />
 
@@ -156,6 +158,8 @@ export function SignUpForm() {
                   type="password"
                   id="sign-up-form-confirm-password"
                   aria-invalid={fieldState.invalid}
+                  autoComplete="new-password"
+                  placeholder="Confirm password"
                   required
                 />
 

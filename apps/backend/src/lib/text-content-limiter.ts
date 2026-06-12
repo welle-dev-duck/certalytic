@@ -1,4 +1,4 @@
-import { productConfig } from '../config/product';
+import { limits } from '../config/env';
 
 export type LimitedText = {
   text: string;
@@ -46,13 +46,11 @@ function limitText(
 }
 
 export function limitCvText(text: string): LimitedText {
-  const { limits } = productConfig;
 
   return limitText(text, limits.cvTextMaxWords, limits.cvTextMaxCharacters);
 }
 
 export function limitTranscriptText(text: string): LimitedText {
-  const { limits } = productConfig;
 
   return limitText(
     text,

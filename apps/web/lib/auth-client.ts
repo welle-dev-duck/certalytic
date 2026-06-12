@@ -1,8 +1,12 @@
+import { stripeClient } from "@better-auth/stripe/client";
 import { createAuthClient } from "better-auth/react";
-import { admin as adminPlugin } from "better-auth/plugins/admin";
-import { organization as organizationPlugin } from "better-auth/plugins/organization";
+import { adminClient, organizationClient } from "better-auth/client/plugins";
 
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_AUTH_URL!,
-  plugins: [adminPlugin(), organizationPlugin()],
+  plugins: [
+    adminClient(),
+    organizationClient(),
+    stripeClient({ subscription: true }),
+  ],
 });

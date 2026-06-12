@@ -1,19 +1,18 @@
-"use client";
+import type { ReactNode } from "react";
 
-type Props = {
+type AuthPageHeadingProps = {
   title: string;
-  description?: string;
+  description?: ReactNode;
 };
 
-/** Slack-style centered auth headings */
-export function AuthPageHeading({ title, description }: Props) {
+export function AuthPageHeading({ title, description }: AuthPageHeadingProps) {
   return (
-    <header className="mb-8 space-y-2 text-center">
-      <h1 className="font-display text-[1.75rem] font-bold leading-tight tracking-tight sm:text-[2rem] text-foreground">
+    <header className="mb-8 space-y-2">
+      <h1 className="font-display text-2xl font-semibold tracking-tight">
         {title}
       </h1>
       {description ? (
-        <p className="text-base font-normal leading-relaxed text-muted-foreground">
+        <p className="text-sm leading-relaxed text-muted-foreground">
           {description}
         </p>
       ) : null}

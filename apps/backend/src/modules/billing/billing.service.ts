@@ -1,8 +1,7 @@
 import { and, eq } from 'drizzle-orm';
 import Stripe from 'stripe';
 
-import { productConfig } from '../../config/product';
-import { env } from '../../config/env';
+import { env, plans, tokenPacks } from '../../config/env';
 import type { Database } from '../../db/index';
 import { member, organization } from '../../db/schema/auth.schema';
 import {
@@ -70,7 +69,7 @@ export class BillingService {
     const planId: PlanId = this.planFeatures
       ? await this.planFeatures.resolvePlan(organizationId)
       : 'free';
-    const planTokens = productConfig.plans[planId].tokens ?? 3;
+    const planTokens = plans[planId].tokens ?? 3;
     const id = generateId();
 
     await this.db.insert(billing).values({
@@ -97,7 +96,7 @@ export class BillingService {
     }
 
     const planId = await this.planFeatures.resolvePlan(organizationId);
-    const plan = productConfig.plans[planId];
+    const plan = plans[planId];
     const balance = await this.ensureBilling(organizationId);
 
     return {
@@ -170,7 +169,7 @@ export class BillingService {
     }
 
     const planId = await this.planFeatures.resolvePlan(organizationId);
-    const planTokens = productConfig.plans[planId].tokens ?? 3;
+    const planTokens = plans[planId].tokens ?? 3;
 
     await this.ensureBilling(organizationId);
     await this.db
@@ -196,7 +195,7 @@ export class BillingService {
     }
 
     const configKey = PACK_KEY_MAP[packKey];
-    const pack = productConfig.tokenPacks[configKey];
+    const pack = tokenPacks[configKey];
 
     await this.ensureBilling(organizationId);
 
@@ -238,7 +237,7 @@ export class BillingService {
     }
 
     const configKey = PACK_KEY_MAP[packKey];
-    const pack = productConfig.tokenPacks[configKey];
+    const pack = tokenPacks[configKey];
     const priceId = pack.stripePrice;
 
     if (!priceId) {
@@ -402,7 +401,7 @@ export class BillingService {
     await this.db
       .update(billing)
       .set({
-        planTokens: productConfig.plans.free.tokens ?? 3,
+        planTokens: plans.free.tokens ?? 3,
         refillTokens: 0,
       })
       .where(eq(billing.organizationId, org.id));
@@ -425,7 +424,7 @@ export function buildStripeSubscriptionPlans(): Array<{
   priceId: string;
 }> {
   return (['starter', 'growth', 'scale'] as const).flatMap((planId) => {
-    const plan = productConfig.plans[planId];
+    const plan = plans[planId];
     const priceId = plan.stripePrice;
 
     if (!priceId) {

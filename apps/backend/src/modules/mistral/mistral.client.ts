@@ -4,7 +4,7 @@ import type {
   ChatCompletionRequest,
   ResponseFormat,
 } from '@mistralai/mistralai/models/components';
-import { productConfig } from '../../config/product';
+import { env } from '../../config/env';
 
 type MistralOcrResponse = {
   pages?: Array<{
@@ -53,16 +53,14 @@ export class MistralClient {
 
   private getClient(): Mistral {
     if (!this.client) {
-      const { mistral } = productConfig;
-
-      if (!mistral.apiKey) {
+      if (!env.MISTRAL_API_KEY) {
         throw new Error('MISTRAL_API_KEY is required.');
       }
 
       this.client = new Mistral({
-        apiKey: mistral.apiKey,
-        serverURL: mistral.baseUrl,
-        timeoutMs: mistral.timeout * 1_000,
+        apiKey: env.MISTRAL_API_KEY,
+        serverURL: env.MISTRAL_BASE_URL,
+        timeoutMs: env.MISTRAL_TIMEOUT * 1_000,
       });
     }
 
@@ -86,10 +84,8 @@ export class MistralClient {
   }
 
   async ocr(base64Document: string): Promise<MistralOcrResponse> {
-    const { mistral } = productConfig;
-
     const response = await this.getClient().ocr.process({
-      model: mistral.ocrModel,
+      model: env.MISTRAL_OCR_MODEL,
       document: {
         type: 'document_url',
         documentUrl: `data:application/pdf;base64,${base64Document}`,

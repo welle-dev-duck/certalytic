@@ -75,6 +75,12 @@ export class CandidatesController {
     sendJson(res, candidateDetailSchema, candidate);
   };
 
+  delete = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params as { id: string };
+    await this.candidatesService.delete(req.organization!.id, id);
+    res.status(204).send();
+  };
+
   importCandidates = async (req: Request, res: Response): Promise<void> => {
     const result = await this.candidatesService.importCandidates(
       req.organization!.id,

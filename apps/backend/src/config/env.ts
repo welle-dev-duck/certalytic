@@ -67,25 +67,179 @@ const envSchema = z.object({
     .default(10),
   CERTALYTIC_QUEUE: z.string().default('default'),
   CERTALYTIC_PRIORITY_QUEUE: z.string().default('screenings-priority'),
-  CERTALYTIC_COMPANY_LEGAL_NAME: z.string().default('Certalytic GmbH'),
-  CERTALYTIC_COMPANY_ADDRESS: z.string().default('Musterstraße 1'),
-  CERTALYTIC_COMPANY_ZIP: z.string().default('10115'),
-  CERTALYTIC_COMPANY_CITY: z.string().default('Berlin'),
-  CERTALYTIC_COMPANY_COUNTRY: z.string().default('Germany'),
-  CERTALYTIC_COMPANY_PHONE: z.string().default('+49 30 12345678'),
-  CERTALYTIC_COMPANY_EMAIL: z.string().default('hello@certalytic.com'),
-  CERTALYTIC_COMPANY_REG_NUMBER: z.string().default('HRB 000000'),
-  CERTALYTIC_COMPANY_VAT_ID: z.string().default('DE000000000'),
-  CERTALYTIC_COMPANY_DIRECTOR: z.string().default('Managing Director'),
-  CERTALYTIC_SOCIAL_LINKEDIN: z
-    .string()
-    .default('https://linkedin.com/company/certalytic'),
-  CERTALYTIC_SOCIAL_GITHUB: z.string().default('https://github.com/certalytic'),
-  CERTALYTIC_SOCIAL_X: z.string().default('https://x.com/certalytic'),
-  CERTALYTIC_MARKETING_CANDIDATES_SCREENED: z.string().default('12,400+'),
-  CERTALYTIC_MARKETING_CUSTOMERS: z.string().default('180+'),
-  CERTALYTIC_MARKETING_COUNTRIES: z.string().default('14'),
-  CERTALYTIC_MARKETING_SAVED_MILLIONS: z.string().default('€4.2M'),
 });
 
 export const env = envSchema.parse(process.env);
+
+export const scoreWeights = {
+  cv: 0.25,
+  interview: 0.5,
+  crossSource: 0.15,
+  identity: 0.1,
+} as const;
+
+export const roundWeights = {
+  1: 0.25,
+  2: 0.35,
+  3: 0.4,
+} as const;
+
+export const varianceThreshold = 20;
+
+export const limits = {
+  cvMaxKilobytes: env.CERTALYTIC_CV_MAX_KB,
+  transcriptFileMaxKilobytes: env.CERTALYTIC_TRANSCRIPT_FILE_MAX_KB,
+  cvTextMaxWords: 10_000,
+  cvTextMaxCharacters: 75_000,
+  transcriptTextMaxWords: 20_000,
+  transcriptTextMaxCharacters: 150_000,
+  nameMaxCharacters: 255,
+  emailMaxCharacters: 255,
+  linkedinTextMaxCharacters: 100_000,
+  interviewerNotesMaxCharacters: 50_000,
+  githubUrlMaxCharacters: 2_048,
+  roleTitleMaxCharacters: 255,
+  roleDescriptionMaxCharacters: 20_000,
+  mistralMaxInputTokens: env.CERTALYTIC_MISTRAL_MAX_INPUT_TOKENS,
+  charsPerTokenEstimate: 4,
+} as const;
+
+export const transcriptLimits = {
+  softWarningWords: 24_000,
+  hardCapCharacters: 120_000,
+  maxTranscriptFiles: 3,
+} as const;
+
+export const plans = {
+  free: {
+    name: 'Free',
+    price: 0,
+    seats: 1,
+    tokens: 3,
+    crossSource: false,
+    crossSourceManual: false,
+    fullBreakdown: false,
+    tokenPacks: false,
+    priorityQueue: false,
+    watermarkedExports: true,
+    savedRoles: true,
+    roleContextAssets: false,
+    maxRoleDocuments: 0,
+    stripePrice: null,
+  },
+  starter: {
+    name: 'Starter',
+    price: 159,
+    seats: 1,
+    tokens: 20,
+    crossSource: false,
+    crossSourceManual: true,
+    fullBreakdown: true,
+    tokenPacks: true,
+    priorityQueue: false,
+    watermarkedExports: false,
+    savedRoles: true,
+    roleContextAssets: false,
+    maxRoleDocuments: 0,
+    stripePrice: env.STRIPE_PRICE_STARTER || null,
+  },
+  growth: {
+    name: 'Growth',
+    price: 349,
+    seats: 3,
+    tokens: 50,
+    crossSource: true,
+    crossSourceManual: true,
+    fullBreakdown: true,
+    tokenPacks: true,
+    priorityQueue: false,
+    watermarkedExports: false,
+    savedRoles: true,
+    roleContextAssets: false,
+    maxRoleDocuments: 0,
+    stripePrice: env.STRIPE_PRICE_GROWTH || null,
+  },
+  scale: {
+    name: 'Scale',
+    price: 799,
+    seats: 5,
+    tokens: 125,
+    crossSource: true,
+    crossSourceManual: true,
+    fullBreakdown: true,
+    tokenPacks: true,
+    priorityQueue: true,
+    watermarkedExports: false,
+    savedRoles: true,
+    roleContextAssets: true,
+    maxRoleDocuments: 3,
+    stripePrice: env.STRIPE_PRICE_SCALE || null,
+  },
+  enterprise: {
+    name: 'Enterprise',
+    price: null,
+    seats: 6,
+    tokens: null,
+    crossSource: true,
+    crossSourceManual: true,
+    fullBreakdown: true,
+    tokenPacks: true,
+    priorityQueue: true,
+    watermarkedExports: false,
+    savedRoles: true,
+    roleContextAssets: true,
+    maxRoleDocuments: 3,
+    stripePrice: null,
+  },
+} as const;
+
+export const tokenPacks = {
+  quickRefill: {
+    name: 'Quick Refill',
+    tokens: 10,
+    price: 99,
+    stripePrice: env.STRIPE_PRICE_PACK_QUICK || null,
+  },
+  pipelineSurge: {
+    name: 'Pipeline Surge',
+    tokens: 35,
+    price: 299,
+    stripePrice: env.STRIPE_PRICE_PACK_SURGE || null,
+  },
+  highVolumeBoost: {
+    name: 'High-Volume Boost',
+    tokens: 100,
+    price: 750,
+    stripePrice: env.STRIPE_PRICE_PACK_BOOST || null,
+  },
+} as const;
+
+export const rateLimits = {
+  login: {
+    maxAttempts: env.CERTALYTIC_RATE_LIMIT_LOGIN,
+    decaySeconds: 60,
+    by: 'ip' as const,
+  },
+  register: {
+    maxAttempts: env.CERTALYTIC_RATE_LIMIT_REGISTER,
+    decaySeconds: 3_600,
+    by: 'ip' as const,
+  },
+  passwordReset: {
+    maxAttempts: env.CERTALYTIC_RATE_LIMIT_PASSWORD_RESET,
+    decaySeconds: 3_600,
+    by: 'ip' as const,
+  },
+  authenticated: {
+    maxAttempts: env.CERTALYTIC_RATE_LIMIT_AUTHENTICATED,
+    decaySeconds: 60,
+    by: 'user' as const,
+  },
+  screening: {
+    maxAttempts: env.CERTALYTIC_RATE_LIMIT_SCREENING,
+    decaySeconds: 60,
+    by: 'user' as const,
+  },
+} as const;
+
+export type RateLimitName = keyof typeof rateLimits;

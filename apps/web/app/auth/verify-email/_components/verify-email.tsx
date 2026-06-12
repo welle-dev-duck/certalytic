@@ -3,8 +3,8 @@
 import { useSearchParams } from "next/navigation";
 
 import { AuthPageHeading } from "../../_components/auth-page-heading";
-import { Button } from "@/components/ui/button";
 import Link from "@/components/ui/link";
+import { routes } from "@/lib/routes";
 import { EmailVerificationPanel } from "./panel";
 
 export function VerifyEmail() {
@@ -15,15 +15,14 @@ export function VerifyEmail() {
     return (
       <>
         <AuthPageHeading
-          title="Confirm your email"
-          description="We sent you an email with a link to verify your email address."
+          title="Email verification"
+          description="Open this page from sign-up or sign-in after registering. We need your email address to send a verification link."
         />
-        <Button variant="secondary" asChild>
-          <Link href="/auth/sign-in">
-            Open this page from the sign-up or sign-in flow, or return to sign
-            in and use the link from your inbox.
+        <p className="text-sm text-muted-foreground">
+          <Link href={routes.signIn()} className="font-medium hover:underline">
+            Return to sign in
           </Link>
-        </Button>
+        </p>
       </>
     );
   }
@@ -31,8 +30,13 @@ export function VerifyEmail() {
   return (
     <>
       <AuthPageHeading
-        title="Confirm your email"
-        description="Please check your email to verify your email address."
+        title="Check your inbox"
+        description={
+          <>
+            To activate your account, please check your email at{" "}
+            <span className="font-medium text-foreground">{email}</span> and click the link to verify your email address.
+          </>
+        }
       />
       <EmailVerificationPanel email={email} />
     </>

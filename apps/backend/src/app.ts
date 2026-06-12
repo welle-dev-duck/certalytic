@@ -260,7 +260,10 @@ export function createApp(deps: CreateAppDependencies): CreateAppResult {
 
   const organizationsService = new OrganizationsService(db);
 
-  const requireOrganization = createRequireOrganization(organizationsService);
+  const requireOrganization = createRequireOrganization(
+    organizationsService,
+    authService,
+  );
 
   const organizationsController = new OrganizationsController(
 

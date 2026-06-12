@@ -1,4 +1,4 @@
-import { productConfig } from '../../config/product';
+import { env } from '../../config/env';
 import { MistralClient } from '../mistral/mistral.client';
 import { buildCandidateEvaluationSystemPrompt } from './prompts/candidate-evaluation.prompt';
 import {
@@ -33,7 +33,7 @@ export class CandidateEvaluator {
     roleContext: RoleContext,
   ): Promise<ScreeningEvaluation> {
     const response = await this.mistralClient.chat({
-      model: productConfig.mistral.chatModel,
+      model: env.MISTRAL_CHAT_MODEL,
       temperature: 0.2,
       response_format: { type: 'json_object' },
       messages: [

@@ -1,4 +1,4 @@
-import { productConfig } from '../../config/product';
+import { transcriptLimits } from '../../config/env';
 
 export type ProcessedTranscript = {
   text: string;
@@ -13,7 +13,7 @@ function countWords(text: string): number {
 export class TranscriptProcessor {
   process(transcript: string): ProcessedTranscript {
     const wordCount = countWords(transcript);
-    const cap = productConfig.transcript.hardCapCharacters;
+    const cap = transcriptLimits.hardCapCharacters;
 
     if (transcript.length <= cap) {
       return {

@@ -1,6 +1,6 @@
 import { and, desc, eq, inArray } from 'drizzle-orm';
 
-import { productConfig } from '../../config/product';
+import { plans } from '../../config/env';
 import type { Database } from '../../db/index';
 import { subscription } from '../../db/schema/auth.schema';
 
@@ -32,7 +32,7 @@ export function resolvePlanFromStripePrice(
   }
 
   for (const planId of PLAN_IDS) {
-    const plan = productConfig.plans[planId];
+    const plan = plans[planId];
 
     if ('stripePrice' in plan && plan.stripePrice === stripePriceId) {
       return planId;
@@ -67,7 +67,7 @@ export class PlanFeaturesService {
 
   async can(organizationId: string, feature: PlanFeature): Promise<boolean> {
     const planId = await this.resolvePlan(organizationId);
-    const plan = productConfig.plans[planId];
+    const plan = plans[planId];
 
     switch (feature) {
       case 'cross_source':
@@ -94,6 +94,6 @@ export class PlanFeaturesService {
   async maxRoleDocuments(organizationId: string): Promise<number> {
     const planId = await this.resolvePlan(organizationId);
 
-    return productConfig.plans[planId].maxRoleDocuments;
+    return plans[planId].maxRoleDocuments;
   }
 }
