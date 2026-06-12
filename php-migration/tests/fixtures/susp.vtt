@@ -1,0 +1,112 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:05.500
+Sarah: Hi Bertold, thanks for joining. I'm Sarah, an Engineering Manager here at hokify. How are you doing today?
+
+00:00:06.000 --> 00:00:10.200
+Bertold: Hi Sarah. I am doing well, thank you. Yeah, just, uh, excited to be here.
+
+00:00:11.000 --> 00:00:22.500
+Sarah: Great. So today we'll do a roughly 60-minute technical interview. We'll start with a chat about your background, then move into some Node.js and system design questions. Sound good?
+
+00:00:23.000 --> 00:00:25.000
+Bertold: Yeah, sounds perfect.
+
+00:00:26.000 --> 00:00:40.500
+Sarah: Awesome. Looking at your CV, I see you recently worked at Sipwise, where you migrated a legacy Perl API to NestJS. That’s a big shift! Can you tell me a bit about why NestJS was chosen and what your specific role was in that architecture?
+
+00:00:42.000 --> 00:00:55.000
+Bertold: Yeah, so, um... the Perl system was really old, you know? And it was hard to maintain. So we just wanted something newer. I mostly wrote the, uh, the new endpoints. It was a good project.
+
+00:00:56.000 --> 00:01:08.500
+Sarah: I see. NestJS relies heavily on decorators and dependency injection, which is quite different from Perl. Did you run into any specific challenges mapping the old Perl data models to TypeORM?
+
+00:01:10.000 --> 00:01:15.500
+Bertold: Uh, yeah, well... TypeORM is, you know, it handles the database. So we just made the tables match. 
+
+00:01:16.000 --> 00:01:21.500
+Sarah: Right, but any specific issues with relationships or migrations? 
+
+00:01:22.000 --> 00:01:28.000
+Bertold: Not really. It went pretty smoothly overall. Just standard database stuff.
+
+00:01:29.000 --> 00:01:45.000
+Sarah: Okay. Let's shift gears a bit. At hokify, we process a lot of concurrent job applications. If we have a Node.js microservice that is suddenly experiencing high event loop lag under load, how would you go about debugging and fixing that?
+
+00:01:46.000 --> 00:02:00.500
+[Long Pause - keyboard typing faintly audible in background]
+
+00:02:01.000 --> 00:02:25.000
+Bertold: Certainly! Here is how you can debug event loop lag in Node.js. First, one must understand that Node.js operates on a single-threaded event loop. If the event loop lags, it is typically due to synchronous, CPU-intensive tasks blocking the main thread. 
+
+00:02:25.500 --> 00:02:50.000
+Bertold: To debug this, you can utilize several approaches. Number one: Use the built-in `perf_hooks` module to monitor event loop delays. Number two: Profile the application using the V8 profiler to generate a CPU profile, which can be visualized in Chrome DevTools. Number three: Implement worker threads for computationally expensive operations to offload them from the main thread.
+
+00:02:51.000 --> 00:03:00.500
+Sarah: That's... a very comprehensive list. You mentioned worker threads. Have you used worker threads in production before? Maybe at Benefit Büroservice?
+
+00:03:02.000 --> 00:03:08.000
+Bertold: Uh, well... not exactly in production, no. We mostly just used standard Node.
+
+00:03:09.000 --> 00:03:15.500
+Sarah: No problem. Let's say we don't want to use worker threads. What's another way to handle a massive JSON payload that's blocking the thread?
+
+00:03:17.000 --> 00:03:25.000
+[Pause - keyboard clicking]
+
+00:03:26.000 --> 00:03:45.500
+Bertold: To handle massive JSON payloads without blocking the thread, you should utilize streams. Specifically, libraries such as `JSONStream` or `stream-json` allow you to parse the JSON data in chunks. This ensures the V8 engine does not attempt to allocate a massive string in memory all at once, which prevents garbage collection spikes and event loop blocking.
+
+00:03:46.000 --> 00:03:52.000
+Sarah: Interesting. How would you handle errors in a Node.js stream pipeline? It can get a bit tricky.
+
+00:03:54.000 --> 00:04:02.000
+Bertold: Yeah, streams are... they can break sometimes. You just have to put a try-catch block around it. Or, um, listen to the error event.
+
+00:04:03.000 --> 00:04:08.500
+Sarah: A try-catch block? Are you sure that works for asynchronous stream events?
+
+00:04:10.000 --> 00:04:14.000
+Bertold: Uh, yeah, usually. If you use async/await. 
+
+00:04:15.000 --> 00:04:28.000
+Sarah: Let's move on to system design. We use Elasticsearch heavily here. Imagine we are building a new search feature for job seekers. How would you design the index mapping to handle fast, fuzzy text search across millions of job descriptions?
+
+00:04:30.000 --> 00:04:45.000
+[Extended Pause - 15 seconds]
+
+00:04:46.000 --> 00:05:15.500
+Bertold: I can certainly help you design an Elasticsearch mapping! Designing an index for millions of documents requires careful consideration of analyzers. For fuzzy text search, you should configure a custom analyzer. First, employ a standard tokenizer. Second, apply lowercase and edge n-gram token filters. Edge n-grams allow for partial matching of prefixes, which provides a fast as-you-type search experience without relying on expensive runtime fuzzy queries.
+
+00:05:16.000 --> 00:05:25.500
+Sarah: Wait, edge n-grams are great for autocomplete, but they increase index size massively. Given our strict infrastructure budget, what if we can't afford the storage overhead for edge n-grams?
+
+00:05:27.000 --> 00:05:35.000
+[Pause - rapid typing sounds]
+
+00:05:36.000 --> 00:05:55.000
+Bertold: If storage is a concern, you can use the built-in fuzzy query parameter in your match queries. However, be warned that this calculates the Levenshtein distance at query time, which requires more CPU overhead. To mitigate this, ensure your shards are properly balanced across your data nodes.
+
+00:05:56.000 --> 00:06:05.500
+Sarah: Okay. Your CV mentions you improved system uptime to 95% at Sipwise by "designing scalable architectural changes." Can you walk me through one specific architectural change you personally designed to achieve that?
+
+00:06:08.000 --> 00:06:15.000
+Bertold: Yeah, sure. Um... we just added more servers, really. And we put a load balancer in front of it. Nginx. 
+
+00:06:16.000 --> 00:06:22.500
+Sarah: I see. Did you implement any rate limiting or circuit breakers as part of that scalability push?
+
+00:06:24.000 --> 00:06:35.000
+Bertold: Uh, no, mostly just Nginx. It was pretty straightforward. We just, you know, spread the traffic out more so it wouldn't crash as much.
+
+00:06:36.000 --> 00:06:48.500
+Sarah: Okay. Well, we have a few minutes left. Do you have any questions for me about the backend engineering role here at hokify?
+
+00:06:50.000 --> 00:06:56.000
+Bertold: No, not really. The job description was very clear. I'm just excited for the opportunity.
+
+00:06:57.000 --> 00:07:02.500
+Sarah: Alright. Thanks for your time today, Bertold. Our recruiting team will be in touch with next steps soon.
+
+00:07:03.000 --> 00:07:05.000
+Bertold: Thank you. Bye.

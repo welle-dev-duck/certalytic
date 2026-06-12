@@ -6,7 +6,11 @@
         "name": "next"
       }
     ],
-    "strictNullChecks": true
+    "declaration": false,
+    "strictNullChecks": true,
+    "paths": {
+      "@/*": ["./*"]
+    }
   },
   "include": [
     "**/*.ts",
