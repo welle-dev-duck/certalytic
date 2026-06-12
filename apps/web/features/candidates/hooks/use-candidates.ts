@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
@@ -29,6 +28,7 @@ export const candidateKeys = {
 
 export type CandidateListFilters = {
   limit?: number;
+  page?: number;
   search?: string;
   role_id?: string;
   status?: string;
@@ -36,24 +36,21 @@ export type CandidateListFilters = {
 
 export function useCandidates(filters: CandidateListFilters) {
   const orgId = useOrgId();
+  const page = filters.page ?? 1;
+  const limit = filters.limit ?? 25;
 
-  return useInfiniteQuery({
-    queryKey: candidateKeys.list(orgId, filters),
-    queryFn: ({ pageParam }) =>
+  return useQuery({
+    queryKey: candidateKeys.list(orgId, { ...filters, page, limit }),
+    queryFn: () =>
       api<PaginatedResponse<CandidateListItem>>("/api/candidates", {
         params: {
-          limit: filters.limit ?? 25,
-          cursor: pageParam ?? undefined,
+          limit,
+          page,
           search: filters.search,
           role_id: filters.role_id,
           status: filters.status,
         },
       }),
-    initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage) =>
-      lastPage.pagination.hasNextPage
-        ? (lastPage.pagination.nextCursor ?? undefined)
-        : undefined,
     enabled: !!orgId,
   });
 }

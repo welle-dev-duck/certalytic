@@ -27,10 +27,9 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
-import { useAuth } from "@/providers/auth-provider";
 
 const createTeamSchema = z.object({
-  name: z.string().trim().min(1, "Team name is required").max(100),
+  name: z.string().trim().min(1, "Organization name is required").max(100),
 });
 
 type CreateTeamValues = z.infer<typeof createTeamSchema>;
@@ -44,7 +43,6 @@ export function CreateTeamModal({
   canCreateTeam = true,
 }: CreateTeamModalProps) {
   const [open, setOpen] = useState(false);
-  const { activeOrganization, refetchOrganizations } = useAuth();
 
   const form = useForm<CreateTeamValues>({
     resolver: zodResolver(createTeamSchema),
@@ -55,7 +53,7 @@ export function CreateTeamModal({
 
   async function handleCreate(values: CreateTeamValues) {
     if (!canCreateTeam) {
-      toast.error("Team limit reached.");
+      toast.error("Organization limit reached.");
       return;
     }
 
@@ -66,20 +64,19 @@ export function CreateTeamModal({
 
     const result = await authClient.organization.create({
       name: values.name,
-      slug: slug || `team-${Date.now()}`,
-      keepCurrentActiveOrganization: Boolean(activeOrganization),
+      slug: slug || `org-${Date.now()}`,
+      keepCurrentActiveOrganization: false,
     });
 
     if (result.error) {
-      toast.error(result.error.message ?? "Failed to create team.");
+      toast.error(result.error.message ?? "Failed to create organization.");
       return;
     }
 
-    toast.success("Team created.");
-    await authClient.getSession();
-    refetchOrganizations();
+    toast.success("Organization created.");
     setOpen(false);
     form.reset();
+    window.location.reload();
   }
 
   return (
@@ -88,9 +85,10 @@ export function CreateTeamModal({
       <DialogContent>
         <form onSubmit={form.handleSubmit(handleCreate)}>
           <DialogHeader>
-            <DialogTitle>Create a new team</DialogTitle>
+            <DialogTitle>Create organization</DialogTitle>
             <DialogDescription>
-              Create a new team to collaborate with others.
+              Create a new organization workspace. It will become your active
+              organization.
             </DialogDescription>
           </DialogHeader>
 
@@ -100,11 +98,13 @@ export function CreateTeamModal({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="create-team-name">Team name</FieldLabel>
+                  <FieldLabel htmlFor="create-team-name">
+                    Organization name
+                  </FieldLabel>
                   <Input
                     {...field}
                     id="create-team-name"
-                    placeholder="My team"
+                    placeholder="Acme Hiring"
                     required
                   />
                   {fieldState.invalid && (
@@ -125,7 +125,7 @@ export function CreateTeamModal({
               <LoadingSwap isLoading={isSubmitting}>
                 <span className="flex items-center gap-1.5">
                   <Building2 size={14} />
-                  Create team
+                  Create organization
                 </span>
               </LoadingSwap>
             </Button>

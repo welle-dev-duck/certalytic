@@ -13,7 +13,7 @@ import {
   Users,
   Zap,
 } from "lucide-react";
-import Link from "@/components/ui/link"
+import Link from "@/components/ui/link";
 import { usePathname, useRouter } from "next/navigation";
 
 import { CreateTeamModal } from "@/components/layout/create-team-modal";
@@ -35,7 +35,7 @@ const NAV_ITEMS = [
   { label: "Roles", icon: Briefcase, href: routes.roles(), match: "/roles" },
   { label: "Candidates", icon: Users, href: routes.candidates(), match: "/candidates" },
   { label: "Billing", icon: CreditCard, href: routes.billing(), match: "/billing" },
-  { label: "Settings", icon: Settings, href: routes.settingsOrganization(), match: "/settings" },
+  { label: "Settings", icon: Settings, href: routes.settingsProfile(), match: "/settings" },
 ] as const;
 
 function tokenBarClass(pct: number): string {
@@ -57,11 +57,17 @@ export function AppSidebar() {
 
   const planLabel = usage?.planLabel ?? "Free";
   const planQuota = usage?.planQuota ?? 0;
-  const planTokens = usage?.planTokens ?? 0;
+  const includedUsed = usage?.includedUsed ?? 0;
+  const includedRemaining = usage?.includedRemaining ?? usage?.planTokens ?? 0;
   const refillTokens = usage?.refillTokens ?? 0;
-  const tokenUsed =
-    planQuota > 0 ? Math.max(0, planQuota - planTokens) : 0;
-  const tokenPct = planQuota > 0 ? tokenUsed / planQuota : 0;
+  const includedPct =
+    planQuota > 0 ? Math.min(1, includedUsed / planQuota) : 0;
+  const refillPct =
+    planQuota > 0
+      ? Math.min(1, refillTokens / planQuota)
+      : refillTokens > 0
+        ? 1
+        : 0;
 
   const userInitials =
     user?.name
@@ -194,29 +200,50 @@ export function AppSidebar() {
 
       <div className="space-y-2 border-t border-sidebar-border p-2 md:p-3">
         {usage && planQuota > 0 && (
-          <div className="hidden rounded-md border border-sidebar-border bg-sidebar-accent px-3 py-2.5 md:block">
-            <div className="mb-1.5 flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <Zap size={10} className="text-sidebar-primary" />
-                <span className="text-[10px] font-bold tracking-widest text-sidebar-foreground/60">
-                  TOKENS
+          <div className="hidden space-y-3 rounded-md border border-sidebar-border bg-sidebar-accent px-3 py-2.5 md:block">
+            <div>
+              <div className="mb-1.5 flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Zap size={10} className="text-sidebar-primary" />
+                  <span className="text-[10px] font-bold tracking-widest text-sidebar-foreground/60">
+                    INCLUDED
+                  </span>
+                </div>
+                <span className="font-mono text-[10px] font-semibold text-sidebar-foreground">
+                  {includedUsed}
+                  <span className="text-sidebar-foreground/60">/{planQuota}</span>
                 </span>
               </div>
-              <span className="font-mono text-[10px] font-semibold text-sidebar-foreground">
-                {tokenUsed}
-                <span className="text-sidebar-foreground/60">/{planQuota}</span>
-              </span>
+              <div className="mb-1 h-1 overflow-hidden rounded-full bg-sidebar-border">
+                <div
+                  className={cn(
+                    "h-full rounded-full",
+                    tokenBarClass(includedPct),
+                  )}
+                  style={{ width: `${Math.round(includedPct * 100)}%` }}
+                />
+              </div>
+              <p className="text-[10px] text-sidebar-foreground/60">
+                {includedRemaining} included left
+              </p>
             </div>
-            <div className="mb-1 h-1 overflow-hidden rounded-full bg-sidebar-border">
-              <div
-                className={cn("h-full rounded-full", tokenBarClass(tokenPct))}
-                style={{ width: `${Math.round(tokenPct * 100)}%` }}
-              />
+
+            <div>
+              <div className="mb-1.5 flex items-center justify-between">
+                <span className="text-[10px] font-bold tracking-widest text-sidebar-foreground/60">
+                  PACK REFILL
+                </span>
+                <span className="font-mono text-[10px] font-semibold text-sidebar-foreground">
+                  {refillTokens}
+                </span>
+              </div>
+              <div className="h-1 overflow-hidden rounded-full bg-sidebar-border">
+                <div
+                  className="h-full rounded-full bg-chart-2"
+                  style={{ width: `${Math.round(refillPct * 100)}%` }}
+                />
+              </div>
             </div>
-            <p className="text-[10px] text-sidebar-foreground/60">
-              {planTokens} included left
-              {refillTokens > 0 && ` · +${refillTokens} pack`}
-            </p>
           </div>
         )}
 

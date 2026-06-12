@@ -15,6 +15,7 @@ export class EmailsService {
           organization: job.organization,
           inviter: job.inviter,
           invitation: job.invitation,
+          inviteLink: job.inviteLink,
         });
         break;
     }

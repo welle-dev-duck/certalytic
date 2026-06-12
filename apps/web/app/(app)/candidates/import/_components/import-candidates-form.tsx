@@ -43,10 +43,7 @@ export function ImportCandidatesForm() {
   const { data: usage } = useBillingUsage();
   const { data: rolesData } = useRoles({ limit: 100 });
 
-  const roles = useMemo(
-    () => rolesData?.pages.flatMap((page) => page.data) ?? [],
-    [rolesData],
-  );
+  const roles = rolesData?.data ?? [];
 
   const form = useForm<ImportValues>({
     resolver: zodResolver(importSchema),

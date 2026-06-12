@@ -25,14 +25,12 @@ import {
   YAxis,
 } from "recharts";
 
-import { FlagBadge } from "@/components/certalytic/status-badge";
 import { SupplementaryAnalysisPanel } from "@/features/candidates/components/supplementary-analysis-panel";
 import { DecisionSupportDisclaimer } from "@/features/candidates/components/dossier/decision-support-disclaimer";
 import { DossierPanel } from "@/features/candidates/components/dossier/panel";
 import { InfoRow } from "@/features/candidates/components/dossier/info-row";
 import { MetricBar } from "@/features/candidates/components/dossier/metric-bar";
 import type { CandidateDetail, CandidateReport } from "@/features/candidates/types";
-import type { Flag } from "@/lib/integrity";
 import { cn } from "@/lib/utils";
 
 const TABS = [
@@ -66,39 +64,6 @@ export function CandidateDossierTabs({
 
   return (
     <>
-      {report.flags.length > 0 && (
-        <div
-          className="rounded-lg p-4"
-          style={{
-            background: "rgba(239,68,68,0.05)",
-            border: "1px solid rgba(239,68,68,0.2)",
-          }}
-        >
-          <div className="mb-3 flex items-center gap-2">
-            <AlertCircle size={14} className="text-destructive" />
-            <p className="text-sm font-semibold text-destructive">
-              {report.flags.length} Active Flag
-              {report.flags.length > 1 ? "s" : ""} Detected
-            </p>
-          </div>
-          <div className="space-y-2">
-            {report.flags.map((flag, index) => (
-              <div
-                key={index}
-                className="flex items-start gap-3 rounded bg-black/20 p-2.5"
-              >
-                <FlagBadge flag={flag as Flag} />
-                <p className="flex-1 text-xs text-foreground">
-                  {flag.description}
-                </p>
-                <span className="shrink-0 rounded px-1.5 py-0.5 font-mono text-[10px] font-bold text-chart-2">
-                  {Math.round(flag.confidence * 100)}% conf.
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       <div>
         <div className="flex gap-0 overflow-x-auto border-b border-border">

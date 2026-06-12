@@ -46,6 +46,7 @@ describe('EmailsProducer', () => {
       organization: testOrganization,
       inviter: testUser,
       invitation: testInvitation,
+      inviteLink: invitationJob.inviteLink,
     });
 
     expect(queue.add).toHaveBeenCalledWith('invitation', invitationJob);

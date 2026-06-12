@@ -46,9 +46,27 @@ export class CandidatesController {
   };
 
   create = async (req: Request, res: Response): Promise<void> => {
+    const input = req.createCandidateInput!;
+
+    req.log.info(
+      {
+        organizationId: req.organization!.id,
+        roleId: input.role_id,
+        hasCvFile: Boolean(input.cvFile),
+        hasCvText: Boolean(input.cvText),
+        transcriptLength: input.transcriptText.length,
+      },
+      'Creating candidate screening',
+    );
+
     const candidate = await this.candidatesService.create(
       req.organization!.id,
-      req.createCandidateInput!,
+      input,
+    );
+
+    req.log.info(
+      { candidateId: candidate.id, organizationId: req.organization!.id },
+      'Candidate screening created',
     );
 
     sendJson(res, candidateDetailSchema, candidate, 201);

@@ -6,13 +6,14 @@ export function AppearanceSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-foreground">Appearance</h1>
+        <h2 className="text-lg font-semibold text-foreground">Appearance</h2>
         <p className="mt-0.5 text-sm text-muted-foreground">
           Update the appearance settings for your account
         </p>
       </div>
-      <div className="rounded-lg border border-border bg-card p-6">
-        <p className="mb-4 text-sm text-muted-foreground">Theme</p>
+
+      <div className="space-y-3">
+        <p className="text-sm font-medium text-foreground">Theme</p>
         <AppearanceToggle />
       </div>
     </div>

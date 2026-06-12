@@ -13,6 +13,7 @@ export const roleListQuerySchema = z.object({
     .int()
     .refine((value) => [10, 25, 50, 100].includes(value))
     .default(25),
+  page: z.coerce.number().int().min(1).default(1),
   cursor: z.uuid().optional(),
   search: z.string().trim().optional(),
 });
@@ -77,8 +78,19 @@ export const roleDocumentSummarySchema = z.object({
   sortOrder: z.number().int(),
 });
 
+export const roleStatsSchema = z.object({
+  avgIntegrity: z.number().nullable(),
+  scored: z.number().int().nonnegative(),
+  distribution: z.object({
+    high: z.number().int().nonnegative(),
+    medium: z.number().int().nonnegative(),
+    low: z.number().int().nonnegative(),
+  }),
+});
+
 export const roleDetailSchema = roleListItemSchema.extend({
   documents: z.array(roleDocumentSummarySchema),
+  stats: roleStatsSchema,
 });
 
 export const roleListResponseSchema =

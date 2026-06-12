@@ -16,7 +16,11 @@ import { sendJson } from './lib/response';
 
 import { errorHandler } from './middleware/error-handler';
 
+import { httpLogger } from './middleware/http-logger';
+
 import { notFound } from './middleware/not-found';
+
+import { requestId } from './middleware/request-id';
 
 import { createRateLimit } from './middleware/rate-limit';
 
@@ -194,7 +198,8 @@ export function createApp(deps: CreateAppDependencies): CreateAppResult {
 
   app.set('trust proxy', 1);
 
-
+  app.use(requestId);
+  app.use(httpLogger);
 
   app.use(
 
@@ -317,7 +322,7 @@ export function createApp(deps: CreateAppDependencies): CreateAppResult {
 
     planFeatures,
 
-    deps.rolesProducer,
+    deps.screeningProducer,
 
     realtimePublisher,
 

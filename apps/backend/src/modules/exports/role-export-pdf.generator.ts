@@ -39,10 +39,10 @@ export class RoleExportPdfGenerator {
       throw new Error('Role not found for export.');
     }
 
-    const [watermarked, showFullBreakdown] = await Promise.all([
-      this.planFeatures.can(exportRecord.organizationId, 'watermarked_exports'),
-      this.planFeatures.can(exportRecord.organizationId, 'full_breakdown'),
-    ]);
+    const watermarked = await this.planFeatures.can(
+      exportRecord.organizationId,
+      'watermarked_exports',
+    );
 
     const completedCandidates = await this.db.query.candidates.findMany({
       where: and(
@@ -50,7 +50,7 @@ export class RoleExportPdfGenerator {
         eq(candidates.status, 'complete'),
       ),
       with: {
-        role: { columns: { title: true } },
+        role: { columns: { title: true, description: true } },
         interviewRounds: {
           orderBy: (rounds, { asc }) => [asc(rounds.roundNumber)],
         },
@@ -89,22 +89,29 @@ export class RoleExportPdfGenerator {
       role.title,
       `Role dossier · Generated ${generatedAt} UTC`,
     );
-    builder.addSection('Summary');
+    builder.addRoleSection(role.title, role.description);
+    builder.addDisclaimer();
+    builder.addSection('Role summary');
     builder.addKeyValue('Completed candidates', String(completedCandidates.length));
     builder.addKeyValue('Scored candidates', String(scored.length));
     builder.addKeyValue(
       'Average integrity',
-      avgIntegrity !== null ? avgIntegrity.toFixed(1) : '—',
+      avgIntegrity !== null ? avgIntegrity.toFixed(1) : 'n/a',
     );
-    builder.addKeyValue('High integrity (≥75)', String(distribution.high));
-    builder.addKeyValue('Medium integrity (50–74)', String(distribution.medium));
+    builder.addKeyValue('High integrity (>=75)', String(distribution.high));
+    builder.addKeyValue('Medium integrity (50-74)', String(distribution.medium));
     builder.addKeyValue('Low integrity (<50)', String(distribution.low));
 
     for (const candidate of completedCandidates) {
       const detail = this.toCandidateDetail(candidate);
       const report = this.reportService.build(detail);
 
-      builder.addCandidateReport(candidate.name, report, showFullBreakdown);
+      builder.addCandidateReport(candidate.name, report, {
+        email: detail.email,
+        linkedinUrl: detail.linkedinUrl,
+        githubUsername: detail.githubUsername,
+        followUpSuggested: detail.followUpSuggested,
+      });
     }
 
     const buffer = await builder.build();
@@ -124,7 +131,8 @@ export class RoleExportPdfGenerator {
     name: string;
     email: string | null;
     roleId: string | null;
-    role?: { title: string } | null;
+    jobDescription: string | null;
+    role?: { title: string; description: string | null } | null;
     status: string;
     integrityScore: string | null;
     highInconsistencyWarning: boolean;
@@ -150,6 +158,8 @@ export class RoleExportPdfGenerator {
       email: candidate.email,
       roleId: candidate.roleId,
       roleTitle: candidate.role?.title ?? null,
+      jobDescription:
+        candidate.jobDescription ?? candidate.role?.description ?? null,
       status: candidate.status as CandidateDetailDto['status'],
       integrityScore: candidate.integrityScore
         ? Number(candidate.integrityScore)

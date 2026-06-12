@@ -43,6 +43,14 @@ export function createRequireOrganization(
 
       activeOrganizationId = defaultOrganizationId;
       req.session.session.activeOrganizationId = defaultOrganizationId;
+
+      req.log.warn(
+        {
+          userId: req.session.user.id,
+          organizationId: defaultOrganizationId,
+        },
+        'Session missing active organization; defaulted from membership',
+      );
     }
 
     const organization = await organizationsService.resolveActiveContext(

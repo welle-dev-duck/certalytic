@@ -10,6 +10,7 @@ export const candidateListQuerySchema = z.object({
     .int()
     .refine((value) => [10, 25, 50, 100].includes(value))
     .default(25),
+  page: z.coerce.number().int().min(1).default(1),
   cursor: z.uuid().optional(),
   search: z.string().trim().optional(),
   role_id: z.uuid().optional(),
@@ -75,6 +76,7 @@ export const interviewRoundSchema = z.object({
 });
 
 export const candidateDetailSchema = candidateListItemSchema.extend({
+  jobDescription: z.string().nullable().optional(),
   linkedinUrl: z.string().nullable(),
   githubUsername: z.string().nullable(),
   scoreBreakdown: z.record(z.string(), z.unknown()).nullable(),

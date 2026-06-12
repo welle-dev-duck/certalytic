@@ -1,12 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "@/components/ui/link"
+import Link from "@/components/ui/link";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
 import { LoadingSwap } from "@/components/loading-swap";
+import { Required } from "@/components/required";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -57,24 +58,29 @@ export function ProfileSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-foreground">Profile</h1>
+        <h2 className="text-lg font-semibold text-foreground">Profile</h2>
         <p className="mt-0.5 text-sm text-muted-foreground">
           Update your name and email address
         </p>
       </div>
 
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 rounded-lg border border-border bg-card p-6"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FieldGroup>
           <Controller
             name="name"
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="profile-name">Name</FieldLabel>
-                <Input {...field} id="profile-name" autoComplete="name" />
+                <FieldLabel htmlFor="profile-name">
+                  <Required>Name</Required>
+                </FieldLabel>
+                <Input
+                  {...field}
+                  id="profile-name"
+                  autoComplete="name"
+                  placeholder="Max Mustermann"
+                  required
+                />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}
@@ -86,12 +92,16 @@ export function ProfileSettings() {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="profile-email">Email address</FieldLabel>
+                <FieldLabel htmlFor="profile-email">
+                  <Required>Email address</Required>
+                </FieldLabel>
                 <Input
                   {...field}
                   id="profile-email"
                   type="email"
                   autoComplete="email"
+                  placeholder="max.mustermann@example.com"
+                  required
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />

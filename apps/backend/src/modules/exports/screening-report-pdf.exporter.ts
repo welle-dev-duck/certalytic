@@ -22,10 +22,10 @@ export class ScreeningReportPdfExporter {
       );
     }
 
-    const [watermarked, showFullBreakdown] = await Promise.all([
-      this.planFeatures.can(organizationId, 'watermarked_exports'),
-      this.planFeatures.can(organizationId, 'full_breakdown'),
-    ]);
+    const watermarked = await this.planFeatures.can(
+      organizationId,
+      'watermarked_exports',
+    );
 
     const report = this.reportService.build(candidate);
     const builder = await PdfDocumentBuilder.create({ watermarked });
@@ -35,8 +35,21 @@ export class ScreeningReportPdfExporter {
       candidate.name,
       `${candidate.roleTitle ?? 'Role not specified'} · Generated ${generatedAt} UTC`,
     );
+
+    if (candidate.roleTitle) {
+      builder.addRoleSection(
+        candidate.roleTitle,
+        candidate.jobDescription ?? null,
+      );
+    }
+
     builder.addDisclaimer();
-    builder.addCandidateReport(candidate.name, report, showFullBreakdown);
+    builder.addCandidateReport(candidate.name, report, {
+      email: candidate.email,
+      linkedinUrl: candidate.linkedinUrl,
+      githubUsername: candidate.githubUsername,
+      followUpSuggested: candidate.followUpSuggested,
+    });
 
     const buffer = await builder.build();
 

@@ -1,4 +1,4 @@
-import { and, desc, eq, gt, ilike, lt, or, sql } from 'drizzle-orm';
+import { and, count, desc, eq, gt, ilike, lt, or, sql } from 'drizzle-orm';
 
 import type { Database } from '../../db/index';
 import {
@@ -9,8 +9,9 @@ import {
 import { roles } from '../../db/schema/roles.schema';
 import { AppError, NotFoundError } from '../../lib/errors';
 import { generateId } from '../../lib/id';
+import { logger } from '../../lib/logger';
 import { limitTranscriptText } from '../../lib/text-content-limiter';
-import { paginateByCursor } from '../../lib/pagination';
+import { paginateByPage } from '../../lib/pagination';
 import type { BillingService } from '../billing/billing.service';
 import type { PlanFeaturesService } from '../billing/plans';
 import {
@@ -42,12 +43,8 @@ export class CandidatesService {
   async list(
     organizationId: string,
     query: CandidateListQueryDto,
-  ): Promise<ReturnType<typeof paginateByCursor<CandidateListItemDto>>> {
+  ): Promise<ReturnType<typeof paginateByPage<CandidateListItemDto>>> {
     const filters = [eq(candidates.organizationId, organizationId)];
-
-    if (query.cursor) {
-      filters.push(lt(candidates.id, query.cursor));
-    }
 
     if (query.role_id) {
       filters.push(eq(candidates.roleId, query.role_id));
@@ -63,6 +60,16 @@ export class CandidatesService {
         or(ilike(candidates.name, term), ilike(candidates.email, term))!,
       );
     }
+
+    const whereClause = and(...filters);
+    const offset = (query.page - 1) * query.limit;
+
+    const [totalRow] = await this.db
+      .select({ value: count() })
+      .from(candidates)
+      .where(whereClause);
+
+    const total = Number(totalRow?.value ?? 0);
 
     const rows = await this.db
       .select({
@@ -84,9 +91,10 @@ export class CandidatesService {
       })
       .from(candidates)
       .leftJoin(roles, eq(candidates.roleId, roles.id))
-      .where(and(...filters))
+      .where(whereClause)
       .orderBy(desc(candidates.id))
-      .limit(query.limit + 1);
+      .limit(query.limit)
+      .offset(offset);
 
     const items: CandidateListItemDto[] = rows.map((row) => ({
       id: row.id,
@@ -103,7 +111,7 @@ export class CandidatesService {
       createdAt: row.createdAt,
     }));
 
-    return paginateByCursor(items, query.limit);
+    return paginateByPage(items, total, query.page, query.limit);
   }
 
   async getById(
@@ -116,7 +124,7 @@ export class CandidatesService {
         eq(candidates.organizationId, organizationId),
       ),
       with: {
-        role: { columns: { title: true } },
+        role: { columns: { title: true, description: true } },
         interviewRounds: {
           orderBy: (rounds, { asc }) => [asc(rounds.roundNumber)],
         },
@@ -134,6 +142,16 @@ export class CandidatesService {
     organizationId: string,
     input: CreateCandidateInput,
   ): Promise<CandidateDetailDto> {
+    logger.debug(
+      {
+        organizationId,
+        roleId: input.role_id,
+        hasLinkedIn: Boolean(input.linkedinText || input.linkedinUrl),
+        hasGithub: Boolean(input.githubUsername),
+      },
+      'Validating candidate create request',
+    );
+
     await this.assertSavedRoles(organizationId);
     await this.assertCrossSourceFields(organizationId, input);
 
@@ -418,7 +436,8 @@ export class CandidatesService {
     name: string;
     email: string | null;
     roleId: string | null;
-    role?: { title: string } | null;
+    jobDescription?: string | null;
+    role?: { title: string; description: string | null } | null;
     status: string;
     integrityScore: string | null;
     highInconsistencyWarning: boolean;
@@ -444,6 +463,8 @@ export class CandidatesService {
       email: candidate.email,
       roleId: candidate.roleId,
       roleTitle: candidate.role?.title ?? null,
+      jobDescription:
+        candidate.jobDescription ?? candidate.role?.description ?? null,
       status: candidate.status as CandidateStatus,
       integrityScore: candidate.integrityScore
         ? Number(candidate.integrityScore)

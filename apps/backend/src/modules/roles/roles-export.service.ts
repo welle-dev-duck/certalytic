@@ -15,7 +15,7 @@ import {
   NoopRealtimePublisher,
   type RealtimePublisher,
 } from '../../realtime/publisher';
-import type { RolesProducer } from './roles.producer';
+import type { ScreeningProducer } from '../screening/screening.producer';
 
 export type RoleExportSummary = {
   id: string;
@@ -31,8 +31,8 @@ export class RolesExportService {
   constructor(
     private readonly db: Database,
     private readonly storage: StorageClient,
-    planFeatures: PlanFeaturesService,
-    private readonly rolesProducer: RolesProducer,
+    private readonly planFeatures: PlanFeaturesService,
+    private readonly screeningProducer: ScreeningProducer,
     private readonly realtimePublisher: RealtimePublisher = new NoopRealtimePublisher(),
   ) {
     this.generator = new RoleExportPdfGenerator(db, storage, planFeatures);
@@ -76,7 +76,15 @@ export class RolesExportService {
       status: 'pending',
     });
 
-    await this.rolesProducer.enqueueGenerateExport({ roleExportId: exportId });
+    const usePriority = await this.planFeatures.can(
+      organizationId,
+      'priority_queue',
+    );
+
+    await this.screeningProducer.enqueueGenerateExport(
+      { roleExportId: exportId },
+      usePriority ? { priority: 1 } : undefined,
+    );
 
     await this.publishExportUpdate({
       id: exportId,

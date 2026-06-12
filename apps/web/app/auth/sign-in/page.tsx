@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { AuthPageHeading } from "../_components/auth-page-heading";
 import { SignInForm } from "./_components/sign-in-form";
 
@@ -9,7 +11,9 @@ export default async function SignIn() {
         description="Enter your email and password below to log in"
       />
 
-      <SignInForm />
+      <Suspense fallback={null}>
+        <SignInForm />
+      </Suspense>
     </>
   );
 }

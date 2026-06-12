@@ -21,8 +21,13 @@ export type PaginatedResponse<T> = {
   data: T[];
   pagination: {
     limit: number;
-    nextCursor: string | null;
+    page: number;
+    total: number;
+    lastPage: number;
+    from: number | null;
+    to: number | null;
     hasNextPage: boolean;
+    hasPrevPage: boolean;
   };
 };
 

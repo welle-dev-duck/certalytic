@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
 import { AppError, ValidationError } from '../lib/errors';
@@ -58,7 +58,6 @@ describe('errorHandler', () => {
 
   it('handles unknown errors as 500', () => {
     const res = createMockResponse();
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     errorHandler(
       new Error('boom'),
@@ -74,7 +73,5 @@ describe('errorHandler', () => {
         code: 'INTERNAL_SERVER_ERROR',
       },
     });
-
-    consoleError.mockRestore();
   });
 });

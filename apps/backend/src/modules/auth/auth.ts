@@ -93,11 +93,14 @@ export class Auth {
             inviter,
             invitation,
           }) => {
+            const inviteLink = `${env.WEB_APP_URL}/invitation?id=${invitation.id}`;
+
             await this.emailsProducer.enqueueInvitation({
               email,
               organization: org,
               inviter,
               invitation,
+              inviteLink,
             });
           },
           invitationExpiresIn: 48 * 3600,

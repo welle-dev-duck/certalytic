@@ -1,4 +1,5 @@
 process.env.NODE_ENV = 'test';
+process.env.LOG_LEVEL = 'silent';
 process.env.PORT = '3000';
 process.env.BASE_URL = 'http://localhost:3000';
 process.env.WEB_APP_URL = 'http://localhost:3001';

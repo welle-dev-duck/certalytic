@@ -3,6 +3,8 @@ export type BillingUsage = {
   planLabel: string;
   planQuota: number | null;
   planTokens: number;
+  includedUsed: number;
+  includedRemaining: number;
   refillTokens: number;
   available: number;
   canPurchasePacks: boolean;

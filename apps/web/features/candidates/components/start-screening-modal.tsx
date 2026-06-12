@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { FileDropzone } from "@/components/file-dropzone";
 import { LoadingSwap } from "@/components/loading-swap";
+import { Required } from "@/components/required";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -101,11 +102,11 @@ export function StartScreeningModal({
   const router = useRouter();
   const createCandidate = useCreateCandidate();
   const { data: usage } = useBillingUsage();
-  const { data: rolesData } = useRoles({ limit: 100 });
-  const roles = useMemo(
-    () => rolesData?.pages.flatMap((page) => page.data) ?? [],
-    [rolesData],
+  const { data: rolesData } = useRoles(
+    { limit: 100, page: 1 },
+    { enabled: open },
   );
+  const roles = rolesData?.data ?? [];
 
   const planFeatures = getPlanFeatures(usage?.plan);
   const canUseProfileUrls =
@@ -221,9 +222,9 @@ export function StartScreeningModal({
     if (form.transcriptInputMode === "manual") {
       payload.set("transcripts[0]", form.mergedTranscript.trim());
     } else {
-      form.transcriptFiles.forEach((file, index) => {
-        payload.set(`transcript_files[${index}]`, file);
-      });
+      for (const file of form.transcriptFiles) {
+        payload.append("transcript_files", file);
+      }
     }
 
     if (form.interviewerNotes.trim()) {
@@ -380,7 +381,9 @@ export function StartScreeningModal({
             <div className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
-                  <Label htmlFor="screen-name">Name</Label>
+                  <Label htmlFor="screen-name">
+                    <Required>Name</Required>
+                  </Label>
                   <Input
                     id="screen-name"
                     value={form.name}
@@ -390,17 +393,12 @@ export function StartScreeningModal({
                     maxLength={SCREENING_LIMITS.name_max_characters}
                     required
                   />
-                  <p className="text-xs text-muted-foreground">
-                    {form.name.length.toLocaleString()} /{" "}
-                    {SCREENING_LIMITS.name_max_characters.toLocaleString()}{" "}
-                    characters max
-                  </p>
                   {errors.name ? (
                     <p className="text-sm text-destructive">{errors.name}</p>
                   ) : null}
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="screen-email">Email (optional)</Label>
+                  <Label htmlFor="screen-email">Email</Label>
                   <Input
                     id="screen-email"
                     type="email"
@@ -435,7 +433,9 @@ export function StartScreeningModal({
               </div>
 
               <div className="grid gap-2">
-                <Label>CV / Résumé</Label>
+                <Label>
+                  <Required>CV / Résumé</Required>
+                </Label>
                 <Tabs
                   value={form.cvInputMode}
                   onValueChange={(value) =>
@@ -504,7 +504,7 @@ export function StartScreeningModal({
                 <>
                   <div className="grid gap-2">
                     <Label htmlFor="screen-linkedin-text">
-                      LinkedIn profile (optional)
+                      LinkedIn profile
                     </Label>
                     <p className="text-sm text-muted-foreground">
                       Paste the candidate&apos;s LinkedIn profile content here.
@@ -530,9 +530,7 @@ export function StartScreeningModal({
                   </div>
 
                   <div className="grid gap-2">
-                    <Label htmlFor="screen-github-url">
-                      GitHub profile (optional)
-                    </Label>
+                    <Label htmlFor="screen-github-url">GitHub profile</Label>
                     <Input
                       id="screen-github-url"
                       type="url"
@@ -585,7 +583,7 @@ export function StartScreeningModal({
                   </TabsList>
                   <TabsContent value="manual" className="space-y-2 pt-2">
                     <Label htmlFor="merged-transcript">
-                      Interview transcript
+                      <Required>Interview transcript</Required>
                     </Label>
                     <textarea
                       id="merged-transcript"
@@ -611,7 +609,9 @@ export function StartScreeningModal({
                     ) : null}
                   </TabsContent>
                   <TabsContent value="auto" className="space-y-2 pt-2">
-                    <Label htmlFor="transcript-files">Transcript files</Label>
+                    <Label htmlFor="transcript-files">
+                      <Required>Transcript files</Required>
+                    </Label>
                     <p className="text-sm text-muted-foreground">
                       Upload up to {MAX_TRANSCRIPT_FILES} Zoom .vtt captions or
                       Teams .docx exports.
@@ -639,9 +639,7 @@ export function StartScreeningModal({
                 </Tabs>
 
                 <div className="grid gap-2 pt-2">
-                  <Label htmlFor="interviewer-notes">
-                    Internal notes (optional)
-                  </Label>
+                  <Label htmlFor="interviewer-notes">Internal notes</Label>
                   <textarea
                     id="interviewer-notes"
                     value={form.interviewerNotes}

@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { LoadingSwap } from "@/components/loading-swap";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import Link from "@/components/ui/link";
 import { routes } from "@/lib/routes";
@@ -26,6 +26,10 @@ import {
 
 export function SignInForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackURL =
+    searchParams.get("callbackURL") ??
+    process.env.NEXT_PUBLIC_WEB_APP_DASHBOARD_URL;
   const form = useForm<SignInSchema>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -38,7 +42,7 @@ export function SignInForm() {
 
   async function handleSignIn(data: SignInSchema) {
     await authClient.signIn.email(
-      { ...data, callbackURL: process.env.NEXT_PUBLIC_WEB_APP_DASHBOARD_URL },
+      { ...data, callbackURL },
       {
         onError: (error) => {
           if (error.error.code === "EMAIL_NOT_VERIFIED") {

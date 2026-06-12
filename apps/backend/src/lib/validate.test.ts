@@ -30,6 +30,24 @@ describe('validate', () => {
     expect(req.query).toEqual({ page: 2 });
   });
 
+  it('parses query on Express 5 read-only request objects', () => {
+    const req = createMockRequest({
+      body: {},
+    });
+    Object.defineProperty(req, 'query', {
+      get: () => ({ limit: '25' }),
+      configurable: true,
+    });
+    const next = createMockNext();
+
+    validate({
+      query: z.object({ limit: z.coerce.number().int().positive() }),
+    })(req, createMockResponse(), next);
+
+    expect(next).toHaveBeenCalledWith();
+    expect(req.query).toEqual({ limit: 25 });
+  });
+
   it('forwards validation errors to next', () => {
     const req = createMockRequest({ body: { email: 'not-an-email' } });
     const res = createMockResponse();

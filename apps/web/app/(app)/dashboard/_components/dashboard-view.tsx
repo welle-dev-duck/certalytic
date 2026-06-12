@@ -72,10 +72,7 @@ export function DashboardView() {
     limit: 25,
   });
 
-  const candidates = useMemo(
-    () => data?.pages.flatMap((page) => page.data) ?? [],
-    [data],
-  );
+  const candidates = data?.data ?? [];
 
   useEffect(() => {
     if (firstRender.current) {

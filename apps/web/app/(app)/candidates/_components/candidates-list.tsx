@@ -1,11 +1,11 @@
 "use client";
 
-import { ChevronRight, Plus, Search, Upload } from "lucide-react";
+import { ChevronRight, Plus, Search } from "lucide-react";
 import Link from "@/components/ui/link"
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { CursorPagination } from "@/components/certalytic/cursor-pagination";
+import { TablePagination } from "@/components/certalytic/table-pagination";
 import { ScoreRing } from "@/components/certalytic/score-ring";
 import {
   IntegrityBadge,
@@ -59,21 +59,21 @@ export function CandidatesList() {
     id: string;
     name: string;
   } | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
   const firstRender = useRef(true);
 
   const { data: usage } = useBillingUsage();
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useCandidates({
-      search: debouncedSearch || undefined,
-      status: statusFilter ?? undefined,
-      limit: 25,
-    });
+  const { data, isLoading } = useCandidates({
+    search: debouncedSearch || undefined,
+    status: statusFilter ?? undefined,
+    limit: pageSize,
+    page,
+  });
 
-  const candidates = useMemo(
-    () => data?.pages.flatMap((page) => page.data) ?? [],
-    [data],
-  );
+  const candidates = data?.data ?? [];
+  const pagination = data?.pagination;
 
   useEffect(() => {
     if (searchParams.get("screen") === "1") {
@@ -88,9 +88,16 @@ export function CandidatesList() {
       return;
     }
 
-    const timeout = setTimeout(() => setDebouncedSearch(search), 350);
+    const timeout = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 350);
     return () => clearTimeout(timeout);
   }, [search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, pageSize]);
 
   const openDelete = (candidate: CandidateListItem) => {
     setSelectedCandidate({ id: candidate.id, name: candidate.name });
@@ -176,12 +183,6 @@ export function CandidatesList() {
             Candidate Screenings
           </p>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" asChild>
-              <Link href={routes.candidateImport()}>
-                <Upload size={13} />
-                Import
-              </Link>
-            </Button>
             <Button size="sm" onClick={() => setScreenOpen(true)}>
               <Plus size={13} />
               New Candidate
@@ -352,12 +353,16 @@ export function CandidatesList() {
                 </tbody>
               </table>
             </div>
-            <CursorPagination
-              hasNextPage={!!hasNextPage}
-              isFetchingNextPage={isFetchingNextPage}
-              onLoadMore={() => fetchNextPage()}
-              loadedCount={candidates.length}
-            />
+            {pagination ? (
+              <TablePagination
+                meta={pagination}
+                onPageChange={setPage}
+                onPageSizeChange={(size) => {
+                  setPageSize(size);
+                  setPage(1);
+                }}
+              />
+            ) : null}
           </>
         )}
       </div>

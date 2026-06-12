@@ -11,6 +11,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/providers/auth-provider";
 import { QueryProvider } from "@/providers/query-provider";
+import { RealtimeProvider } from "@/providers/realtime-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 
 const hankenGrotesk = Hanken_Grotesk({
@@ -57,7 +58,9 @@ export default function RootLayout({
         <ThemeProvider>
           <QueryProvider>
             <TooltipProvider>
-              <AuthProvider>{children}</AuthProvider>
+              <AuthProvider>
+                <RealtimeProvider>{children}</RealtimeProvider>
+              </AuthProvider>
             </TooltipProvider>
           </QueryProvider>
         </ThemeProvider>

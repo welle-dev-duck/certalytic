@@ -28,7 +28,7 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const PUBLIC_PREFIXES = ["/auth", "/legal", "/invitations"];
+const PUBLIC_PREFIXES = ["/auth", "/legal"];
 
 function isPublicPath(pathname: string): boolean {
   if (pathname === "/") return true;
@@ -84,7 +84,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (isLoading) return;
 
     if (!isAuthenticated && !isPublic) {
-      router.replace(routes.signIn());
+      const returnTo =
+        typeof window !== "undefined"
+          ? `${window.location.pathname}${window.location.search}`
+          : pathname;
+      const params = new URLSearchParams({ callbackURL: returnTo });
+      router.replace(`${routes.signIn()}?${params.toString()}`);
       return;
     }
 

@@ -6,12 +6,14 @@ import {
   interviewRounds,
 } from '../../db/schema/candidates.schema';
 import { generateId } from '../../lib/id';
+import type { BillingRefundProducer } from '../billing/billing-refund.producer';
 import type { PlanFeaturesService } from '../billing/plans';
+import { logger } from '../../lib/logger';
 import {
   NoopRealtimePublisher,
   type RealtimePublisher,
 } from '../../realtime/publisher';
-import type { ScreeningJob } from './dtos/screening-job.dto';
+import type { ProcessCandidateJob } from './dtos/screening-job.dto';
 import {
   CandidateEvaluator,
   type PublicProfiles,
@@ -43,9 +45,10 @@ export class ScreeningService {
     private readonly candidateEvaluator: CandidateEvaluator,
     private readonly publicProfileFetcher: PublicProfileFetcher,
     private readonly realtimePublisher: RealtimePublisher = new NoopRealtimePublisher(),
+    private readonly billingRefundProducer?: BillingRefundProducer,
   ) {}
 
-  async process(job: ScreeningJob): Promise<void> {
+  async process(job: ProcessCandidateJob): Promise<void> {
     const candidate = await this.db.query.candidates.findFirst({
       where: eq(candidates.id, job.candidateId),
       with: {
@@ -187,28 +190,74 @@ export class ScreeningService {
         errorMessage: null,
       });
     } catch (error) {
-      console.error('Candidate screening failed', {
-        candidateId: candidate.id,
-        message: error instanceof Error ? error.message : String(error),
-      });
-
-      await this.db
-        .update(candidates)
-        .set({
-          status: 'failed',
-          errorMessage:
-            'Screening could not be completed. Please try again.',
-        })
-        .where(eq(candidates.id, candidate.id));
-
-      await this.realtimePublisher.candidateUpdated({
-        candidateId: candidate.id,
-        organizationId: candidate.organizationId,
-        status: 'failed',
-        errorMessage: 'Screening could not be completed. Please try again.',
-      });
+      logger.warn(
+        {
+          err: error,
+          candidateId: candidate.id,
+          organizationId: candidate.organizationId,
+        },
+        'Candidate screening attempt failed',
+      );
 
       throw error;
+    }
+  }
+
+  async handlePermanentFailure(
+    candidateId: string,
+    error: unknown,
+  ): Promise<void> {
+    const candidate = await this.db.query.candidates.findFirst({
+      where: eq(candidates.id, candidateId),
+    });
+
+    if (!candidate) {
+      return;
+    }
+
+    logger.error(
+      {
+        err: error,
+        candidateId: candidate.id,
+        organizationId: candidate.organizationId,
+      },
+      'Candidate screening failed after all retries',
+    );
+
+    await this.db
+      .update(candidates)
+      .set({
+        status: 'failed',
+        errorMessage: 'Screening could not be completed. Please try again.',
+      })
+      .where(eq(candidates.id, candidate.id));
+
+    await this.realtimePublisher.candidateUpdated({
+      candidateId: candidate.id,
+      organizationId: candidate.organizationId,
+      status: 'failed',
+      errorMessage: 'Screening could not be completed. Please try again.',
+    });
+
+    if (!this.billingRefundProducer) {
+      return;
+    }
+
+    try {
+      await this.billingRefundProducer.enqueueScreeningRefund({
+        organizationId: candidate.organizationId,
+        candidateId: candidate.id,
+        amount: 1,
+      });
+    } catch (refundError) {
+      logger.error(
+        {
+          err: refundError,
+          candidateId: candidate.id,
+          organizationId: candidate.organizationId,
+        },
+        'Failed to enqueue screening token refund',
+      );
     }
   }
 

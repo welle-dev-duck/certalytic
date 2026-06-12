@@ -8,7 +8,18 @@ export type RoleListItem = {
   createdAt: string;
 };
 
+export type RoleStats = {
+  avgIntegrity: number | null;
+  scored: number;
+  distribution: {
+    high: number;
+    medium: number;
+    low: number;
+  };
+};
+
 export type RoleDetail = RoleListItem & {
+  stats: RoleStats;
   documents: Array<{
     id: string;
     originalName: string;
@@ -17,11 +28,24 @@ export type RoleDetail = RoleListItem & {
   }>;
 };
 
+export type RoleExportSummary = {
+  id: string;
+  status: "pending" | "processing" | "complete" | "failed";
+  errorMessage: string | null;
+  completedAt: string | null;
+  downloadUrl: string | null;
+};
+
 export type PaginatedRoles<T> = {
   data: T[];
   pagination: {
     limit: number;
-    nextCursor: string | null;
+    page: number;
+    total: number;
+    lastPage: number;
+    from: number | null;
+    to: number | null;
     hasNextPage: boolean;
+    hasPrevPage: boolean;
   };
 };

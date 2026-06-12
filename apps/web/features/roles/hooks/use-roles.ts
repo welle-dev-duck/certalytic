@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
@@ -12,6 +11,7 @@ import { api } from "@/lib/api-client";
 import type {
   PaginatedRoles,
   RoleDetail,
+  RoleExportSummary,
   RoleListItem,
 } from "@/features/roles/types";
 
@@ -22,27 +22,35 @@ export const roleKeys = {
     [...roleKeys.lists(), orgId, filters] as const,
   detail: (orgId: string | undefined, id: string) =>
     [...roleKeys.all, "detail", orgId, id] as const,
+  latestExport: (orgId: string | undefined, id: string) =>
+    [...roleKeys.all, "latest-export", orgId, id] as const,
 };
 
-export function useRoles(filters: { limit?: number; search?: string } = {}) {
-  const orgId = useOrgId();
+export type RoleListFilters = {
+  limit?: number;
+  page?: number;
+  search?: string;
+};
 
-  return useInfiniteQuery({
-    queryKey: roleKeys.list(orgId, filters),
-    queryFn: ({ pageParam }) =>
+export function useRoles(
+  filters: RoleListFilters = {},
+  options?: { enabled?: boolean },
+) {
+  const orgId = useOrgId();
+  const page = filters.page ?? 1;
+  const limit = filters.limit ?? 25;
+
+  return useQuery({
+    queryKey: roleKeys.list(orgId, { ...filters, page, limit }),
+    queryFn: () =>
       api<PaginatedRoles<RoleListItem>>("/api/roles", {
         params: {
-          limit: filters.limit ?? 100,
-          cursor: pageParam ?? undefined,
+          limit,
+          page,
           search: filters.search,
         },
       }),
-    initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage) =>
-      lastPage.pagination.hasNextPage
-        ? (lastPage.pagination.nextCursor ?? undefined)
-        : undefined,
-    enabled: !!orgId,
+    enabled: (options?.enabled ?? true) && !!orgId,
   });
 }
 
@@ -115,15 +123,39 @@ export function useUploadRoleDocument(roleId: string) {
   });
 }
 
-export function useRequestRoleExport(roleId: string) {
-  return useMutation({
-    mutationFn: () =>
-      api<{
-        id: string;
-        status: string;
-        downloadUrl: string | null;
-      }>(`/api/roles/${roleId}/export`, {
-        method: "POST",
-      }),
+export function useRoleLatestExport(roleId: string) {
+  const orgId = useOrgId();
+
+  return useQuery({
+    queryKey: roleKeys.latestExport(orgId, roleId),
+    queryFn: () =>
+      api<RoleExportSummary>(`/api/roles/${roleId}/exports/latest`),
+    enabled: !!roleId && !!orgId,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      if (status === "pending" || status === "processing") {
+        return 3_000;
+      }
+      return false;
+    },
   });
 }
+
+export function useRequestRoleExport(roleId: string) {
+  const queryClient = useQueryClient();
+  const orgId = useOrgId();
+
+  return useMutation({
+    mutationFn: () =>
+      api<RoleExportSummary>(`/api/roles/${roleId}/export`, {
+        method: "POST",
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: roleKeys.latestExport(orgId, roleId),
+      });
+    },
+  });
+}
+
+export type { RoleExportSummary };

@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
+import pino from 'pino';
 import { vi } from 'vitest';
 
 type MockResponse = Response & {
@@ -6,10 +7,14 @@ type MockResponse = Response & {
   json: ReturnType<typeof vi.fn>;
 };
 
+const testLogger = pino({ level: 'silent' });
+
 export function createMockRequest(
   overrides: Partial<Request> = {},
 ): Request {
   return {
+    id: 'test-request-id',
+    log: testLogger,
     body: {},
     query: {},
     params: {},

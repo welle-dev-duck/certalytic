@@ -6,6 +6,7 @@ export const invitationEmailJobSchema = z.object({
   organization: z.unknown(),
   inviter: z.unknown(),
   invitation: z.unknown(),
+  inviteLink: z.string().url(),
 });
 
 export type InvitationEmailJob = z.infer<typeof invitationEmailJobSchema>;
@@ -15,4 +16,5 @@ export type EnqueueInvitationInput = {
   organization: unknown;
   inviter: unknown;
   invitation: unknown;
+  inviteLink: string;
 };

@@ -6,6 +6,11 @@ import type {
 } from '@mistralai/mistralai/models/components';
 import { env } from '../../config/env';
 
+/** The Mistral SDK appends `/v1` — avoid double-prefixing when env includes it. */
+export function normalizeMistralServerUrl(baseUrl: string): string {
+  return baseUrl.replace(/\/v1\/?$/, '');
+}
+
 type MistralOcrResponse = {
   pages?: Array<{
     markdown?: string;
@@ -59,7 +64,7 @@ export class MistralClient {
 
       this.client = new Mistral({
         apiKey: env.MISTRAL_API_KEY,
-        serverURL: env.MISTRAL_BASE_URL,
+        serverURL: normalizeMistralServerUrl(env.MISTRAL_BASE_URL),
         timeoutMs: env.MISTRAL_TIMEOUT * 1_000,
       });
     }

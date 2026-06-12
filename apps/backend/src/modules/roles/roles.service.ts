@@ -1,9 +1,21 @@
-import { and, desc, eq, ilike, lt } from 'drizzle-orm';
+import {
+  and,
+  avg,
+  count,
+  desc,
+  eq,
+  gte,
+  ilike,
+  inArray,
+  isNotNull,
+  lt,
+} from 'drizzle-orm';
 
 import type { Database } from '../../db/index';
+import { candidates } from '../../db/schema/candidates.schema';
 import { roleDocuments, roles } from '../../db/schema/roles.schema';
 import { AppError, NotFoundError } from '../../lib/errors';
-import { paginateByCursor } from '../../lib/pagination';
+import { paginateByPage } from '../../lib/pagination';
 import { generateId } from '../../lib/id';
 import type { StorageClient } from '../../storage/storage.client';
 import { roleDocumentPath } from '../../storage/storage.paths';
@@ -29,21 +41,24 @@ export class RolesService {
   async list(
     organizationId: string,
     query: RoleListQueryDto,
-  ): Promise<{
-    data: RoleListItemDto[];
-    pagination: ReturnType<typeof paginateByCursor<RoleListItemDto>>['pagination'];
-  }> {
+  ): Promise<ReturnType<typeof paginateByPage<RoleListItemDto>>> {
     await this.assertSavedRoles(organizationId);
 
     const filters = [eq(roles.organizationId, organizationId)];
 
-    if (query.cursor) {
-      filters.push(lt(roles.id, query.cursor));
-    }
-
     if (query.search) {
       filters.push(ilike(roles.title, `%${query.search}%`));
     }
+
+    const whereClause = and(...filters);
+    const offset = (query.page - 1) * query.limit;
+
+    const [totalRow] = await this.db
+      .select({ value: count() })
+      .from(roles)
+      .where(whereClause);
+
+    const total = Number(totalRow?.value ?? 0);
 
     const rows = await this.db
       .select({
@@ -54,21 +69,32 @@ export class RolesService {
         createdAt: roles.createdAt,
       })
       .from(roles)
-      .where(and(...filters))
+      .where(whereClause)
       .orderBy(desc(roles.id))
-      .limit(query.limit + 1);
+      .limit(query.limit)
+      .offset(offset);
 
-    const items: RoleListItemDto[] = rows.map((row) => ({
-      id: row.id,
-      title: row.title,
-      description: row.description,
-      contextMetadata: row.contextMetadata ?? null,
-      candidatesCount: 0,
-      avgIntegrity: null,
-      createdAt: row.createdAt,
-    }));
+    const roleIds = rows.map((row) => row.id);
+    const metricsByRole = await this.loadRoleMetricsBatch(
+      organizationId,
+      roleIds,
+    );
 
-    return paginateByCursor(items, query.limit);
+    const items: RoleListItemDto[] = rows.map((row) => {
+      const metrics = metricsByRole.get(row.id);
+
+      return {
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        contextMetadata: row.contextMetadata ?? null,
+        candidatesCount: metrics?.candidatesCount ?? 0,
+        avgIntegrity: metrics?.avgIntegrity ?? null,
+        createdAt: row.createdAt,
+      };
+    });
+
+    return paginateByPage(items, total, query.page, query.limit);
   }
 
   async getById(
@@ -90,14 +116,17 @@ export class RolesService {
       throw new NotFoundError('Role not found');
     }
 
+    const metrics = await this.loadRoleMetrics(organizationId, roleId);
+
     return {
       id: role.id,
       title: role.title,
       description: role.description,
       contextMetadata: role.contextMetadata ?? null,
-      candidatesCount: 0,
-      avgIntegrity: null,
+      candidatesCount: metrics.candidatesCount,
+      avgIntegrity: metrics.avgIntegrity,
       createdAt: role.createdAt,
+      stats: metrics.stats,
       documents: role.documents.map((document) => ({
         id: document.id,
         originalName: document.originalName,
@@ -238,6 +267,112 @@ export class RolesService {
     await this.db.delete(roleDocuments).where(eq(roleDocuments.id, documentId));
 
     return this.getById(organizationId, roleId);
+  }
+
+  private async loadRoleMetricsBatch(organizationId: string, roleIds: string[]) {
+    if (roleIds.length === 0) {
+      return new Map<
+        string,
+        { candidatesCount: number; avgIntegrity: number | null }
+      >();
+    }
+
+    const rows = await this.db
+      .select({
+        roleId: candidates.roleId,
+        candidatesCount: count(),
+        avgIntegrity: avg(candidates.integrityScore),
+      })
+      .from(candidates)
+      .where(
+        and(
+          eq(candidates.organizationId, organizationId),
+          inArray(candidates.roleId, roleIds),
+        ),
+      )
+      .groupBy(candidates.roleId);
+
+    return new Map(
+      rows
+        .filter((row) => row.roleId !== null)
+        .map((row) => [
+          row.roleId!,
+          {
+            candidatesCount: Number(row.candidatesCount),
+            avgIntegrity:
+              row.avgIntegrity !== null && row.avgIntegrity !== undefined
+                ? Math.round(Number(row.avgIntegrity))
+                : null,
+          },
+        ]),
+    );
+  }
+
+  private async loadRoleMetrics(organizationId: string, roleId: string) {
+    const baseWhere = and(
+      eq(candidates.roleId, roleId),
+      eq(candidates.organizationId, organizationId),
+    );
+
+    const [aggregate] = await this.db
+      .select({
+        candidatesCount: count(),
+        avgIntegrity: avg(candidates.integrityScore),
+      })
+      .from(candidates)
+      .where(baseWhere);
+
+    const scoredWhere = and(
+      baseWhere,
+      eq(candidates.status, 'complete'),
+      isNotNull(candidates.integrityScore),
+    );
+
+    const [highRow] = await this.db
+      .select({ value: count() })
+      .from(candidates)
+      .where(and(scoredWhere, gte(candidates.integrityScore, '75')));
+
+    const [mediumRow] = await this.db
+      .select({ value: count() })
+      .from(candidates)
+      .where(
+        and(
+          scoredWhere,
+          gte(candidates.integrityScore, '50'),
+          lt(candidates.integrityScore, '75'),
+        ),
+      );
+
+    const [lowRow] = await this.db
+      .select({ value: count() })
+      .from(candidates)
+      .where(and(scoredWhere, lt(candidates.integrityScore, '50')));
+
+    const distribution = {
+      high: Number(highRow?.value ?? 0),
+      medium: Number(mediumRow?.value ?? 0),
+      low: Number(lowRow?.value ?? 0),
+    };
+
+    const scored =
+      distribution.high + distribution.medium + distribution.low;
+
+    const avgRaw = aggregate?.avgIntegrity;
+    const avgIntegrity =
+      avgRaw !== null && avgRaw !== undefined
+        ? Math.round(Number(avgRaw))
+        : null;
+
+    return {
+      candidatesCount: Number(aggregate?.candidatesCount ?? 0),
+      avgIntegrity,
+      stats: {
+        avgIntegrity,
+        scored,
+        distribution,
+      },
+    };
   }
 
   private async assertSavedRoles(organizationId: string): Promise<void> {

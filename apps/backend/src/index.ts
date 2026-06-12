@@ -6,8 +6,12 @@ import Redis from 'ioredis';
 
 import { createApp } from './app';
 import { env } from './config/env';
+import { logger } from './lib/logger';
 import { db } from './db/index';
 import { createRedisConnection } from './lib/redis';
+import { BillingRefundProducer } from './modules/billing/billing-refund.producer';
+import { BillingRefundWorkers } from './modules/billing/billing-refund.worker';
+import { BillingService } from './modules/billing/billing.service';
 import { PlanFeaturesService } from './modules/billing/plans';
 import { CandidateEvaluator } from './modules/screening/candidate-evaluator';
 import { CvContentResolver } from './modules/screening/cv-content-resolver';
@@ -36,6 +40,7 @@ const queues = new Queues(redisConnection);
 const emailsProducer = new EmailsProducer(queues.emails);
 const rolesProducer = new RolesProducer(queues.roles);
 const screeningProducer = new ScreeningProducer(queues.screening);
+const billingRefundProducer = new BillingRefundProducer(queues.billingRefunds);
 const realtimePublisher = new RedisRealtimePublisher(new Redis(env.REDIS_URL));
 const emailsService = new EmailsService();
 const emailsWorkers = new EmailsWorkers(redisConnection, emailsService);
@@ -52,14 +57,11 @@ const rolesExportService = new RolesExportService(
   db,
   storage,
   planFeatures,
-  rolesProducer,
+  screeningProducer,
   realtimePublisher,
 );
-const rolesWorkers = new RolesWorkers(
-  redisConnection,
-  rolesDocumentService,
-  rolesExportService,
-);
+const rolesWorkers = new RolesWorkers(redisConnection, rolesDocumentService);
+const billingService = new BillingService(db, planFeatures);
 const screeningService = new ScreeningService(
   db,
   planFeatures,
@@ -68,8 +70,17 @@ const screeningService = new ScreeningService(
   new CandidateEvaluator(mistralClient),
   new HttpPublicProfileFetcher(),
   realtimePublisher,
+  billingRefundProducer,
 );
-const screeningWorkers = new ScreeningWorkers(redisConnection, screeningService);
+const screeningWorkers = new ScreeningWorkers(
+  redisConnection,
+  screeningService,
+  rolesExportService,
+);
+const billingRefundWorkers = new BillingRefundWorkers(
+  redisConnection,
+  billingService,
+);
 
 const { app, auth, organizationsService } = createApp({
   emailsProducer,
@@ -85,17 +96,24 @@ const realtimeServer = new RealtimeServer(server, auth, organizationsService);
 const realtimeSubscriber = new RealtimeSubscriber(realtimeServer);
 
 server.listen(env.PORT, () => {
-  console.log(`API listening on ${env.BASE_URL} (port ${env.PORT})`);
-  console.log(`Realtime WebSocket available at ${env.BASE_URL}/api/realtime`);
+  logger.info(
+    { port: env.PORT, baseUrl: env.BASE_URL },
+    'API listening',
+  );
+  logger.info(
+    { url: `${env.BASE_URL}/api/realtime` },
+    'Realtime WebSocket available',
+  );
 });
 
 async function shutdown(signal: string) {
-  console.log(`Received ${signal}, shutting down...`);
+  logger.info({ signal }, 'Shutting down');
   await realtimeSubscriber.close();
   await realtimeServer.close();
   await emailsWorkers.close();
   await rolesWorkers.close();
   await screeningWorkers.close();
+  await billingRefundWorkers.close();
   await queues.close();
   server.close();
   process.exit(0);

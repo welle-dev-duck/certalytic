@@ -31,4 +31,5 @@ export const invitationJob = {
   organization: testOrganization,
   inviter: testUser,
   invitation: testInvitation,
+  inviteLink: 'https://app.example.com/invitation?id=01932f5a-7b2a-7000-8000-000000000003',
 };

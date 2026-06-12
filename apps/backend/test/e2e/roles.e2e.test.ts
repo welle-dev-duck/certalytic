@@ -50,6 +50,11 @@ describe('roles (e2e)', () => {
       description: 'Own screening workflows and APIs.',
       candidatesCount: 0,
       documents: [],
+      stats: {
+        avgIntegrity: null,
+        scored: 0,
+        distribution: { high: 0, medium: 0, low: 0 },
+      },
     });
 
     const listResponse = await agent.get('/api/roles?limit=25').expect(200);
@@ -59,10 +64,13 @@ describe('roles (e2e)', () => {
       id: createResponse.body.id,
       title: 'Senior Backend Engineer',
     });
-    expect(listResponse.body.pagination).toEqual({
+    expect(listResponse.body.pagination).toMatchObject({
       limit: 25,
-      nextCursor: null,
+      page: 1,
+      total: 1,
+      lastPage: 1,
       hasNextPage: false,
+      hasPrevPage: false,
     });
   });
 

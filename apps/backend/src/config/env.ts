@@ -4,6 +4,9 @@ const envSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
     .default('development'),
+  LOG_LEVEL: z
+    .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
+    .default('info'),
   PORT: z.coerce.number().int().positive().default(3000),
   BASE_URL: z.url(),
   WEB_APP_URL: z.url(),
@@ -18,7 +21,7 @@ const envSchema = z.object({
   STRIPE_PRICE_PACK_SURGE: z.string().default(''),
   STRIPE_PRICE_PACK_BOOST: z.string().default(''),
   MISTRAL_API_KEY: z.string().default(''),
-  MISTRAL_BASE_URL: z.url().default('https://api.mistral.ai/v1'),
+  MISTRAL_BASE_URL: z.url().default('https://api.mistral.ai'),
   MISTRAL_OCR_MODEL: z.string().default('mistral-ocr-latest'),
   MISTRAL_CHAT_MODEL: z.string().default('mistral-small-latest'),
   MISTRAL_TIMEOUT: z.coerce.number().int().positive().default(120),

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { LoadingSwap } from "@/components/loading-swap";
+import { Required } from "@/components/required";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -60,16 +61,13 @@ export function SecuritySettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-foreground">Security</h1>
+        <h2 className="text-lg font-semibold text-foreground">Security</h2>
         <p className="mt-0.5 text-sm text-muted-foreground">
           Ensure your account uses a long, random password
         </p>
       </div>
 
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 rounded-lg border border-border bg-card p-6"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FieldGroup>
           <Controller
             name="currentPassword"
@@ -77,13 +75,15 @@ export function SecuritySettings() {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="current-password">
-                  Current password
+                  <Required>Current password</Required>
                 </FieldLabel>
                 <Input
                   {...field}
                   id="current-password"
                   type="password"
                   autoComplete="current-password"
+                  placeholder="Current password"
+                  required
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
@@ -96,12 +96,16 @@ export function SecuritySettings() {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="new-password">New password</FieldLabel>
+                <FieldLabel htmlFor="new-password">
+                  <Required>New password</Required>
+                </FieldLabel>
                 <Input
                   {...field}
                   id="new-password"
                   type="password"
                   autoComplete="new-password"
+                  placeholder="At least 8 characters"
+                  required
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
@@ -115,13 +119,15 @@ export function SecuritySettings() {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="confirm-password">
-                  Confirm password
+                  <Required>Confirm password</Required>
                 </FieldLabel>
                 <Input
                   {...field}
                   id="confirm-password"
                   type="password"
                   autoComplete="new-password"
+                  placeholder="Repeat new password"
+                  required
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />

@@ -48,6 +48,7 @@ describe('EmailsService', () => {
       organization: invitationJob.organization,
       inviter: invitationJob.inviter,
       invitation: invitationJob.invitation,
+      inviteLink: invitationJob.inviteLink,
     });
 
     log.mockRestore();

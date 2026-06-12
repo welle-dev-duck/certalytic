@@ -7,6 +7,8 @@ export const billingUsageSchema = z.object({
   planLabel: z.string(),
   planQuota: z.number().int().nonnegative().nullable(),
   planTokens: z.number().int().nonnegative(),
+  includedUsed: z.number().int().nonnegative(),
+  includedRemaining: z.number().int().nonnegative(),
   refillTokens: z.number().int().nonnegative(),
   available: z.number().int().nonnegative(),
   canPurchasePacks: z.boolean(),

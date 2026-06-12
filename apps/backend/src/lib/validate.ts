@@ -7,6 +7,26 @@ type RequestPart = 'body' | 'query' | 'params';
 
 type RequestSchemas = Partial<Record<RequestPart, ZodType>>;
 
+function assignRequestPart(
+  req: Request,
+  part: RequestPart,
+  value: unknown,
+): void {
+  if (part === 'body') {
+    req.body = value;
+    return;
+  }
+
+  // Express 5 exposes query/params as read-only getters on the prototype.
+  // Shadow them on the request instance with the parsed/coerced value.
+  Object.defineProperty(req, part, {
+    value,
+    writable: true,
+    configurable: true,
+    enumerable: true,
+  });
+}
+
 function parsePart(
   req: Request,
   part: RequestPart,
@@ -17,7 +37,7 @@ function parsePart(
     throw new ValidationError(result.error);
   }
 
-  Object.assign(req, { [part]: result.data });
+  assignRequestPart(req, part, result.data);
 }
 
 export function validate(schemas: RequestSchemas): RequestHandler {

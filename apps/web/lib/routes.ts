@@ -19,6 +19,8 @@ export const routes = {
   settingsSecurity: () => "/settings/security",
   settingsAppearance: () => "/settings/appearance",
   settingsOrganization: () => "/settings/organization",
+  invitation: (id?: string) =>
+    id ? `/invitation?id=${encodeURIComponent(id)}` : "/invitation",
   settingsTeams: () => "/settings/teams",
   settingsTeam: (teamId: string) => `/settings/teams/${teamId}`,
   legal: {

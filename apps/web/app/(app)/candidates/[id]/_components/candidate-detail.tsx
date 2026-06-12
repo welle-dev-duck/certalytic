@@ -1,18 +1,20 @@
 "use client";
 
 import {
+  AlertCircle,
   AlertTriangle,
   ArrowLeft,
   Download,
   RefreshCw,
   Trash2,
 } from "lucide-react";
-import Link from "@/components/ui/link"
+import Link from "@/components/ui/link";
 import { useEffect, useState } from "react";
 
 import { IntegrityRadarChart } from "@/components/certalytic/integrity-radar-chart";
 import { ScoreRing } from "@/components/certalytic/score-ring";
 import {
+  FlagBadge,
   IntegrityBadge,
   StatusBadge,
 } from "@/components/certalytic/status-badge";
@@ -20,18 +22,22 @@ import { Button } from "@/components/ui/button";
 import { DeleteCandidateDialog } from "@/features/candidates/components/delete-candidate-dialog";
 import { CandidateDossierTabs } from "@/features/candidates/components/dossier/candidate-dossier-tabs";
 import { RerunCandidateDialog } from "@/features/candidates/components/rerun-candidate-dialog";
+import { ScreeningProcessingStatus } from "@/features/candidates/components/screening-processing-status";
 import {
   useCandidate,
   useCandidateReport,
 } from "@/features/candidates/hooks/use-candidates";
 import { formatReportDate } from "@/features/candidates/lib/report-utils";
 import { apiUrl } from "@/lib/api-client";
+import type { Flag } from "@/lib/integrity";
 import { routes } from "@/lib/routes";
+import { useRealtime } from "@/providers/realtime-provider";
 
 export function CandidateDetail({ candidateId }: { candidateId: string }) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [rerunOpen, setRerunOpen] = useState(false);
 
+  const { isConnected } = useRealtime();
   const { data: candidate, isLoading, refetch } = useCandidate(candidateId);
   const isProcessing =
     candidate?.status === "pending" || candidate?.status === "processing";
@@ -41,10 +47,10 @@ export function CandidateDetail({ candidateId }: { candidateId: string }) {
   const { data: report } = useCandidateReport(candidateId, isComplete);
 
   useEffect(() => {
-    if (!isProcessing) return;
-    const interval = setInterval(() => void refetch(), 4_000);
+    if (!isProcessing || isConnected) return;
+    const interval = setInterval(() => void refetch(), 10_000);
     return () => clearInterval(interval);
-  }, [isProcessing, refetch]);
+  }, [isProcessing, isConnected, refetch]);
 
   if (isLoading || !candidate) {
     return (
@@ -55,6 +61,8 @@ export function CandidateDetail({ candidateId }: { candidateId: string }) {
   }
 
   const score = report?.score ?? candidate.integrityScore ?? 0;
+  const flagCount = report?.flags.length ?? 0;
+  const roundCount = report?.rounds.length ?? candidate.roundsCount;
 
   return (
     <div className="space-y-5 p-6">
@@ -87,12 +95,6 @@ export function CandidateDetail({ candidateId }: { candidateId: string }) {
                 <Download size={14} />
                 Export PDF
               </a>
-            </Button>
-          )}
-          {isOngoing && (
-            <Button variant="outline" size="sm" onClick={() => refetch()}>
-              <RefreshCw size={14} />
-              Refresh
             </Button>
           )}
           <Button
@@ -159,34 +161,34 @@ export function CandidateDetail({ candidateId }: { candidateId: string }) {
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div className="rounded bg-muted p-2.5">
                   <p className="text-[10px] font-medium text-muted-foreground">
-                    Screened at
+                    Status
                   </p>
-                  <p className="mt-0.5 font-mono text-xs font-semibold">
+                  <div className="mt-1">
+                    <StatusBadge status={candidate.status} />
+                  </div>
+                </div>
+                <div className="rounded bg-muted p-2.5">
+                  <p className="text-[10px] font-medium text-muted-foreground">
+                    Scan Created At
+                  </p>
+                  <p className="mt-0.5 font-mono text-xs font-semibold text-foreground">
                     {formatReportDate(candidate.processedAt)}
                   </p>
                 </div>
                 <div className="rounded bg-muted p-2.5">
                   <p className="text-[10px] font-medium text-muted-foreground">
-                    Flags raised
+                    Flags Raised
                   </p>
-                  <p className="mt-0.5 text-sm font-semibold">
-                    {report?.flags.length ?? 0}
-                  </p>
-                </div>
-                <div className="rounded bg-muted p-2.5">
-                  <p className="text-[10px] font-medium text-muted-foreground">
-                    Interview rounds
-                  </p>
-                  <p className="mt-0.5 text-sm font-semibold">
-                    {candidate.roundsCount}
+                  <p className="mt-0.5 text-sm font-semibold text-foreground">
+                    {flagCount} flag{flagCount !== 1 ? "s" : ""}
                   </p>
                 </div>
                 <div className="rounded bg-muted p-2.5">
                   <p className="text-[10px] font-medium text-muted-foreground">
-                    Email
+                    Interview Rounds
                   </p>
-                  <p className="mt-0.5 truncate text-xs font-semibold">
-                    {candidate.email ?? "—"}
+                  <p className="mt-0.5 text-sm font-semibold text-foreground">
+                    {roundCount}
                   </p>
                 </div>
               </div>
@@ -227,10 +229,36 @@ export function CandidateDetail({ candidateId }: { candidateId: string }) {
             </p>
           </div>
         ) : isOngoing ? (
-          <div className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
-            Screening in progress… This page refreshes automatically.
-          </div>
+          <ScreeningProcessingStatus startedAt={candidate.createdAt} />
         ) : null)}
+
+      {isComplete && report && report.flags.length > 0 && (
+        <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <AlertCircle size={14} className="text-destructive" />
+            <p className="text-sm font-semibold text-destructive">
+              {report.flags.length} Active Flag
+              {report.flags.length > 1 ? "s" : ""} Detected
+            </p>
+          </div>
+          <div className="space-y-2">
+            {report.flags.map((flag, index) => (
+              <div
+                key={index}
+                className="flex items-start gap-3 rounded bg-black/20 p-2.5"
+              >
+                <FlagBadge flag={flag as Flag} />
+                <p className="flex-1 text-xs text-foreground">
+                  {flag.description}
+                </p>
+                <span className="shrink-0 rounded bg-chart-2/15 px-1.5 py-0.5 font-mono text-[10px] font-bold">
+                  {Math.round(flag.confidence * 100)}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {isComplete && report && (
         <CandidateDossierTabs candidate={candidate} report={report} />

@@ -27,10 +27,16 @@ type FileDropzoneProps = {
   "aria-invalid"?: boolean;
 };
 
+const EMPTY_FILES: File[] = [];
+
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function filesEqual(a: File[], b: File[]): boolean {
+  return a.length === b.length && a.every((file, index) => file === b[index]);
 }
 
 export function FileDropzone({
@@ -40,7 +46,7 @@ export function FileDropzone({
   multiple = false,
   disabled = false,
   file = null,
-  files = [],
+  files = EMPTY_FILES,
   onFileChange,
   onFilesChange,
   description = "Drag and drop a file here, or click to browse",
@@ -113,7 +119,9 @@ export function FileDropzone({
 
   useEffect(() => {
     if (multiple) {
-      setSelectedFiles(files);
+      setSelectedFiles((current) =>
+        filesEqual(current, files) ? current : files,
+      );
       if (files.length === 0 && inputRef.current) {
         inputRef.current.value = "";
       }
@@ -121,9 +129,14 @@ export function FileDropzone({
     }
 
     if (file === null) {
-      setSelectedFiles([]);
+      setSelectedFiles((current) => (current.length === 0 ? current : []));
       if (inputRef.current) inputRef.current.value = "";
+      return;
     }
+
+    setSelectedFiles((current) =>
+      current.length === 1 && current[0] === file ? current : [file],
+    );
   }, [file, files, multiple]);
 
   const activeFile = multiple ? null : (file ?? selectedFiles[0] ?? null);

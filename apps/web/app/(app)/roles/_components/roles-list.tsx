@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { CursorPagination } from "@/components/certalytic/cursor-pagination";
+import { TablePagination } from "@/components/certalytic/table-pagination";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -54,25 +54,35 @@ export function RolesList() {
   const [editingRole, setEditingRole] = useState<RoleListItem | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [roleToDelete, setRoleToDelete] = useState<RoleListItem | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
   const firstRender = useRef(true);
 
   const deleteRole = useDeleteRole();
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useRoles({ search: debouncedSearch || undefined, limit: 25 });
+  const { data, isLoading } = useRoles({
+    search: debouncedSearch || undefined,
+    limit: pageSize,
+    page,
+  });
 
-  const roles = useMemo(
-    () => data?.pages.flatMap((page) => page.data) ?? [],
-    [data],
-  );
+  const roles = data?.data ?? [];
+  const pagination = data?.pagination;
 
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;
       return;
     }
-    const timeout = setTimeout(() => setDebouncedSearch(search), 350);
+    const timeout = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 350);
     return () => clearTimeout(timeout);
   }, [search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [pageSize]);
 
   function confirmDelete() {
     if (!roleToDelete) return;
@@ -164,16 +174,19 @@ export function RolesList() {
               <table className="w-full min-w-[640px]">
                 <thead>
                   <tr className="border-b border-border">
-                    {["Role", "Candidates", "Avg Integrity", "Created"].map(
-                      (header) => (
-                        <th
-                          key={header}
-                          className="px-4 py-3 text-left text-[10px] font-bold tracking-widest text-muted-foreground"
-                        >
-                          {header}
-                        </th>
-                      ),
-                    )}
+                    {[
+                      { label: "Role", className: "w-[28%] max-w-[220px]" },
+                      { label: "Candidates", className: "" },
+                      { label: "Avg Integrity", className: "" },
+                      { label: "Created", className: "" },
+                    ].map((header) => (
+                      <th
+                        key={header.label}
+                        className={`px-4 py-3 text-left text-[10px] font-bold tracking-widest text-muted-foreground ${header.className}`}
+                      >
+                        {header.label}
+                      </th>
+                    ))}
                     <th className="w-10 px-2 py-3" aria-label="Actions" />
                     <th className="w-10 px-2 py-3" aria-label="View" />
                   </tr>
@@ -198,7 +211,7 @@ export function RolesList() {
                         index < roles.length - 1 && "border-b border-border",
                       )}
                     >
-                      <td className="px-4 py-3">
+                      <td className="max-w-[220px] px-4 py-3">
                         <div className="flex items-center gap-2.5">
                           <div
                             className="flex h-8 w-8 shrink-0 items-center justify-center rounded"
@@ -281,12 +294,16 @@ export function RolesList() {
                 </tbody>
               </table>
             </div>
-            <CursorPagination
-              hasNextPage={!!hasNextPage}
-              isFetchingNextPage={isFetchingNextPage}
-              onLoadMore={() => fetchNextPage()}
-              loadedCount={roles.length}
-            />
+            {pagination ? (
+              <TablePagination
+                meta={pagination}
+                onPageChange={setPage}
+                onPageSizeChange={(size) => {
+                  setPageSize(size);
+                  setPage(1);
+                }}
+              />
+            ) : null}
           </>
         )}
       </div>

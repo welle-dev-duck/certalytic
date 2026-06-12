@@ -42,9 +42,9 @@ export function CreateCandidateForm() {
   const router = useRouter();
   const createCandidate = useCreateCandidate();
   const { data: usage } = useBillingUsage();
-  const { data: rolesData } = useRoles({ limit: 100 });
+  const { data: rolesData } = useRoles({ limit: 100, page: 1 });
 
-  const roles = rolesData?.pages.flatMap((page) => page.data) ?? [];
+  const roles = rolesData?.data ?? [];
 
   const form = useForm<CreateCandidateValues>({
     resolver: zodResolver(createCandidateSchema),

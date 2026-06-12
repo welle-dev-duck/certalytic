@@ -99,11 +99,17 @@ export class BillingService {
     const plan = plans[planId];
     const balance = await this.ensureBilling(organizationId);
 
+    const planQuota = plan.tokens ?? 0;
+    const includedRemaining = balance.planTokens;
+    const includedUsed = Math.max(0, planQuota - includedRemaining);
+
     return {
       plan: planId,
       planLabel: plan.name,
       planQuota: plan.tokens,
       planTokens: balance.planTokens,
+      includedUsed,
+      includedRemaining,
       refillTokens: balance.refillTokens,
       available: balance.planTokens + balance.refillTokens,
       canPurchasePacks: plan.tokenPacks,
@@ -156,6 +162,29 @@ export class BillingService {
         'INSUFFICIENT_TOKENS',
       );
     }
+
+    await this.db
+      .update(billing)
+      .set({ planTokens, refillTokens })
+      .where(eq(billing.organizationId, organizationId));
+  }
+
+  async refundScreening(organizationId: string, amount = 1): Promise<void> {
+    const balance = await this.ensureBilling(organizationId);
+    let planTokens = balance.planTokens;
+    let refillTokens = balance.refillTokens;
+    let remaining = amount;
+
+    if (this.planFeatures) {
+      const planId = await this.planFeatures.resolvePlan(organizationId);
+      const planQuota = plans[planId].tokens ?? 3;
+      const planRoom = Math.max(0, planQuota - planTokens);
+      const toPlan = Math.min(remaining, planRoom);
+      planTokens += toPlan;
+      remaining -= toPlan;
+    }
+
+    refillTokens += remaining;
 
     await this.db
       .update(billing)
