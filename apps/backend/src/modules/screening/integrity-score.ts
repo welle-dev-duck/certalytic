@@ -1,6 +1,7 @@
 import { roundWeights, scoreWeights, varianceThreshold } from '../../config/env';
+import type { ScoreComponent, ScreeningEvaluation } from './dtos/screening-evaluation.dto';
 
-type ScoreComponent = {
+type ScoreComponentInput = {
   score?: number | null;
   confidence_band?: string;
 };
@@ -14,22 +15,17 @@ const COMPONENT_WEIGHT_KEYS = {
 
 export class IntegrityScoreCalculator {
   scoreComponentsFromEvaluation(
-    evaluation: Record<string, unknown>,
+    evaluation: ScreeningEvaluation,
   ): Record<string, ScoreComponent> {
-    const components: Record<string, ScoreComponent> = {};
-
-    for (const key of Object.keys(COMPONENT_WEIGHT_KEYS)) {
-      const component = evaluation[key];
-      components[key] =
-        component && typeof component === 'object'
-          ? (component as ScoreComponent)
-          : { score: 0 };
-    }
-
-    return components;
+    return {
+      s_cv: evaluation.s_cv,
+      s_int: evaluation.s_int,
+      s_cross: evaluation.s_cross,
+      s_id: evaluation.s_id,
+    };
   }
 
-  calculate(components: Record<string, ScoreComponent>): number {
+  calculate(components: Record<string, ScoreComponentInput>): number {
     const weights = scoreWeights;
     let weightedSum = 0;
     let totalWeight = 0;
@@ -56,7 +52,7 @@ export class IntegrityScoreCalculator {
     return Math.round((weightedSum / totalWeight) * 100) / 100;
   }
 
-  componentIncludedInScore(component: ScoreComponent | undefined): boolean {
+  componentIncludedInScore(component: ScoreComponentInput | undefined): boolean {
     if (!component) {
       return false;
     }
@@ -106,7 +102,7 @@ export class IntegrityScoreCalculator {
     return varianceDelta > varianceThreshold;
   }
 
-  private componentScore(component: ScoreComponent): number {
+  private componentScore(component: ScoreComponentInput): number {
     if (typeof component.score !== 'number' || Number.isNaN(component.score)) {
       return 0;
     }

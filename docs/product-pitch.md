@@ -15,16 +15,16 @@ We intentionally designed Certalytic for the very bottom of your hiring funnel. 
 
 1. **Create a role** — Save the job title, description, and optional scan assets (Scale tier).
 2. **Screen candidates** — Upload the CV, paste up to three interview transcripts (merged automatically), and add LinkedIn/GitHub URLs.
-3. **Export the report** — Review the integrity dossier in-app or download a watermarked PDF for your hiring committee (per candidate or batch export for an entire role).
+3. **Export the report** — Review the integrity dossier in-app or download a professional PDF integrity dossier for your hiring committee (per candidate or batch export for an entire role).
 
 ### The Integrity Engine
 Our engine synthesizes these inputs to detect stylistic shifts, timeline inconsistencies, and communication coherence. The evaluation is deterministic and transparent:
 
 $$\text{Integrity Score} = (S_{cv} \times 0.25) + (S_{int} \times 0.50) + (S_{cross} \times 0.15) + (S_{id} \times 0.10)$$
 
-* **30% CV Authenticity:** Validating timeline consistency and role fit.
-* **40% Interview Signal:** Tracking signal density and stylistic shifts across technical and behavioral interview segments.
-* **20% Cross-Source:** Ensuring alignment between the CV and public profiles (GitHub/LinkedIn).
+* **25% CV Authenticity:** Validating timeline consistency and role fit.
+* **50% Interview Signal:** Tracking signal density and stylistic shifts across technical and behavioral interview segments.
+* **15% Cross-Source:** Ensuring alignment between the CV and public profiles (GitHub/LinkedIn).
 * **10% Identity:** Mapping communication coherence across all documents.
 
 **Supplementary insights (not in the score):** Every screening also includes **candidate behaviour analysis** (communication style, collaboration indicators) and **candidate personality analysis** (work style, motivation signals, culture-fit indicators) — surfaced in dedicated report tabs and PDF exports, explicitly excluded from the Integrity Score.
@@ -40,6 +40,8 @@ Every report includes specific, evidence-based follow-up prompts for your hiring
 | Growth | €349 | 50 |
 | Scale | €799 | 125 |
 
+**Starter** includes full integrity breakdown, cross-reference checks, refillable screening tokens, and integrity dossier exports. **Growth** adds 50 screenings, 3 seats, and priority email support. **Scale** adds 125 screenings, 5 seats, priority queue, and Slack support.
+
 **Screening packs** (paid plans): Quick Refill (€99 / 10 screenings), Pipeline Surge (€299 / 35), High-Volume Boost (€750 / 100).
 
 ### Why Enterprise & EU Leaders Choose Certalytic
@@ -48,6 +50,6 @@ Every report includes specific, evidence-based follow-up prompts for your hiring
 * **Zero Model Training:** Candidate data is explicitly ring-fenced and never used to train or fine-tune foundation models.
 * **Human-in-the-Loop:** We provide a probability heuristic and follow-up questions, not an automated "pass/fail" verdict, ensuring compliance with automated decision-making regulations.
 * **Scalable Context:** On our Scale tier, you can upload specific grading rubrics and take-home instructions so the AI understands exactly what a "good" answer looks like for your specific technical roles.
-* **Exportable dossiers:** Watermarked PDF exports for individual candidates or entire roles — ready for your hiring committee.
+* **Exportable dossiers:** Professional PDF integrity dossiers for individual candidates or entire roles — watermarked on Free tier — ready for your hiring committee.
 
 **Make your next hire with absolute confidence. Let's run a test screening on a past candidate transcript today.**

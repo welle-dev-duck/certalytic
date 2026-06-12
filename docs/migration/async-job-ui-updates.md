@@ -180,23 +180,25 @@ If the socket disconnects, use a **slow poll** (`refetchInterval: 10000`) only w
 
 ## Implementation checklist
 
+**Status: implemented** (June 2026). Keep this section as reference for the architecture.
+
 ### Backend
 
-- [ ] Redis pub/sub channel naming + publisher helper
-- [ ] WS server on Express HTTP server with session auth
-- [ ] Room join authorized by org membership
-- [ ] Screening worker publishes on each status transition
-- [ ] Role export worker publishes on each status transition
-- [ ] `GET` detail endpoints remain for full payloads
+- [x] Redis pub/sub channel naming + publisher helper (`src/realtime/`)
+- [x] WS server on Express HTTP server with session auth
+- [x] Room join authorized by org membership
+- [x] Screening worker publishes on each status transition
+- [x] Role export worker publishes on each status transition
+- [x] `GET` detail endpoints remain for full payloads
 
 ### Frontend
 
-- [ ] `RealtimeProvider` + hook (`useRealtimeEvent`)
-- [ ] Candidate show: WS-driven cache updates + invalidate on terminal state
-- [ ] Role export: WS-driven status + auto-download on complete
-- [ ] Optional: list invalidation on org-level events
-- [ ] Reconnect + slow-poll fallback
-- [ ] Port `ScreeningProcessingStatus` loading UI
+- [x] `RealtimeProvider` + message handling (`providers/realtime-provider.tsx`)
+- [x] Candidate show: WS-driven cache updates + invalidate on terminal state
+- [x] Role export: WS-driven status + auto-download on complete
+- [x] List invalidation on org-level candidate events
+- [x] Reconnect with exponential backoff
+- [x] `ScreeningProcessingStatus` loading UI ported
 
 ### Env (example)
 

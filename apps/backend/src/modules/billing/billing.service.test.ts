@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createMockDb } from '../../test/helpers/mocks';
+import { createMockDb, createMockPlanFeatures } from '../../test/helpers/mocks';
 import { BillingService } from './billing.service';
 
 describe('BillingService', () => {
@@ -12,7 +12,7 @@ describe('BillingService', () => {
         role: 'owner',
       },
     });
-    const service = new BillingService(db);
+    const service = new BillingService(db, createMockPlanFeatures());
 
     await expect(
       service.canManageStripeSubscription(
@@ -30,7 +30,7 @@ describe('BillingService', () => {
         role: 'member',
       },
     });
-    const service = new BillingService(db);
+    const service = new BillingService(db, createMockPlanFeatures());
 
     await expect(
       service.canManageStripeSubscription(
@@ -41,7 +41,7 @@ describe('BillingService', () => {
   });
 
   it('returns a cached stripe client', () => {
-    const service = new BillingService(createMockDb());
+    const service = new BillingService(createMockDb(), createMockPlanFeatures());
 
     expect(service.getStripeClient()).toBe(service.getStripeClient());
   });

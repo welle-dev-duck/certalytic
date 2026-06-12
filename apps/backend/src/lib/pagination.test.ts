@@ -8,9 +8,6 @@ describe('paginateByCursor', () => {
       data: [],
       pagination: {
         limit: 25,
-        page: 1,
-        total: 0,
-        lastPage: 1,
         from: null,
         to: null,
         hasNextPage: false,
@@ -31,9 +28,6 @@ describe('paginateByCursor', () => {
       data: rows,
       pagination: {
         limit: 25,
-        page: 1,
-        total: 3,
-        lastPage: 1,
         from: 1,
         to: 3,
         hasNextPage: false,
@@ -54,9 +48,6 @@ describe('paginateByCursor', () => {
       data: [{ id: '3' }, { id: '2' }],
       pagination: {
         limit: 2,
-        page: 1,
-        total: 2,
-        lastPage: 2,
         from: 1,
         to: 2,
         hasNextPage: true,

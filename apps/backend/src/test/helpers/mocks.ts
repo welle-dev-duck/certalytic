@@ -1,6 +1,7 @@
 import { vi } from 'vitest';
 
 import type { Database } from '../../db/index';
+import type { PlanFeaturesService } from '../../modules/billing/plans';
 
 type MemberRecord = {
   organizationId: string;
@@ -18,6 +19,14 @@ export function createMockDb(options?: {
       },
     },
   } as unknown as Database;
+}
+
+export function createMockPlanFeatures(): PlanFeaturesService {
+  return {
+    resolvePlan: vi.fn().mockResolvedValue('free'),
+    can: vi.fn().mockResolvedValue(false),
+    maxRoleDocuments: vi.fn().mockResolvedValue(0),
+  } as unknown as PlanFeaturesService;
 }
 
 export function createMockQueue() {

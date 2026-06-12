@@ -1,21 +1,13 @@
 import { z } from 'zod';
 
-import { createPaginatedResponseSchema } from '../../dtos/pagination.dto';
+import { createPaginatedResponseSchema, cursorPaginationQuerySchema } from '../../dtos/pagination.dto';
 import {
   ROLE_DOCUMENT_STATUSES,
   ROLE_EXPORT_STATUSES,
 } from '../../db/schema/roles.schema';
 import { limits } from '../../config/env';
 
-export const roleListQuerySchema = z.object({
-  limit: z.coerce
-    .number()
-    .int()
-    // TODO: remove option 1 before prod
-    .refine((value) => [1, 10, 25, 50, 100].includes(value))
-    .default(25),
-  page: z.coerce.number().int().min(1).default(1),
-  cursor: z.uuid().optional(),
+export const roleListQuerySchema = cursorPaginationQuerySchema.extend({
   search: z.string().trim().optional(),
 });
 

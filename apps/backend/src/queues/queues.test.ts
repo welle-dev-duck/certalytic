@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { createBillingRefundQueue } from './billing-refund.queue';
 import { createEmailsQueue } from './emails.queue';
+import { createRoleExportsQueue } from './role-exports.queue';
 import { createRolesQueue } from './roles.queue';
 import { createScreeningQueue } from './screening.queue';
 import { Queues } from './queues';
@@ -24,6 +25,12 @@ vi.mock('./screening.queue', () => ({
   })),
 }));
 
+vi.mock('./role-exports.queue', () => ({
+  createRoleExportsQueue: vi.fn(() => ({
+    close: vi.fn().mockResolvedValue(undefined),
+  })),
+}));
+
 vi.mock('./billing-refund.queue', () => ({
   createBillingRefundQueue: vi.fn(() => ({
     close: vi.fn().mockResolvedValue(undefined),
@@ -31,7 +38,7 @@ vi.mock('./billing-refund.queue', () => ({
 }));
 
 describe('Queues', () => {
-  it('registers the emails, roles, screening, and billing-refund queues', () => {
+  it('registers all application queues', () => {
     const queues = new Queues({ url: 'redis://localhost:6379' });
 
     expect(createEmailsQueue).toHaveBeenCalledWith({
@@ -43,6 +50,9 @@ describe('Queues', () => {
     expect(createScreeningQueue).toHaveBeenCalledWith({
       url: 'redis://localhost:6379',
     });
+    expect(createRoleExportsQueue).toHaveBeenCalledWith({
+      url: 'redis://localhost:6379',
+    });
     expect(createBillingRefundQueue).toHaveBeenCalledWith({
       url: 'redis://localhost:6379',
     });
@@ -50,6 +60,7 @@ describe('Queues', () => {
       queues.emails,
       queues.roles,
       queues.screening,
+      queues.roleExports,
       queues.billingRefunds,
     ]);
   });
@@ -62,6 +73,7 @@ describe('Queues', () => {
     expect(queues.emails.close).toHaveBeenCalled();
     expect(queues.roles.close).toHaveBeenCalled();
     expect(queues.screening.close).toHaveBeenCalled();
+    expect(queues.roleExports.close).toHaveBeenCalled();
     expect(queues.billingRefunds.close).toHaveBeenCalled();
   });
 });

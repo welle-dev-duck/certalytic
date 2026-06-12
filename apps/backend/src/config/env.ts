@@ -69,7 +69,6 @@ const envSchema = z.object({
     .positive()
     .default(10),
   CERTALYTIC_QUEUE: z.string().default('default'),
-  CERTALYTIC_PRIORITY_QUEUE: z.string().default('screenings-priority'),
 });
 
 export const env = envSchema.parse(process.env);

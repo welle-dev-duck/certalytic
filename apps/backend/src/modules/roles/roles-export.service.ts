@@ -10,12 +10,13 @@ import { AppError, NotFoundError } from '../../lib/errors';
 import { generateId } from '../../lib/id';
 import type { StorageClient } from '../../storage/storage.client';
 import type { PlanFeaturesService } from '../billing/plans';
+import type { CandidateReportService } from '../candidates/candidate-report.service';
 import { RoleExportPdfGenerator } from '../exports/role-export-pdf.generator';
 import {
   NoopRealtimePublisher,
   type RealtimePublisher,
 } from '../../realtime/publisher';
-import type { ScreeningProducer } from '../screening/screening.producer';
+import type { RoleExportsProducer } from './role-exports.producer';
 
 export type RoleExportSummary = {
   id: string;
@@ -32,10 +33,16 @@ export class RolesExportService {
     private readonly db: Database,
     private readonly storage: StorageClient,
     private readonly planFeatures: PlanFeaturesService,
-    private readonly screeningProducer: ScreeningProducer,
+    private readonly roleExportsProducer: RoleExportsProducer,
     private readonly realtimePublisher: RealtimePublisher = new NoopRealtimePublisher(),
+    candidateReportService: CandidateReportService,
   ) {
-    this.generator = new RoleExportPdfGenerator(db, storage, planFeatures);
+    this.generator = new RoleExportPdfGenerator(
+      db,
+      storage,
+      planFeatures,
+      candidateReportService,
+    );
   }
 
   async requestExport(
@@ -81,7 +88,7 @@ export class RolesExportService {
       'priority_queue',
     );
 
-    await this.screeningProducer.enqueueGenerateExport(
+    await this.roleExportsProducer.enqueueGenerateExport(
       { roleExportId: exportId },
       usePriority ? { priority: 1 } : undefined,
     );

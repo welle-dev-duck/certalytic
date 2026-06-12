@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { logger } from '../../lib/logger';
 import {
   invitationJob,
   resetPasswordJob,
@@ -10,48 +11,49 @@ import { emailJobSchema } from './dtos/email-job.dto';
 
 describe('EmailsService', () => {
   it('processes reset-password jobs', async () => {
-    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const debug = vi.spyOn(logger, 'debug').mockImplementation(() => undefined);
     const service = new EmailsService();
 
     await service.process(resetPasswordJob);
 
-    expect(log).toHaveBeenCalledWith('sendResetPassword', {
-      user: resetPasswordJob.user,
-      url: resetPasswordJob.url,
-    });
+    expect(debug).toHaveBeenCalledWith(
+      { userId: resetPasswordJob.user.id, url: resetPasswordJob.url },
+      'sendResetPassword',
+    );
 
-    log.mockRestore();
+    debug.mockRestore();
   });
 
   it('processes verification jobs', async () => {
-    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const debug = vi.spyOn(logger, 'debug').mockImplementation(() => undefined);
     const service = new EmailsService();
 
     await service.process(verificationJob);
 
-    expect(log).toHaveBeenCalledWith('sendVerificationEmail', {
-      user: verificationJob.user,
-      url: verificationJob.url,
-    });
+    expect(debug).toHaveBeenCalledWith(
+      { userId: verificationJob.user.id, url: verificationJob.url },
+      'sendVerificationEmail',
+    );
 
-    log.mockRestore();
+    debug.mockRestore();
   });
 
   it('processes invitation jobs', async () => {
-    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const debug = vi.spyOn(logger, 'debug').mockImplementation(() => undefined);
     const service = new EmailsService();
 
     await service.process(invitationJob);
 
-    expect(log).toHaveBeenCalledWith('sendInvitationEmail', {
-      email: invitationJob.email,
-      organization: invitationJob.organization,
-      inviter: invitationJob.inviter,
-      invitation: invitationJob.invitation,
-      inviteLink: invitationJob.inviteLink,
-    });
+    expect(debug).toHaveBeenCalledWith(
+      {
+        email: invitationJob.email,
+        organizationId: invitationJob.organization.id,
+        invitationId: invitationJob.invitation.id,
+      },
+      'sendInvitationEmail',
+    );
 
-    log.mockRestore();
+    debug.mockRestore();
   });
 });
 

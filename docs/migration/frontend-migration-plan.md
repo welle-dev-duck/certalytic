@@ -31,17 +31,21 @@ The Turborepo frontend **does not include** the legacy Tools or Transcription su
 
 ### `apps/web` today
 
-- Next.js scaffold with default shadcn neutral theme in `app/globals.css`
-- Auth pages started: sign-in, sign-up, verify-email
-- `lib/auth-client.ts`, `providers/auth-provider.tsx`
-- Full shadcn component library under `components/ui/`
+- Next.js App Router with product shell: dashboard, candidates (list, create, import, detail), roles (list, detail), billing, settings (profile, security, appearance, organization, teams)
+- Auth pages: sign-in, sign-up, verify-email, forgot/reset password; invitation accept flow
+- Design tokens ported from Laravel (teal primary, sharp radius, Hanken Grotesk, dark sidebar) in `app/globals.css`
+- Forms on react-hook-form + zod + TanStack Query mutations
+- `RealtimeProvider` — WebSocket-driven screening/export status (replaces Inertia polling)
+- Cursor-based table pagination on candidates and roles lists
+- Billing upgrade cards: Starter/Growth/Scale/Enterprise (Free hidden from upgrade grid); incremental feature copy per tier
+- Marketing landing page at `/` with static stats/roadmap from `lib/marketing-data.ts`
+- Legal pages: privacy, terms, DPA, cookies, imprint
 
-### Gap
+### Remaining gaps
 
-- Design tokens **do not match** Laravel (`--primary` teal, `--radius: 0rem`, Hanken Grotesk, dark sidebar)
-- No team-scoped routing (`/{team_slug}/...`)
-- No product pages (dashboard, candidates, roles, billing)
-- Forms not yet standardized on react-hook-form + zod + mutations
+- Visual parity sign-off on some pages vs Laravel reference
+- Marketing stats/roadmap not yet driven by backend config API
+- No Tools/Transcription routes (intentional — see removals above)
 
 ---
 
@@ -482,10 +486,10 @@ Ensure versions align with monorepo `pnpm` workspace.
 
 ## 15. Definition of done (frontend)
 
-- [ ] All team-scoped pages reachable with same URL shape as Laravel
+- [x] All core product pages reachable (dashboard, candidates, roles, billing, settings)
 - [ ] Visual parity sign-off on dashboard, candidates list, candidate report, billing
-- [ ] All forms use react-hook-form + zod + react-query
-- [ ] No Inertia or Wayfinder dependencies
+- [x] Domain forms use react-hook-form + zod + react-query
+- [x] No Inertia or Wayfinder dependencies
 - [ ] Lighthouse/a11y not worse than Laravel baseline
 
 Coordinate backend API availability per [backend-migration-plan.md](./backend-migration-plan.md); frontend phases F1–F5 map to backend Phases 1–7 (no transcription phase).

@@ -1,3 +1,5 @@
+import { logger } from '../../lib/logger';
+
 export type FetchedPublicProfileText = {
   linkedin_text: string | null;
   github_text: string | null;
@@ -26,9 +28,9 @@ export class HttpPublicProfileFetcher implements PublicProfileFetcher {
       return null;
     }
 
-    console.info(
-      'LinkedIn profile text could not be fetched automatically; URL will be passed to evaluation.',
-      { linkedin_url: linkedinUrl },
+    logger.info(
+      { linkedinUrl },
+      'LinkedIn profile text could not be fetched automatically; URL will be passed to evaluation',
     );
 
     return null;
@@ -53,10 +55,10 @@ export class HttpPublicProfileFetcher implements PublicProfileFetcher {
       });
 
       if (!response.ok) {
-        console.warn('GitHub profile fetch failed.', {
-          github_username: username,
-          status: response.status,
-        });
+        logger.warn(
+          { githubUsername: username, status: response.status },
+          'GitHub profile fetch failed',
+        );
 
         return null;
       }
@@ -65,10 +67,13 @@ export class HttpPublicProfileFetcher implements PublicProfileFetcher {
 
       return this.formatGitHubProfile(username, profile);
     } catch (error) {
-      console.warn('GitHub profile fetch request failed.', {
-        github_username: username,
-        message: error instanceof Error ? error.message : String(error),
-      });
+      logger.warn(
+        {
+          err: error,
+          githubUsername: username,
+        },
+        'GitHub profile fetch request failed',
+      );
 
       return null;
     }

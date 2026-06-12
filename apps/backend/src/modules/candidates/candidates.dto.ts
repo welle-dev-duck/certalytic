@@ -1,18 +1,10 @@
 import { z } from 'zod';
 
-import { createPaginatedResponseSchema } from '../../dtos/pagination.dto';
+import { createPaginatedResponseSchema, cursorPaginationQuerySchema } from '../../dtos/pagination.dto';
 import { CANDIDATE_STATUSES } from '../../db/schema/candidates.schema';
 import { limits } from '../../config/env';
 
-export const candidateListQuerySchema = z.object({
-  limit: z.coerce
-    .number()
-    .int()
-    // TODO: remove option 1 before prod
-    .refine((value) => [1, 10, 25, 50, 100].includes(value))
-    .default(25),
-  page: z.coerce.number().int().min(1).default(1),
-  cursor: z.uuid().optional(),
+export const candidateListQuerySchema = cursorPaginationQuerySchema.extend({
   search: z.string().trim().optional(),
   role_id: z.uuid().optional(),
   status: z.enum(CANDIDATE_STATUSES).optional(),
@@ -36,20 +28,6 @@ export const updateCandidateBodySchema = z.object({
 
 export const candidateIdParamsSchema = z.object({
   id: z.uuid(),
-});
-
-export const importCandidatesBodySchema = z.object({
-  rows: z
-    .array(
-      z.object({
-        name: z.string().trim().min(1),
-        email: z.email().optional().nullable(),
-        transcript: z.string().trim().min(10),
-      }),
-    )
-    .min(1)
-    .max(50),
-  role_id: z.uuid(),
 });
 
 export const candidateListItemSchema = z.object({
@@ -175,7 +153,6 @@ export const candidateReportSchema = z.object({
 });
 
 export type UpdateCandidateBodyDto = z.infer<typeof updateCandidateBodySchema>;
-export type ImportCandidatesBodyDto = z.infer<typeof importCandidatesBodySchema>;
 export type CandidateListItemDto = z.infer<typeof candidateListItemSchema>;
 export type CandidateDetailDto = z.infer<typeof candidateDetailSchema>;
 export type CandidateReportDto = z.infer<typeof candidateReportSchema>;

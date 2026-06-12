@@ -1,14 +1,13 @@
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
 
-import { env } from '../config/env';
 import { REALTIME_REDIS_CHANNEL, type RealtimeMessage } from './channels';
 import type { RealtimeServer } from './ws.server';
 
 export class RealtimeSubscriber {
-  private readonly redis: Redis;
-
-  constructor(private readonly realtimeServer: RealtimeServer) {
-    this.redis = new Redis(env.REDIS_URL);
+  constructor(
+    private readonly realtimeServer: RealtimeServer,
+    private readonly redis: Redis,
+  ) {
     this.redis.subscribe(REALTIME_REDIS_CHANNEL);
     this.redis.on('message', (_channel, raw) => {
       this.handleMessage(raw);

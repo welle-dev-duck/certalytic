@@ -12,6 +12,11 @@ declare global {
       session: AuthSession | null;
       organization?: OrganizationContext;
       createCandidateInput?: CreateCandidateInput;
+      /**
+       * Populated by the `validate` middleware. After validation, `query`,
+       * `body`, and `params` hold the parsed Zod output — use `getValidatedQuery`
+       * and siblings from `lib/validated-request.ts` for typed access.
+       */
     }
   }
 }

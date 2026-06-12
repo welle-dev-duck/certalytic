@@ -12,8 +12,7 @@ describe('env config', () => {
     });
   });
 
-  it('exposes queue names from env', () => {
+  it('exposes queue name from env', () => {
     expect(env.CERTALYTIC_QUEUE).toBeTruthy();
-    expect(env.CERTALYTIC_PRIORITY_QUEUE).toBeTruthy();
   });
 });

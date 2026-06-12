@@ -7,9 +7,10 @@ import { PdfDocumentBuilder } from './pdf-document-builder';
 import { slugifyFilename } from './pdf-slug';
 
 export class ScreeningReportPdfExporter {
-  private readonly reportService = new CandidateReportService();
-
-  constructor(private readonly planFeatures: PlanFeaturesService) {}
+  constructor(
+    private readonly planFeatures: PlanFeaturesService,
+    private readonly candidateReportService: CandidateReportService,
+  ) {}
 
   async buildDownload(
     organizationId: string,
@@ -28,7 +29,7 @@ export class ScreeningReportPdfExporter {
       'watermarked_exports',
     );
 
-    const report = this.reportService.build(candidate);
+    const report = this.candidateReportService.build(candidate);
     const builder = await PdfDocumentBuilder.create({ watermarked });
     const generatedAt = new Date()
       .toISOString()

@@ -1,11 +1,11 @@
-import { and, eq, gt, notInArray } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
 import type { Database } from '../../db/index';
 import {
   candidates,
   interviewRounds,
+  parseCvFormat,
 } from '../../db/schema/candidates.schema';
-import { generateId } from '../../lib/id';
 import type { BillingRefundProducer } from '../billing/billing-refund.producer';
 import type { PlanFeaturesService } from '../billing/plans';
 import { logger } from '../../lib/logger';
@@ -24,11 +24,13 @@ import { IntegrityEvaluationReconciler } from './integrity-evaluation-reconciler
 import { IntegrityScoreCalculator } from './integrity-score';
 import { MistralInputBudgeter } from './mistral-input-budgeter';
 import { RoleContextResolver } from './role-context-resolver';
+import { ScreeningRoundSync } from './screening-round-sync';
 import { TranscriptIntegritySignalDetector } from './transcript-integrity-signal-detector';
 import { TranscriptProcessor } from './transcript-processor';
 
 export class ScreeningService {
   private readonly scoreCalculator = new IntegrityScoreCalculator();
+  private readonly roundSync: ScreeningRoundSync;
   private readonly evaluationReconciler = new IntegrityEvaluationReconciler();
   private readonly transcriptProcessor = new TranscriptProcessor();
   private readonly transcriptSignalDetector =
@@ -46,7 +48,9 @@ export class ScreeningService {
     private readonly publicProfileFetcher: PublicProfileFetcher,
     private readonly realtimePublisher: RealtimePublisher = new NoopRealtimePublisher(),
     private readonly billingRefundProducer?: BillingRefundProducer,
-  ) {}
+  ) {
+    this.roundSync = new ScreeningRoundSync(db, this.scoreCalculator);
+  }
 
   async process(job: ProcessCandidateJob): Promise<void> {
     const candidate = await this.db.query.candidates.findFirst({
@@ -80,7 +84,7 @@ export class ScreeningService {
       const cvText = await this.cvContentResolver.resolve({
         cvText: candidate.cvText,
         cvPath: candidate.cvPath,
-        cvFormat: candidate.cvFormat as never,
+        cvFormat: parseCvFormat(candidate.cvFormat),
       });
       const primaryRound = candidate.interviewRounds[0];
       const mergedTranscript = primaryRound?.transcriptText ?? '';
@@ -136,12 +140,9 @@ export class ScreeningService {
         this.transcriptSignalDetector.detect(mergedTranscript);
 
       if (transcriptFlags.length > 0) {
-        const existingFlags = Array.isArray(evaluation.flags)
-          ? evaluation.flags
-          : [];
         evaluation = {
           ...evaluation,
-          flags: [...existingFlags, ...transcriptFlags],
+          flags: [...evaluation.flags, ...transcriptFlags],
         };
       }
 
@@ -151,14 +152,18 @@ export class ScreeningService {
       );
 
       const [roundInterviewScores, highInconsistency] =
-        await this.syncVirtualInterviewRounds(candidate.id, evaluation);
+        await this.roundSync.sync(candidate.id, evaluation);
 
       if (Object.keys(roundInterviewScores).length > 1) {
-        const sInt = evaluation.s_int as { score: number };
-        sInt.score = this.scoreCalculator.rollingInterviewScore(
-          roundInterviewScores,
-        );
-        evaluation = { ...evaluation, s_int: sInt };
+        evaluation = {
+          ...evaluation,
+          s_int: {
+            ...evaluation.s_int,
+            score: this.scoreCalculator.rollingInterviewScore(
+              roundInterviewScores,
+            ),
+          },
+        };
       }
 
       const integrityScore = this.scoreCalculator.calculate(
@@ -175,9 +180,7 @@ export class ScreeningService {
           },
           integrityScore: integrityScore.toFixed(2),
           scoreBreakdown: evaluation,
-          followUpSuggested: Array.isArray(evaluation.follow_up_suggested)
-            ? (evaluation.follow_up_suggested as string[])
-            : [],
+          followUpSuggested: evaluation.follow_up_suggested,
           highInconsistencyWarning: highInconsistency,
           processedAt: new Date(),
         })
@@ -328,175 +331,5 @@ export class ScreeningService {
     );
 
     return (canManual || canFull) && hasProfile;
-  }
-
-  private async syncVirtualInterviewRounds(
-    candidateId: string,
-    evaluation: Record<string, unknown>,
-  ): Promise<[Record<number, number>, boolean]> {
-    const roundAnalyses = Array.isArray(evaluation.round_analyses)
-      ? [...(evaluation.round_analyses as Array<Record<string, unknown>>)].sort(
-          (left, right) =>
-            Number(left.round_number ?? 0) - Number(right.round_number ?? 0),
-        )
-      : [];
-
-    if (roundAnalyses.length === 0) {
-      return this.syncSingleInterviewRound(candidateId, evaluation);
-    }
-
-    const rounds = await this.db.query.interviewRounds.findMany({
-      where: eq(interviewRounds.candidateId, candidateId),
-      orderBy: (table, { asc }) => [asc(table.roundNumber)],
-    });
-    const mergedRound = rounds[0];
-    let previousRoundScore: number | null = null;
-    let highInconsistency = false;
-    const roundInterviewScores: Record<number, number> = {};
-    const activeRoundNumbers: number[] = [];
-
-    for (const [index, roundAnalysis] of roundAnalyses.entries()) {
-      const roundNumber = Number(roundAnalysis.round_number ?? index + 1);
-      activeRoundNumbers.push(roundNumber);
-      const sIntComponent = evaluation.s_int as { score: number };
-      const sIdComponent = evaluation.s_id as { score: number };
-      const roundIntScore = Number(roundAnalysis.s_int ?? sIntComponent.score);
-      const roundIdScore = Number(roundAnalysis.s_id ?? sIdComponent.score);
-      let varianceDelta: string | null = null;
-
-      if (previousRoundScore !== null) {
-        const delta = this.scoreCalculator.varianceDelta(
-          previousRoundScore,
-          roundIntScore,
-        );
-
-        if (this.scoreCalculator.hasHighInconsistency(delta)) {
-          highInconsistency = true;
-        }
-
-        varianceDelta = delta.toFixed(2);
-      }
-
-      if (roundIntScore < 55) {
-        highInconsistency = true;
-      }
-
-      const roundPayload = {
-        roundScores: {
-          s_int: roundIntScore,
-          s_id: roundIdScore,
-          observations: Array.isArray(roundAnalysis.observations)
-            ? roundAnalysis.observations
-            : [],
-          anomalies: Array.isArray(roundAnalysis.anomalies)
-            ? roundAnalysis.anomalies
-            : evaluation.anomalies,
-        },
-        varianceDelta,
-        deepDivePrompts:
-          Array.isArray(roundAnalysis.deep_dive_prompts) &&
-          roundAnalysis.deep_dive_prompts.length > 0
-            ? roundAnalysis.deep_dive_prompts
-            : roundNumber === 1
-              ? evaluation.follow_up_suggested
-              : null,
-      };
-
-      if (roundNumber === 1 && mergedRound) {
-        await this.db
-          .update(interviewRounds)
-          .set({
-            roundScores: roundPayload.roundScores,
-            varianceDelta: roundPayload.varianceDelta,
-            deepDivePrompts: roundPayload.deepDivePrompts as string[] | null,
-          })
-          .where(eq(interviewRounds.id, mergedRound.id));
-      } else {
-        const existing = rounds.find((round) => round.roundNumber === roundNumber);
-
-        if (existing) {
-          await this.db
-            .update(interviewRounds)
-            .set({
-              transcriptText:
-                existing.transcriptText ||
-                '[Segment identified in merged transcript]',
-              wasTruncated: mergedRound?.wasTruncated ?? false,
-              interviewerNotes: null,
-              roundScores: roundPayload.roundScores,
-              varianceDelta: roundPayload.varianceDelta,
-              deepDivePrompts: roundPayload.deepDivePrompts as
-                | string[]
-                | null,
-            })
-            .where(eq(interviewRounds.id, existing.id));
-        } else {
-          await this.db.insert(interviewRounds).values({
-            id: generateId(),
-            candidateId,
-            roundNumber,
-            transcriptText: '[Segment identified in merged transcript]',
-            wasTruncated: mergedRound?.wasTruncated ?? false,
-            interviewerNotes: null,
-            roundScores: roundPayload.roundScores,
-            varianceDelta: roundPayload.varianceDelta,
-            deepDivePrompts: roundPayload.deepDivePrompts as string[] | null,
-          });
-        }
-      }
-
-      roundInterviewScores[roundNumber] = roundIntScore;
-      previousRoundScore = roundIntScore;
-    }
-
-    if (activeRoundNumbers.length > 0) {
-      await this.db
-        .delete(interviewRounds)
-        .where(
-          and(
-            eq(interviewRounds.candidateId, candidateId),
-            gt(interviewRounds.roundNumber, 1),
-            notInArray(interviewRounds.roundNumber, activeRoundNumbers),
-          ),
-        );
-    }
-
-    return [roundInterviewScores, highInconsistency];
-  }
-
-  private async syncSingleInterviewRound(
-    candidateId: string,
-    evaluation: Record<string, unknown>,
-  ): Promise<[Record<number, number>, boolean]> {
-    const round = await this.db.query.interviewRounds.findFirst({
-      where: eq(interviewRounds.candidateId, candidateId),
-      orderBy: (table, { asc }) => [asc(table.roundNumber)],
-    });
-
-    if (!round) {
-      return [{}, false];
-    }
-
-    const sInt = evaluation.s_int as { score: number };
-    const sId = evaluation.s_id as { score: number };
-    const highInconsistency = sInt.score < 55;
-
-    await this.db
-      .update(interviewRounds)
-      .set({
-        roundScores: {
-          s_int: sInt.score,
-          s_id: sId.score,
-          observations: [],
-          anomalies: evaluation.anomalies,
-        },
-        varianceDelta: null,
-        deepDivePrompts: Array.isArray(evaluation.follow_up_suggested)
-          ? (evaluation.follow_up_suggested as string[])
-          : [],
-      })
-      .where(eq(interviewRounds.id, round.id));
-
-    return [{ [round.roundNumber]: sInt.score }, highInconsistency];
   }
 }

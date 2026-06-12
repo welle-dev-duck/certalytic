@@ -1,16 +1,16 @@
 "use client";
 
-import { Check, Zap } from "lucide-react";
+import { Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
-  CONTACT_EMAIL,
-  ENTERPRISE_PLAN,
-  SUBSCRIPTION_PLANS,
-  TOKEN_PACKS,
-} from "@/features/billing/plans";
+  EnterprisePlanCard,
+  PAID_SUBSCRIPTION_PLANS,
+  SubscriptionPlanCard,
+} from "@/features/billing/components/plan-cards";
+import { CONTACT_EMAIL, SUBSCRIPTION_PLANS, TOKEN_PACKS } from "@/features/billing/plans";
 import {
   useBillingPortal,
   useBillingUsage,
@@ -39,6 +39,9 @@ export function BillingView() {
   const tokenPct =
     planQuota > 0 ? Math.round((tokenUsed / planQuota) * 100) : 0;
   const currentPlan = usage?.plan ?? "free";
+  const currentPlanLabel =
+    SUBSCRIPTION_PLANS.find((plan) => plan.value === currentPlan)?.label ??
+    currentPlan;
 
   function buyPack(key: (typeof TOKEN_PACKS)[number]["key"]) {
     setPending(key);
@@ -125,88 +128,26 @@ export function BillingView() {
 
       <section>
         <SectionHeader label="PLANS" />
+        <p className="mb-4 text-sm text-muted-foreground">
+          Your current plan:{" "}
+          <span className="font-semibold text-foreground">
+            {currentPlanLabel}
+          </span>
+        </p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-          {SUBSCRIPTION_PLANS.filter((plan) => plan.value !== "free").map(
-            (plan) => {
-              const isCurrent = plan.value === currentPlan;
-              const displayFeatures =
-                plan.includesPlan !== null
-                  ? plan.incrementalFeatures
-                  : plan.features;
+          {PAID_SUBSCRIPTION_PLANS.map((plan) => {
+            const isCurrent = plan.value === currentPlan;
 
-              return (
-                <div
-                  key={plan.value}
-                  className="flex flex-col gap-4 rounded-lg border p-5"
-                  style={{
-                    background: isCurrent
-                      ? "color-mix(in oklch, var(--primary) 7%, transparent)"
-                      : "var(--c-surface)",
-                    borderColor: isCurrent
-                      ? "color-mix(in oklch, var(--primary) 35%, transparent)"
-                      : "var(--c-border)",
-                  }}
-                >
-                  <div>
-                    <div className="mb-1 flex items-center gap-2">
-                      <p
-                        className="text-sm font-bold"
-                        style={{
-                          color: isCurrent ? "var(--c-cyan)" : "var(--c-text)",
-                        }}
-                      >
-                        {plan.label}
-                      </p>
-                      {isCurrent && (
-                        <span
-                          className="rounded px-2 py-0.5 text-[10px] font-bold tracking-wide"
-                          style={{
-                            background:
-                              "color-mix(in oklch, var(--primary) 15%, transparent)",
-                            color: "var(--c-cyan)",
-                            border:
-                              "1px solid color-mix(in oklch, var(--primary) 30%, transparent)",
-                          }}
-                        >
-                          CURRENT
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-2xl font-bold tabular-nums text-foreground">
-                      €{plan.price}
-                      <span className="text-sm font-normal text-muted-foreground">
-                        /mo
-                      </span>
-                    </p>
-                    {plan.recommendation ? (
-                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                        {plan.recommendation}
-                      </p>
-                    ) : null}
-                  </div>
-
-                  <div className="space-y-1.5">
-                    {plan.includesPlan ? (
-                      <p className="text-xs font-semibold text-foreground">
-                        Everything in {plan.includesPlan}, plus:
-                      </p>
-                    ) : null}
-                    {displayFeatures.map((feature) => (
-                      <div key={feature} className="flex items-start gap-2">
-                        <Check
-                          size={12}
-                          className="mt-0.5 shrink-0 text-[#10B981]"
-                        />
-                        <span className="text-xs text-foreground">
-                          {feature}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {isCurrent ? (
+            return (
+              <SubscriptionPlanCard
+                key={plan.value}
+                plan={plan}
+                highlighted={isCurrent || plan.value === "growth"}
+                badge={isCurrent ? "CURRENT" : undefined}
+                footer={
+                  isCurrent ? (
                     <Button
-                      className="mt-auto w-full"
+                      className="w-full"
                       variant="default"
                       onClick={openPortal}
                       disabled={billingPortal.isPending}
@@ -215,7 +156,7 @@ export function BillingView() {
                     </Button>
                   ) : (
                     <Button
-                      className="mt-auto w-full"
+                      className="w-full"
                       variant="outline"
                       disabled={pending !== null || subscriptionUpgrade.isPending}
                       onClick={() =>
@@ -226,38 +167,23 @@ export function BillingView() {
                     >
                       {pending === plan.value ? "Redirecting…" : "Upgrade"}
                     </Button>
-                  )}
-                </div>
-              );
-            },
-          )}
+                  )
+                }
+              />
+            );
+          })}
 
-          <div className="flex flex-col gap-4 rounded-lg border border-border bg-card p-5">
-            <div>
-              <p className="text-sm font-bold text-foreground">
-                {ENTERPRISE_PLAN.label}
-              </p>
-              <p className="mt-1 text-2xl font-bold text-foreground">Custom</p>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                {ENTERPRISE_PLAN.recommendation}
-              </p>
-            </div>
-            <div className="space-y-1.5">
-              {ENTERPRISE_PLAN.features.map((feature) => (
-                <div key={feature} className="flex items-start gap-2">
-                  <Check size={12} className="mt-0.5 shrink-0 text-[#10B981]" />
-                  <span className="text-xs text-foreground">{feature}</span>
-                </div>
-              ))}
-            </div>
-            <Button asChild className="mt-auto w-full" variant="outline">
-              <a
-                href={`mailto:${CONTACT_EMAIL}?subject=Enterprise%20plan%20inquiry`}
-              >
-                Contact us
-              </a>
-            </Button>
-          </div>
+          <EnterprisePlanCard
+            footer={
+              <Button asChild className="w-full" variant="outline">
+                <a
+                  href={`mailto:${CONTACT_EMAIL}?subject=Enterprise%20plan%20inquiry`}
+                >
+                  Contact us
+                </a>
+              </Button>
+            }
+          />
         </div>
       </section>
 

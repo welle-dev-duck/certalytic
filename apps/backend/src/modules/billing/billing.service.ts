@@ -2,7 +2,7 @@ import { and, eq } from 'drizzle-orm';
 import Stripe from 'stripe';
 
 import { env, plans, tokenPacks } from '../../config/env';
-import type { Database } from '../../db/index';
+import type { Database, DbTransaction } from '../../db/index';
 import { member, organization } from '../../db/schema/auth.schema';
 import {
   billing,
@@ -11,7 +11,8 @@ import {
 import { AppError } from '../../lib/errors';
 import { generateId } from '../../lib/id';
 import type { BillingUsageDto } from './billing.dto';
-import type { PlanFeaturesService, PlanId } from './plans';
+import { computeDebitedTokens } from './billing-tokens';
+import type { PlanFeaturesService } from './plans';
 
 const PACK_KEY_MAP = {
   quick_refill: 'quickRefill',
@@ -21,12 +22,14 @@ const PACK_KEY_MAP = {
 
 type PackKey = keyof typeof PACK_KEY_MAP;
 
+type DbExecutor = Database | DbTransaction;
+
 export class BillingService {
   private stripeClient: Stripe | undefined;
 
   constructor(
     private readonly db: Database,
-    private readonly planFeatures?: PlanFeaturesService,
+    private readonly planFeatures: PlanFeaturesService,
   ) {}
 
   getStripeClient(): Stripe {
@@ -58,43 +61,58 @@ export class BillingService {
   }
 
   async ensureBilling(organizationId: string): Promise<typeof billing.$inferSelect> {
+    await this.ensureBillingRow(organizationId);
+
     const existing = await this.db.query.billing.findFirst({
       where: eq(billing.organizationId, organizationId),
     });
 
-    if (existing) {
-      return existing;
-    }
-
-    const planId: PlanId = this.planFeatures
-      ? await this.planFeatures.resolvePlan(organizationId)
-      : 'free';
-    const planTokens = plans[planId].tokens ?? 3;
-    const id = generateId();
-
-    await this.db.insert(billing).values({
-      id,
-      organizationId,
-      planTokens,
-      refillTokens: 0,
-    });
-
-    const created = await this.db.query.billing.findFirst({
-      where: eq(billing.id, id),
-    });
-
-    if (!created) {
+    if (!existing) {
       throw new Error('Failed to create billing row.');
     }
 
-    return created;
+    return existing;
+  }
+
+  private async ensureBillingRow(
+    organizationId: string,
+    executor: DbExecutor = this.db,
+  ): Promise<void> {
+    const planId = await this.planFeatures.resolvePlan(organizationId);
+    const planTokens = plans[planId].tokens ?? 3;
+
+    await executor
+      .insert(billing)
+      .values({
+        id: generateId(),
+        organizationId,
+        planTokens,
+        refillTokens: 0,
+      })
+      .onConflictDoNothing({ target: billing.organizationId });
+  }
+
+  private async lockBillingRow(
+    organizationId: string,
+    executor: DbTransaction,
+  ): Promise<typeof billing.$inferSelect> {
+    await this.ensureBillingRow(organizationId, executor);
+
+    const [balance] = await executor
+      .select()
+      .from(billing)
+      .where(eq(billing.organizationId, organizationId))
+      .for('update')
+      .limit(1);
+
+    if (!balance) {
+      throw new Error('Failed to lock billing row.');
+    }
+
+    return balance;
   }
 
   async usageSummary(organizationId: string): Promise<BillingUsageDto> {
-    if (!this.planFeatures) {
-      throw new Error('PlanFeaturesService is required for usage summary.');
-    }
-
     const planId = await this.planFeatures.resolvePlan(organizationId);
     const plan = plans[planId];
     const balance = await this.ensureBilling(organizationId);
@@ -129,44 +147,35 @@ export class BillingService {
     return (await this.availableScreeningTokens(organizationId)) >= amount;
   }
 
-  async debitScreening(organizationId: string, amount = 1): Promise<void> {
-    if (!(await this.canConsumeScreening(organizationId, amount))) {
-      throw new AppError(
-        'Insufficient screening tokens.',
-        402,
-        'INSUFFICIENT_TOKENS',
-      );
+  async debitScreening(
+    organizationId: string,
+    amount = 1,
+    tx?: DbTransaction,
+  ): Promise<void> {
+    const run = async (executor: DbTransaction) => {
+      const balance = await this.lockBillingRow(organizationId, executor);
+      const debited = computeDebitedTokens(balance, amount);
+
+      if (!debited) {
+        throw new AppError(
+          'Insufficient screening tokens.',
+          402,
+          'INSUFFICIENT_TOKENS',
+        );
+      }
+
+      await executor
+        .update(billing)
+        .set(debited)
+        .where(eq(billing.organizationId, organizationId));
+    };
+
+    if (tx) {
+      await run(tx);
+      return;
     }
 
-    const balance = await this.ensureBilling(organizationId);
-    let remaining = amount;
-    let planTokens = balance.planTokens;
-    let refillTokens = balance.refillTokens;
-
-    if (planTokens > 0 && remaining > 0) {
-      const fromPlan = Math.min(planTokens, remaining);
-      planTokens -= fromPlan;
-      remaining -= fromPlan;
-    }
-
-    if (refillTokens > 0 && remaining > 0) {
-      const fromRefill = Math.min(refillTokens, remaining);
-      refillTokens -= fromRefill;
-      remaining -= fromRefill;
-    }
-
-    if (remaining > 0) {
-      throw new AppError(
-        'Insufficient screening tokens.',
-        402,
-        'INSUFFICIENT_TOKENS',
-      );
-    }
-
-    await this.db
-      .update(billing)
-      .set({ planTokens, refillTokens })
-      .where(eq(billing.organizationId, organizationId));
+    await this.db.transaction(run);
   }
 
   async refundScreening(organizationId: string, amount = 1): Promise<void> {
@@ -175,14 +184,12 @@ export class BillingService {
     let refillTokens = balance.refillTokens;
     let remaining = amount;
 
-    if (this.planFeatures) {
-      const planId = await this.planFeatures.resolvePlan(organizationId);
-      const planQuota = plans[planId].tokens ?? 3;
-      const planRoom = Math.max(0, planQuota - planTokens);
-      const toPlan = Math.min(remaining, planRoom);
-      planTokens += toPlan;
-      remaining -= toPlan;
-    }
+    const planId = await this.planFeatures.resolvePlan(organizationId);
+    const planQuota = plans[planId].tokens ?? 3;
+    const planRoom = Math.max(0, planQuota - planTokens);
+    const toPlan = Math.min(remaining, planRoom);
+    planTokens += toPlan;
+    remaining -= toPlan;
 
     refillTokens += remaining;
 
@@ -193,10 +200,6 @@ export class BillingService {
   }
 
   async resetPlanTokens(organizationId: string): Promise<void> {
-    if (!this.planFeatures) {
-      return;
-    }
-
     const planId = await this.planFeatures.resolvePlan(organizationId);
     const planTokens = plans[planId].tokens ?? 3;
 
@@ -248,10 +251,6 @@ export class BillingService {
     organizationId: string,
     packKey: PackKey,
   ): Promise<string> {
-    if (!this.planFeatures) {
-      throw new Error('PlanFeaturesService is required for pack checkout.');
-    }
-
     const canPurchase = await this.planFeatures.can(
       organizationId,
       'token_packs',

@@ -1,5 +1,13 @@
 import { env } from '../../config/env';
 import { MistralClient } from '../mistral/mistral.client';
+import type {
+  EvaluationFlag,
+  PlatformMatrixRow,
+  RoundAnalysis,
+  ScoreComponent,
+  ScreeningEvaluation,
+  SupplementaryAnalysis,
+} from './dtos/screening-evaluation.dto';
 import { buildCandidateEvaluationSystemPrompt } from './prompts/candidate-evaluation.prompt';
 import {
   roleContextToPromptArray,
@@ -20,7 +28,7 @@ export type PublicProfiles = {
   github_text?: string | null;
 };
 
-export type ScreeningEvaluation = Record<string, unknown>;
+export type { ScreeningEvaluation } from './dtos/screening-evaluation.dto';
 
 export class CandidateEvaluator {
   constructor(private readonly mistralClient: MistralClient) {}
@@ -108,7 +116,7 @@ export class CandidateEvaluator {
   private normalizeSupplementaryAnalysis(
     analysis: unknown,
     personality: boolean,
-  ): Record<string, unknown> {
+  ): SupplementaryAnalysis {
     if (!analysis || typeof analysis !== 'object') {
       return {
         summary: 'Supplementary analysis was not available for this screening.',
@@ -154,7 +162,7 @@ export class CandidateEvaluator {
     );
   }
 
-  private normalizeRoundAnalyses(value: unknown): Array<Record<string, unknown>> {
+  private normalizeRoundAnalyses(value: unknown): RoundAnalysis[] {
     if (!Array.isArray(value)) {
       return [];
     }
@@ -171,7 +179,7 @@ export class CandidateEvaluator {
       }));
   }
 
-  private normalizeFlags(value: unknown): Array<Record<string, unknown>> {
+  private normalizeFlags(value: unknown): EvaluationFlag[] {
     if (!Array.isArray(value)) {
       return [];
     }
@@ -184,7 +192,7 @@ export class CandidateEvaluator {
       .map((flag) => ({
         type: typeof flag.type === 'string' ? flag.type : 'interview_prompt',
         severity: typeof flag.severity === 'string' ? flag.severity : 'warning',
-        description: flag.description,
+        description: String(flag.description),
         confidence:
           typeof flag.confidence === 'number'
             ? Math.max(0, Math.min(1, flag.confidence))
@@ -195,7 +203,10 @@ export class CandidateEvaluator {
   private normalizePlatformMatrix(
     value: unknown,
     includeCrossSource: boolean,
-  ): Record<string, { score: number | null; explanation: string }> {
+  ): Record<
+    keyof ScreeningEvaluation['platform_matrix'],
+    PlatformMatrixRow
+  > {
     if (!includeCrossSource) {
       return {
         linkedin_cv_match: {
@@ -256,7 +267,7 @@ export class CandidateEvaluator {
   private normalizeComponent(
     value: unknown,
     defaultScore: number,
-  ): Record<string, unknown> {
+  ): ScoreComponent {
     const component =
       value && typeof value === 'object'
         ? (value as Record<string, unknown>)

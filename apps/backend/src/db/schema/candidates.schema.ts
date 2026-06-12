@@ -28,6 +28,14 @@ export const CV_FORMATS = ['pdf', 'docx', 'markdown', 'text'] as const;
 
 export type CvFormat = (typeof CV_FORMATS)[number];
 
+export function parseCvFormat(value: string | null | undefined): CvFormat | null {
+  if (!value) {
+    return null;
+  }
+
+  return CV_FORMATS.includes(value as CvFormat) ? (value as CvFormat) : null;
+}
+
 export const candidates = pgTable(
   'candidates',
   {

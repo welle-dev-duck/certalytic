@@ -1,37 +1,39 @@
-import { Worker, type ConnectionOptions } from 'bullmq';
+import type { ConnectionOptions } from 'bullmq';
 
+import { createQueueWorker } from '../../lib/queue-worker';
+import { logger } from '../../lib/logger';
 import { EMAILS_QUEUE_NAME } from '../../queues/emails.queue';
 import { emailJobSchema } from './dtos/email-job.dto';
 import type { EmailsService } from './emails.service';
 
-export const EMAIL_WORKER_COUNT = 5;
+export const EMAIL_WORKER_CONCURRENCY = 5;
 
 export class EmailsWorkers {
-  private readonly workers: Worker[] = [];
+  private readonly worker;
 
   constructor(
     connection: ConnectionOptions,
     private readonly emailsService: EmailsService,
   ) {
-    for (let i = 0; i < EMAIL_WORKER_COUNT; i++) {
-      const worker = new Worker(
-        EMAILS_QUEUE_NAME,
-        async (job) => {
-          const payload = emailJobSchema.parse(job.data);
-          await this.emailsService.process(payload);
-        },
-        { connection, concurrency: 1 },
+    this.worker = createQueueWorker(
+      EMAILS_QUEUE_NAME,
+      async (job) => {
+        const payload = emailJobSchema.parse(job.data);
+        await this.emailsService.process(payload);
+      },
+      connection,
+      EMAIL_WORKER_CONCURRENCY,
+    );
+
+    this.worker.on('failed', (job, error) => {
+      logger.error(
+        { err: error, jobId: job?.id ?? 'unknown' },
+        'Email job failed',
       );
-
-      worker.on('failed', (job, error) => {
-        console.error(`Email job ${job?.id ?? 'unknown'} failed:`, error);
-      });
-
-      this.workers.push(worker);
-    }
+    });
   }
 
   async close(): Promise<void> {
-    await Promise.all(this.workers.map((worker) => worker.close()));
+    await this.worker.close();
   }
 }

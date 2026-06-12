@@ -6,7 +6,6 @@ import { validate } from '../../lib/validate';
 import {
   candidateIdParamsSchema,
   candidateListQuerySchema,
-  importCandidatesBodySchema,
   updateCandidateBodySchema,
 } from './candidates.dto';
 import type { CandidatesController } from './candidates.controller';
@@ -35,14 +34,6 @@ export class CandidatesRouter {
       rateLimitScreening,
       uploadCandidateCreate,
       candidatesController.create,
-    );
-
-    this.router.post(
-      '/import',
-      ...withOrganization,
-      rateLimitScreening,
-      validate({ body: importCandidatesBodySchema }),
-      candidatesController.importCandidates,
     );
 
     this.router.get(

@@ -89,9 +89,11 @@ export const ENTERPRISE_PLAN = {
   recommendation: "Choose this if you have custom needs.",
   features: [
     "Unlimited seats & tokens",
-    "Dedicated support",
-    "Custom integrations",
-    "SSO & audit logs",
+    "ATS system integrations (Greenhouse, Lever, Workday)",
+    "Single sign-on (SSO) & SAML",
+    "Priority support with dedicated success manager",
+    "Custom onboarding",
+    "API access",
   ],
 };
 

@@ -20,12 +20,11 @@ type RoleExportRecord = {
 };
 
 export class RoleExportPdfGenerator {
-  private readonly reportService = new CandidateReportService();
-
   constructor(
     private readonly db: Database,
     private readonly storage: StorageClient,
     private readonly planFeatures: PlanFeaturesService,
+    private readonly candidateReportService: CandidateReportService,
   ) {}
 
   async store(exportRecord: RoleExportRecord): Promise<string> {
@@ -101,7 +100,7 @@ export class RoleExportPdfGenerator {
 
     for (const candidate of completedCandidates) {
       const detail = this.toCandidateDetail(candidate);
-      const report = this.reportService.build(detail);
+      const report = this.candidateReportService.build(detail);
 
       builder.startCandidatePage();
       builder.addCandidateReport(candidate.name, report, {

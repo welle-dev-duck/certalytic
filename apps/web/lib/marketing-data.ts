@@ -1,8 +1,4 @@
-import {
-  ENTERPRISE_PLAN,
-  SUBSCRIPTION_PLANS,
-} from "@/features/billing/plans";
-
+import { SUBSCRIPTION_PLANS } from "@/features/billing/plans";
 export const MARKETING_STATS = {
   candidates_screened: "12,400+",
   customers: "180+",
@@ -38,61 +34,4 @@ export const MARKETING_ROADMAP = [
   },
 ] as const;
 
-export type MarketingPricingPlan = {
-  value: string;
-  label: string;
-  price: number | null;
-  tokens: number | null;
-  seats: number;
-  features: string[];
-  highlighted?: boolean;
-};
-
 export const FREE_PLAN_TOKENS = SUBSCRIPTION_PLANS[0].tokens;
-
-export function getMarketingPricingPlans(): MarketingPricingPlan[] {
-  const [, starter, growth, scale] = SUBSCRIPTION_PLANS;
-
-  return [
-    {
-      value: starter.value,
-      label: starter.label,
-      price: starter.price,
-      tokens: starter.tokens,
-      seats: starter.seats,
-      features: [...starter.incrementalFeatures],
-    },
-    {
-      value: growth.value,
-      label: growth.label,
-      price: growth.price,
-      tokens: growth.tokens,
-      seats: growth.seats,
-      features: [...growth.incrementalFeatures],
-      highlighted: true,
-    },
-    {
-      value: scale.value,
-      label: scale.label,
-      price: scale.price,
-      tokens: scale.tokens,
-      seats: scale.seats,
-      features: [...scale.incrementalFeatures],
-    },
-    {
-      value: "enterprise",
-      label: ENTERPRISE_PLAN.label,
-      price: null,
-      tokens: null,
-      seats: 6,
-      features: [
-        "Everything in Scale, plus:",
-        "ATS system integrations (Greenhouse, Lever, Workday)",
-        "Single sign-on (SSO) & SAML",
-        "Priority support with dedicated success manager",
-        "Custom onboarding",
-        "API access",
-      ],
-    },
-  ];
-}

@@ -33,19 +33,31 @@ The Turborepo app **drops the entire Tools / Transcription product surface** fro
 
 | Capability | Module / location |
 |---|---|
-| HTTP app shell, env, errors | `src/app.ts`, `middleware/` |
+| HTTP app shell, env, errors, rate limits | `src/app.ts`, `middleware/` |
 | Auth (better-auth + org + stripe plugins) | `modules/auth/` |
 | Session on `req.session` | `middleware/session.ts` |
 | Users read API | `modules/users/` |
-| Billing checkout portal (Stripe) | `modules/billing/` |
-| Email jobs (verify, invite) | `modules/emails/`, `queues/emails.queue.ts` |
+| Organizations API | `modules/organizations/` |
+| Billing (Stripe checkout, portal, screening packs, refunds) | `modules/billing/` |
+| Screening pipeline (Mistral evaluate, integrity score) | `modules/screening/`, `modules/mistral/` |
+| Candidates CRUD, import, report, sync PDF export | `modules/candidates/` |
+| Roles CRUD, scan assets, async batch PDF export | `modules/roles/` |
+| PDF generation (`pdf-lib`) | `modules/exports/pdf-document-builder.ts` |
+| Object storage (S3-compatible) | `src/storage/` |
+| Email jobs (verify, invite, reset) | `modules/emails/`, `queues/emails.queue.ts` |
+| BullMQ queues: `emails`, `screening`, `roles`, `billing-refunds` | `src/queues/` |
+| Realtime (Redis pub/sub + WebSocket server) | `src/realtime/` |
+| Cursor pagination on list endpoints | `src/lib/pagination.ts` |
 | Bull Board (admin) | `queues/dashboard.ts` |
 | UUIDv7 IDs | `lib/id.ts`, auth schema |
 | Unit + e2e tests | `src/**/*.test.ts`, `test/e2e/` |
 
-### Not yet ported
+### Not yet ported / remaining gaps
 
-Everything in the screening product domain: candidates, roles, Mistral pipeline, screening-token billing, S3 storage, PDF exports, rate limits, marketing config API, org-scoped authorization beyond org membership. (Org RBAC is largely handled by better-auth: members can run screenings and manage roles; billing and org settings are owner/admin only.)
+- Public marketing config API (stats/roadmap env vars) — frontend uses static `marketing-data.ts` today
+- Full visual parity sign-off vs Laravel UI (frontend concern — see frontend plan)
+- Enterprise sales-led flows beyond standard Stripe checkout
+- Roadmap items in product-overview §11 (ATS, SSO, batch screening, public API)
 
 ---
 
@@ -56,17 +68,17 @@ Everything in the screening product domain: candidates, roles, Mistral pipeline,
 | Fortify + session | better-auth (`modules/auth/`) — **done** |
 | `Membership` + invitations | Organization plugin +  (invites → emails queue) |
 | Cashier on `Team` | `@better-auth/stripe` + extend `BillingService` for screening packs |
-| Horizon (`default`, `screenings-priority`) | BullMQ queues in `src/queues/` + workers in `index.ts` |
-| `ProcessCandidateScreeningJob` | `modules/screening/screening.worker.ts` |
-| `ImportCandidatesJob` | `modules/candidates/import.worker.ts` |
-| `ProcessRoleDocumentJob` | `modules/roles/document.worker.ts` |
-| `GenerateRoleExportPdfJob` | `modules/roles/export.worker.ts` |
+| Horizon (`default`, `screenings-priority`) | BullMQ `screening` queue + optional job `priority` on Scale+ — **done** |
+| `ProcessCandidateScreeningJob` | `modules/screening/screening.worker.ts` — **done** |
+| `ImportCandidatesJob` | `modules/candidates/import.worker.ts` — **done** |
+| `ProcessRoleDocumentJob` | `modules/roles/document.worker.ts` — **done** |
+| `GenerateRoleExportPdfJob` | `modules/roles/export.worker.ts` + `PdfDocumentBuilder` — **done** |
 | ~~`TranscribeAudioJob`~~ | **Removed** — transcription tool not ported |
 | `teams.transcript_tokens` / screening counters on team | `billing` table — `plan_tokens`, `refill_tokens` per `organization_id` |
 | Eloquent models | Drizzle schemas in shared `db/schema/` |
 | Form requests / policies | Zod DTOs + service-layer authorization |
 | S3 via Flysystem | `@aws-sdk/client-s3` in `src/storage/` |
-| DomPDF | `@react-pdf/renderer` or `puppeteer`/`pdf-lib` — **decide in Phase 4** |
+| DomPDF | `pdf-lib` via `PdfDocumentBuilder` — **done** |
 | Mistral HTTP | `modules/mistral/` client (port `MistralClient` behavior @mistralai/mistralai pnpm package) |
 | Inertia shared props | REST/JSON endpoints consumed by React Query on frontend |
 | Laravel `paginate($perPage)` (offset pages) | **Cursor pagination** on UUIDv7 `id` — see §4 |

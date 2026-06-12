@@ -1,13 +1,13 @@
-import { Worker, type ConnectionOptions } from 'bullmq';
+import type { ConnectionOptions } from 'bullmq';
 
+import { createQueueWorker } from '../../lib/queue-worker';
 import { logger } from '../../lib/logger';
 import { SCREENING_JOB_ATTEMPTS } from '../../queues/screening.queue-options';
 import { SCREENING_QUEUE_NAME } from '../../queues/screening.queue';
-import type { RolesExportService } from '../roles/roles-export.service';
-import { screeningQueueJobSchema } from './dtos/screening-job.dto';
+import { processCandidateJobSchema } from './dtos/screening-job.dto';
 import type { ScreeningService } from './screening.service';
 
-export const SCREENING_WORKER_COUNT = 2;
+export const SCREENING_WORKER_CONCURRENCY = 2;
 
 function isFinalAttempt(
   attemptsMade: number,
@@ -18,79 +18,69 @@ function isFinalAttempt(
 }
 
 export class ScreeningWorkers {
-  private readonly workers: Worker[] = [];
+  private readonly worker;
 
   constructor(
     connection: ConnectionOptions,
     private readonly screeningService: ScreeningService,
-    private readonly rolesExportService: RolesExportService,
   ) {
-    for (let i = 0; i < SCREENING_WORKER_COUNT; i++) {
-      const worker = new Worker(
-        SCREENING_QUEUE_NAME,
-        async (job) => {
-          const payload = screeningQueueJobSchema.parse(job.data);
+    this.worker = createQueueWorker(
+      SCREENING_QUEUE_NAME,
+      async (job) => {
+        const payload = processCandidateJobSchema.parse(job.data);
+        await this.screeningService.process(payload);
+      },
+      connection,
+      SCREENING_WORKER_CONCURRENCY,
+    );
 
-          if (payload.type === 'generate-export') {
-            await this.rolesExportService.process(payload.roleExportId);
-            return;
-          }
+    this.worker.on('failed', (job, error) => {
+      if (!job) {
+        return;
+      }
 
-          await this.screeningService.process(payload);
-        },
-        { connection, concurrency: 1 },
-      );
+      const parsed = processCandidateJobSchema.safeParse(job.data);
 
-      worker.on('failed', (job, error) => {
-        if (!job) {
-          return;
-        }
+      if (!parsed.success) {
+        logger.error(
+          { err: error, jobId: job.id },
+          'Screening queue job failed',
+        );
+        return;
+      }
 
-        const parsed = screeningQueueJobSchema.safeParse(job.data);
+      const candidateId = parsed.data.candidateId;
 
-        if (!parsed.success || parsed.data.type !== 'process-candidate') {
+      if (!isFinalAttempt(job.attemptsMade, job.opts.attempts)) {
+        logger.warn(
+          {
+            err: error,
+            jobId: job.id,
+            candidateId,
+            attempt: job.attemptsMade,
+            maxAttempts: job.opts.attempts ?? SCREENING_JOB_ATTEMPTS,
+          },
+          'Screening job attempt failed, retrying',
+        );
+        return;
+      }
+
+      void this.screeningService
+        .handlePermanentFailure(candidateId, error)
+        .catch((failureError) => {
           logger.error(
-            { err: error, jobId: job.id },
-            'Screening queue job failed',
-          );
-          return;
-        }
-
-        const candidateId = parsed.data.candidateId;
-
-        if (!isFinalAttempt(job.attemptsMade, job.opts.attempts)) {
-          logger.warn(
             {
-              err: error,
+              err: failureError,
               jobId: job.id,
               candidateId,
-              attempt: job.attemptsMade,
-              maxAttempts: job.opts.attempts ?? SCREENING_JOB_ATTEMPTS,
             },
-            'Screening job attempt failed, retrying',
+            'Failed to finalize permanently failed screening job',
           );
-          return;
-        }
-
-        void this.screeningService
-          .handlePermanentFailure(candidateId, error)
-          .catch((failureError) => {
-            logger.error(
-              {
-                err: failureError,
-                jobId: job.id,
-                candidateId,
-              },
-              'Failed to finalize permanently failed screening job',
-            );
-          });
-      });
-
-      this.workers.push(worker);
-    }
+        });
+    });
   }
 
   async close(): Promise<void> {
-    await Promise.all(this.workers.map((worker) => worker.close()));
+    await this.worker.close();
   }
 }

@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 
 import { AppError } from '../../lib/errors';
 import { sendJson } from '../../lib/response';
+import { getValidatedBody, getValidatedParams, getValidatedQuery } from '../../lib/validated-request';
 import {
   roleDetailSchema,
   roleExportSummarySchema,
@@ -22,7 +23,7 @@ export class RolesController {
   list = async (req: Request, res: Response): Promise<void> => {
     const result = await this.rolesService.list(
       req.organization!.id,
-      req.query as unknown as RoleListQueryDto,
+      getValidatedQuery<RoleListQueryDto>(req),
     );
 
     sendJson(res, roleListResponseSchema, result);
@@ -38,18 +39,18 @@ export class RolesController {
   create = async (req: Request, res: Response): Promise<void> => {
     const role = await this.rolesService.create(
       req.organization!.id,
-      req.body as CreateRoleBodyDto,
+      getValidatedBody<CreateRoleBodyDto>(req),
     );
 
     sendJson(res, roleDetailSchema, role, 201);
   };
 
   update = async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params as { id: string };
+    const { id } = getValidatedParams<{ id: string }>(req);
     const role = await this.rolesService.update(
       req.organization!.id,
       id,
-      req.body as UpdateRoleBodyDto,
+      getValidatedBody<UpdateRoleBodyDto>(req),
     );
 
     sendJson(res, roleDetailSchema, role);

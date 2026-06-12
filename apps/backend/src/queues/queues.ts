@@ -2,6 +2,7 @@ import type { ConnectionOptions, Queue } from 'bullmq';
 
 import { createBillingRefundQueue } from './billing-refund.queue';
 import { createEmailsQueue } from './emails.queue';
+import { createRoleExportsQueue } from './role-exports.queue';
 import { createRolesQueue } from './roles.queue';
 import { createScreeningQueue } from './screening.queue';
 
@@ -9,17 +10,25 @@ export class Queues {
   readonly emails: Queue;
   readonly roles: Queue;
   readonly screening: Queue;
+  readonly roleExports: Queue;
   readonly billingRefunds: Queue;
 
   constructor(connection: ConnectionOptions) {
     this.emails = createEmailsQueue(connection);
     this.roles = createRolesQueue(connection);
     this.screening = createScreeningQueue(connection);
+    this.roleExports = createRoleExportsQueue(connection);
     this.billingRefunds = createBillingRefundQueue(connection);
   }
 
   all(): Queue[] {
-    return [this.emails, this.roles, this.screening, this.billingRefunds];
+    return [
+      this.emails,
+      this.roles,
+      this.screening,
+      this.roleExports,
+      this.billingRefunds,
+    ];
   }
 
   async close(): Promise<void> {

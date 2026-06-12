@@ -1,49 +1,40 @@
-type Evaluation = Record<string, unknown>;
-type Flag = Record<string, unknown>;
-type Component = Record<string, unknown>;
+import type {
+  EvaluationFlag,
+  RoundAnalysis,
+  ScoreComponent,
+  ScreeningEvaluation,
+} from './dtos/screening-evaluation.dto';
 
 export class IntegrityEvaluationReconciler {
-  reconcile(evaluation: Evaluation, hasExternalProfiles: boolean): Evaluation {
-    const flags = this.normalizeFlags(
-      Array.isArray(evaluation.flags) ? (evaluation.flags as Flag[]) : [],
-      hasExternalProfiles,
-    );
+  reconcile(
+    evaluation: ScreeningEvaluation,
+    hasExternalProfiles: boolean,
+  ): ScreeningEvaluation {
+    const flags = this.normalizeFlags(evaluation.flags, hasExternalProfiles);
     const [sIntCap, sCvCap] = this.scoreCapsFromFlags(flags);
 
     return {
       ...evaluation,
       flags,
-      s_int: this.capComponent(
-        (evaluation.s_int as Component) ?? {},
-        sIntCap,
-        'Interview authenticity signals were adjusted to align with raised integrity flags.',
-      ),
-      s_cv: this.capComponent(
-        (evaluation.s_cv as Component) ?? {},
-        sCvCap,
-        'CV authenticity signals were adjusted to align with raised integrity flags.',
-      ),
+      s_int: this.capComponent(evaluation.s_int, sIntCap, 'Interview authenticity signals were adjusted to align with raised integrity flags.'),
+      s_cv: this.capComponent(evaluation.s_cv, sCvCap, 'CV authenticity signals were adjusted to align with raised integrity flags.'),
       round_analyses: this.reconcileRoundAnalyses(
-        Array.isArray(evaluation.round_analyses)
-          ? (evaluation.round_analyses as Flag[])
-          : [],
+        evaluation.round_analyses,
         flags,
         sIntCap,
       ),
     };
   }
 
-  private normalizeFlags(flags: Flag[], hasExternalProfiles: boolean): Flag[] {
-    const normalized: Flag[] = [];
+  private normalizeFlags(
+    flags: EvaluationFlag[],
+    hasExternalProfiles: boolean,
+  ): EvaluationFlag[] {
+    const normalized: EvaluationFlag[] = [];
 
     for (const flag of flags) {
-      if (typeof flag.description !== 'string') {
-        continue;
-      }
-
-      let type = typeof flag.type === 'string' ? flag.type : 'interview_prompt';
-      let severity =
-        typeof flag.severity === 'string' ? flag.severity : 'warning';
+      let type = flag.type;
+      let severity = flag.severity;
       const description = flag.description;
 
       if (type === 'platform_mismatch' && !hasExternalProfiles) {
@@ -59,25 +50,21 @@ export class IntegrityEvaluationReconciler {
         type,
         severity,
         description,
-        confidence:
-          typeof flag.confidence === 'number'
-            ? Math.max(0, Math.min(1, flag.confidence))
-            : 0.75,
+        confidence: flag.confidence,
       });
     }
 
     return normalized;
   }
 
-  private scoreCapsFromFlags(flags: Flag[]): [number, number] {
+  private scoreCapsFromFlags(flags: EvaluationFlag[]): [number, number] {
     let sIntCap = 100;
     let sCvCap = 100;
 
     for (const flag of flags) {
-      const type = flag.type ?? '';
-      const severity = flag.severity ?? 'warning';
-      const description =
-        typeof flag.description === 'string' ? flag.description : '';
+      const type = flag.type;
+      const severity = flag.severity;
+      const description = flag.description;
 
       if (type === 'interview_prompt') {
         sIntCap = Math.min(sIntCap, severity === 'critical' ? 40 : 55);
@@ -96,10 +83,10 @@ export class IntegrityEvaluationReconciler {
   }
 
   private capComponent(
-    component: Component,
+    component: ScoreComponent,
     cap: number,
     adjustmentSummary: string,
-  ): Component {
+  ): ScoreComponent {
     const score = Number(component.score ?? 50);
 
     if (score <= cap) {
@@ -107,7 +94,7 @@ export class IntegrityEvaluationReconciler {
     }
 
     const summary =
-      typeof component.summary === 'string' && component.summary !== ''
+      component.summary !== ''
         ? `${adjustmentSummary} ${component.summary}`
         : adjustmentSummary;
 
@@ -119,56 +106,49 @@ export class IntegrityEvaluationReconciler {
   }
 
   private reconcileRoundAnalyses(
-    roundAnalyses: Flag[],
-    flags: Flag[],
+    roundAnalyses: RoundAnalysis[],
+    flags: EvaluationFlag[],
     sIntCap: number,
-  ): Flag[] {
+  ): RoundAnalysis[] {
     const interviewFlagDescriptions = flags
       .filter(
         (flag) =>
-          ['interview_prompt', 'ai_text'].includes(String(flag.type)) &&
+          ['interview_prompt', 'ai_text'].includes(flag.type) &&
           flag.severity !== 'info',
       )
-      .map((flag) => flag.description)
-      .filter((description): description is string => typeof description === 'string');
+      .map((flag) => flag.description);
 
-    return roundAnalyses
-      .filter((round) => typeof round === 'object')
-      .map((round) => {
-        let sInt = Number(round.s_int ?? 50);
+    return roundAnalyses.map((round) => {
+      let sInt = round.s_int;
 
-        if (sInt > sIntCap) {
-          sInt = Math.round(sIntCap * 100) / 100;
+      if (sInt > sIntCap) {
+        sInt = Math.round(sIntCap * 100) / 100;
+      }
+
+      const observations = [...round.observations];
+      const anomalies = [...round.anomalies];
+
+      for (const description of interviewFlagDescriptions) {
+        if (!anomalies.includes(description)) {
+          anomalies.push(description);
         }
+      }
 
-        const observations = Array.isArray(round.observations)
-          ? [...(round.observations as string[])]
-          : [];
-        const anomalies = Array.isArray(round.anomalies)
-          ? [...(round.anomalies as string[])]
-          : [];
-
+      if (sInt <= 55 && interviewFlagDescriptions.length > 0) {
         for (const description of interviewFlagDescriptions) {
-          if (!anomalies.includes(description)) {
-            anomalies.push(description);
+          if (!observations.includes(description)) {
+            observations.push(description);
           }
         }
+      }
 
-        if (sInt <= 55 && interviewFlagDescriptions.length > 0) {
-          for (const description of interviewFlagDescriptions) {
-            if (!observations.includes(description)) {
-              observations.push(description);
-            }
-          }
-        }
-
-        return {
-          ...round,
-          s_int: sInt,
-          observations: observations.filter(Boolean),
-          anomalies: anomalies.filter(Boolean),
-        };
-      });
+      return {
+        ...round,
+        s_int: sInt,
+        observations: observations.filter(Boolean),
+        anomalies: anomalies.filter(Boolean),
+      };
+    });
   }
 
   private flagTargetsInterview(description: string): boolean {

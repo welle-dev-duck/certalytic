@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 
 import { sendJson } from '../../lib/response';
+import { getValidatedQuery } from '../../lib/validated-request';
 import { ScreeningReportPdfExporter } from '../exports/screening-report-pdf.exporter';
 import { CandidateReportService } from './candidate-report.service';
 import {
@@ -8,28 +9,21 @@ import {
   candidateListResponseSchema,
   candidateReportSchema,
   type CandidateListQueryDto,
-  type ImportCandidatesBodyDto,
   type UpdateCandidateBodyDto,
 } from './candidates.dto';
 import type { CandidatesService } from './candidates.service';
-import { z } from 'zod';
-
-const importResponseSchema = z.object({
-  queued: z.number().int().nonnegative(),
-});
 
 export class CandidatesController {
-  private readonly reportService = new CandidateReportService();
-
   constructor(
     private readonly candidatesService: CandidatesService,
+    private readonly candidateReportService: CandidateReportService,
     private readonly screeningReportPdfExporter: ScreeningReportPdfExporter,
   ) {}
 
   list = async (req: Request, res: Response): Promise<void> => {
     const result = await this.candidatesService.list(
       req.organization!.id,
-      req.query as unknown as CandidateListQueryDto,
+      getValidatedQuery<CandidateListQueryDto>(req),
     );
 
     sendJson(res, candidateListResponseSchema, result);
@@ -99,22 +93,13 @@ export class CandidatesController {
     res.status(204).send();
   };
 
-  importCandidates = async (req: Request, res: Response): Promise<void> => {
-    const result = await this.candidatesService.importCandidates(
-      req.organization!.id,
-      req.body as ImportCandidatesBodyDto,
-    );
-
-    sendJson(res, importResponseSchema, result, 202);
-  };
-
   getReport = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params as { id: string };
     const candidate = await this.candidatesService.getById(
       req.organization!.id,
       id,
     );
-    const report = this.reportService.build(candidate);
+    const report = this.candidateReportService.build(candidate);
 
     sendJson(res, candidateReportSchema, report);
   };

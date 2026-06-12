@@ -1,4 +1,4 @@
-import { ArrowRight, Check, ShieldCheck } from "lucide-react";
+import { ArrowRight, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "@/components/ui/link";
 
@@ -7,10 +7,13 @@ import { MarketingFeaturesBento } from "@/components/marketing/marketing-feature
 import { MarketingScreeningPreview } from "@/components/marketing/marketing-screening-preview";
 import { Button } from "@/components/ui/button";
 import {
-  FREE_PLAN_TOKENS,
-  getMarketingPricingPlans,
-} from "@/lib/marketing-data";
+  EnterprisePlanCard,
+  PAID_SUBSCRIPTION_PLANS,
+  SubscriptionPlanCard,
+} from "@/features/billing/components/plan-cards";
+import { CONTACT_EMAIL } from "@/features/billing/plans";
 import { COMPANY } from "@/lib/company";
+import { FREE_PLAN_TOKENS } from "@/lib/marketing-data";
 import { routes } from "@/lib/routes";
 
 const trustPoints = [
@@ -201,8 +204,6 @@ export function DemoSection() {
 }
 
 export function PricingSection() {
-  const plans = getMarketingPricingPlans();
-
   return (
     <section id="pricing" className="border-y border-border py-20 md:py-24">
       <div className="mx-auto max-w-6xl px-6">
@@ -218,9 +219,8 @@ export function PricingSection() {
 
         <div className="mb-8 rounded-lg border border-primary/20 bg-primary/5 px-5 py-4">
           <p className="text-sm leading-relaxed text-foreground">
-            <strong>Try before you subscribe.</strong> Every new account starts
-            on our Free plan — {FREE_PLAN_TOKENS} integrity dossiers per month,
-            no credit card required.{" "}
+            {FREE_PLAN_TOKENS} free integrity dossiers per month on the Free
+            plan, no credit card required.{" "}
             <Link
               href={routes.signUp()}
               className="font-medium text-primary underline-offset-2 hover:underline"
@@ -231,73 +231,31 @@ export function PricingSection() {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {plans.map((plan) => {
-            const isEnterprise = plan.value === "enterprise";
-
-            return (
-              <div
-                key={plan.value}
-                className={`flex flex-col border p-6 ${
-                  plan.highlighted
-                    ? "border-primary bg-primary/5 shadow-sm"
-                    : "border-border bg-card"
-                }`}
-              >
-                <p className="text-sm font-bold text-foreground">{plan.label}</p>
-                <p className="mt-2 font-serif text-3xl tabular-nums text-foreground">
-                  {plan.price === null ? (
-                    "Custom"
-                  ) : (
-                    <>
-                      €{plan.price}
-                      <span className="text-sm font-sans font-normal text-muted-foreground">
-                        /mo
-                      </span>
-                    </>
-                  )}
-                </p>
-
-                {plan.tokens !== null && (
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    {plan.tokens} screenings / month · {plan.seats} seat
-                    {plan.seats !== 1 ? "s" : ""}
-                  </p>
-                )}
-
-                <ul className="mt-5 flex-1 space-y-2">
-                  {plan.features.map((feature) => (
-                    <li
-                      key={feature}
-                      className="flex items-start gap-2 text-xs text-foreground"
-                    >
-                      <Check
-                        size={12}
-                        className="mt-0.5 shrink-0 text-[#10B981]"
-                      />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-
-                <Button
-                  className="mt-6 w-full"
-                  variant={plan.highlighted ? "default" : "outline"}
-                  asChild
-                >
-                  {isEnterprise ? (
-                    <a
-                      href={`mailto:${COMPANY.email}?subject=Certalytic%20Enterprise`}
-                    >
-                      Contact sales
-                    </a>
-                  ) : (
-                    <Link href={routes.signUp()}>Get started</Link>
-                  )}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {PAID_SUBSCRIPTION_PLANS.map((plan) => (
+            <SubscriptionPlanCard
+              key={plan.value}
+              plan={plan}
+              highlighted={plan.value === "growth"}
+              footer={
+                <Button className="w-full" variant="outline" asChild>
+                  <Link href={routes.signUp()}>Get started</Link>
                 </Button>
-              </div>
-            );
-          })}
+              }
+            />
+          ))}
+
+          <EnterprisePlanCard
+            footer={
+              <Button className="w-full" variant="outline" asChild>
+                <a
+                  href={`mailto:${CONTACT_EMAIL}?subject=Certalytic%20Enterprise`}
+                >
+                  Contact sales
+                </a>
+              </Button>
+            }
+          />
         </div>
       </div>
     </section>

@@ -10,7 +10,6 @@ import { roles } from '../../db/schema/roles.schema';
 import { AppError, NotFoundError } from '../../lib/errors';
 import { generateId } from '../../lib/id';
 import { logger } from '../../lib/logger';
-import { limitTranscriptText } from '../../lib/text-content-limiter';
 import { paginateByCursor } from '../../lib/pagination';
 import type { BillingService } from '../billing/billing.service';
 import type { PlanFeaturesService } from '../billing/plans';
@@ -24,7 +23,6 @@ import type {
   CandidateDetailDto,
   CandidateListItemDto,
   CandidateListQueryDto,
-  ImportCandidatesBodyDto,
   UpdateCandidateBodyDto,
 } from './candidates.dto';
 import type { StorageClient } from '../../storage/storage.client';
@@ -161,118 +159,69 @@ export class CandidatesService {
       throw new NotFoundError('Role not found');
     }
 
-    if (!(await this.billingService.canConsumeScreening(organizationId))) {
-      throw new AppError(
-        'Insufficient screening tokens.',
-        402,
-        'INSUFFICIENT_TOKENS',
-      );
-    }
-
     const candidateId = generateId();
     const roundId = generateId();
     let cvPath: string | null = null;
+    let uploadedCvPath: string | null = null;
 
-    await this.db.insert(candidates).values({
-      id: candidateId,
-      organizationId,
-      roleId: input.role_id,
-      name: input.name,
-      email: input.email,
-      roleTitle: role.title,
-      jobDescription: role.description,
-      cvText: input.cvText,
-      cvPath: null,
-      cvFormat: input.cvFormat,
-      linkedinUrl: input.linkedinUrl,
-      linkedinText: input.linkedinText,
-      githubUsername: input.githubUsername,
-      status: 'pending',
-    });
-
-    if (input.cvFile) {
-      const extension = input.cvFile.originalname.split('.').pop() ?? 'pdf';
-      cvPath = candidateCvPath(organizationId, candidateId, extension);
-
-      await this.storage.putObject(cvPath, input.cvFile.buffer);
-
-      await this.db
-        .update(candidates)
-        .set({ cvPath, cvText: null })
-        .where(eq(candidates.id, candidateId));
-    }
-
-    await this.db.insert(interviewRounds).values({
-      id: roundId,
-      candidateId,
-      roundNumber: 1,
-      transcriptText: input.transcriptText,
-      interviewerNotes: input.interviewerNotes,
-    });
-
-    await this.billingService.debitScreening(organizationId);
-    await this.enqueueScreening(organizationId, candidateId);
-
-    await this.realtimePublisher.candidateUpdated({
-      candidateId,
-      organizationId,
-      status: 'pending',
-      errorMessage: null,
-    });
-
-    return this.getById(organizationId, candidateId);
-  }
-
-  async importCandidates(
-    organizationId: string,
-    input: ImportCandidatesBodyDto,
-  ): Promise<{ queued: number }> {
-    await this.assertSavedRoles(organizationId);
-
-    const role = await this.db.query.roles.findFirst({
-      where: and(
-        eq(roles.id, input.role_id),
-        eq(roles.organizationId, organizationId),
-      ),
-    });
-
-    if (!role) {
-      throw new NotFoundError('Role not found');
-    }
-
-    let queued = 0;
-
-    for (const row of input.rows) {
-      if (!(await this.billingService.canConsumeScreening(organizationId))) {
-        break;
+    try {
+      if (input.cvFile) {
+        const extension = input.cvFile.originalname.split('.').pop() ?? 'pdf';
+        cvPath = candidateCvPath(organizationId, candidateId, extension);
+        await this.storage.putObject(cvPath, input.cvFile.buffer);
+        uploadedCvPath = cvPath;
       }
 
-      const candidateId = generateId();
+      await this.db.transaction(async (tx) => {
+        await tx.insert(candidates).values({
+          id: candidateId,
+          organizationId,
+          roleId: input.role_id,
+          name: input.name,
+          email: input.email,
+          roleTitle: role.title,
+          jobDescription: role.description,
+          cvText: cvPath ? null : input.cvText,
+          cvPath,
+          cvFormat: input.cvFormat,
+          linkedinUrl: input.linkedinUrl,
+          linkedinText: input.linkedinText,
+          githubUsername: input.githubUsername,
+          status: 'pending',
+        });
 
-      await this.db.insert(candidates).values({
-        id: candidateId,
+        await tx.insert(interviewRounds).values({
+          id: roundId,
+          candidateId,
+          roundNumber: 1,
+          transcriptText: input.transcriptText,
+          interviewerNotes: input.interviewerNotes,
+        });
+
+        await this.billingService.debitScreening(organizationId, 1, tx);
+      });
+
+      await this.enqueueScreeningOrCompensate(
         organizationId,
-        roleId: input.role_id,
-        name: row.name,
-        email: row.email ?? null,
-        cvText: 'CV pending manual review.',
-        cvFormat: 'text',
-        status: 'pending',
-      });
-
-      await this.db.insert(interviewRounds).values({
-        id: generateId(),
         candidateId,
-        roundNumber: 1,
-        transcriptText: limitTranscriptText(row.transcript).text,
+        uploadedCvPath,
+      );
+
+      await this.realtimePublisher.candidateUpdated({
+        candidateId,
+        organizationId,
+        status: 'pending',
+        errorMessage: null,
       });
 
-      await this.billingService.debitScreening(organizationId);
-      await this.enqueueScreening(organizationId, candidateId);
-      queued += 1;
-    }
+      return this.getById(organizationId, candidateId);
+    } catch (error) {
+      if (uploadedCvPath) {
+        await this.deleteStoredObject(uploadedCvPath);
+      }
 
-    return { queued };
+      throw error;
+    }
   }
 
   async update(
@@ -314,11 +263,7 @@ export class CandidatesService {
     }
 
     if (candidate.cvPath) {
-      try {
-        await this.storage.deleteObject(candidate.cvPath);
-      } catch {
-        // Best-effort storage cleanup; DB row is still removed.
-      }
+      await this.deleteStoredObject(candidate.cvPath);
     }
 
     await this.db
@@ -336,41 +281,122 @@ export class CandidatesService {
     candidateId: string,
   ): Promise<CandidateDetailDto> {
     const candidate = await this.getById(organizationId, candidateId);
+    const previousStatus = candidate.status;
+    const previousErrorMessage = candidate.errorMessage;
 
-    if (!(await this.billingService.canConsumeScreening(organizationId))) {
-      throw new AppError(
-        'Insufficient screening tokens.',
-        402,
-        'INSUFFICIENT_TOKENS',
+    await this.db.transaction(async (tx) => {
+      await tx
+        .delete(interviewRounds)
+        .where(
+          and(
+            eq(interviewRounds.candidateId, candidateId),
+            gt(interviewRounds.roundNumber, 1),
+          ),
+        );
+
+      await tx
+        .update(candidates)
+        .set({
+          status: 'pending',
+          integrityScore: null,
+          scoreBreakdown: null,
+          followUpSuggested: null,
+          highInconsistencyWarning: false,
+          errorMessage: null,
+          processedAt: null,
+        })
+        .where(eq(candidates.id, candidateId));
+
+      await this.billingService.debitScreening(organizationId, 1, tx);
+    });
+
+    try {
+      await this.enqueueScreening(organizationId, candidateId);
+    } catch (error) {
+      await this.compensateFailedRetry(
+        organizationId,
+        candidateId,
+        previousStatus,
+        previousErrorMessage,
       );
+      throw error;
     }
 
-    await this.db
-      .delete(interviewRounds)
-      .where(
-        and(
-          eq(interviewRounds.candidateId, candidateId),
-          gt(interviewRounds.roundNumber, 1),
-        ),
-      );
-
-    await this.db
-      .update(candidates)
-      .set({
-        status: 'pending',
-        integrityScore: null,
-        scoreBreakdown: null,
-        followUpSuggested: null,
-        highInconsistencyWarning: false,
-        errorMessage: null,
-        processedAt: null,
-      })
-      .where(eq(candidates.id, candidateId));
-
-    await this.billingService.debitScreening(organizationId);
-    await this.enqueueScreening(organizationId, candidateId);
-
     return this.getById(organizationId, candidate.id);
+  }
+
+  private async enqueueScreeningOrCompensate(
+    organizationId: string,
+    candidateId: string,
+    cvPath: string | null,
+  ): Promise<void> {
+    try {
+      await this.enqueueScreening(organizationId, candidateId);
+    } catch (error) {
+      await this.compensateFailedEnqueue(organizationId, candidateId, cvPath);
+      throw error;
+    }
+  }
+
+  private async compensateFailedRetry(
+    organizationId: string,
+    candidateId: string,
+    previousStatus: CandidateStatus,
+    previousErrorMessage: string | null,
+  ): Promise<void> {
+    try {
+      await this.db
+        .update(candidates)
+        .set({
+          status: previousStatus,
+          errorMessage:
+            previousErrorMessage ??
+            'Screening could not be re-queued. Please try again.',
+        })
+        .where(eq(candidates.id, candidateId));
+      await this.billingService.refundScreening(organizationId, 1);
+    } catch (compensationError) {
+      logger.error(
+        {
+          err: compensationError,
+          candidateId,
+          organizationId,
+        },
+        'Failed to compensate after screening retry enqueue failure',
+      );
+    }
+  }
+
+  private async compensateFailedEnqueue(
+    organizationId: string,
+    candidateId: string,
+    cvPath: string | null,
+  ): Promise<void> {
+    try {
+      await this.db.delete(candidates).where(eq(candidates.id, candidateId));
+      await this.billingService.refundScreening(organizationId, 1);
+
+      if (cvPath) {
+        await this.deleteStoredObject(cvPath);
+      }
+    } catch (compensationError) {
+      logger.error(
+        {
+          err: compensationError,
+          candidateId,
+          organizationId,
+        },
+        'Failed to compensate after screening enqueue failure',
+      );
+    }
+  }
+
+  private async deleteStoredObject(key: string): Promise<void> {
+    try {
+      await this.storage.deleteObject(key);
+    } catch (error) {
+      logger.warn({ err: error, key }, 'Best-effort storage cleanup failed');
+    }
   }
 
   private async enqueueScreening(

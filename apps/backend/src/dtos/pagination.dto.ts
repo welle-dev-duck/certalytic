@@ -7,7 +7,7 @@ export type PageSize = (typeof PAGE_SIZES)[number];
 
 export const DEFAULT_PAGE_SIZE: PageSize = 25;
 
-export const paginationQuerySchema = z.object({
+export const cursorPaginationQuerySchema = z.object({
   limit: z.coerce
     .number()
     .int()
@@ -15,22 +15,20 @@ export const paginationQuerySchema = z.object({
       PAGE_SIZES.includes(value as PageSize),
     )
     .default(DEFAULT_PAGE_SIZE),
-  page: z.coerce.number().int().min(1).default(1),
   cursor: z.uuid().optional(),
 });
 
-export type PaginationQueryDto = z.infer<typeof paginationQuerySchema>;
+export type CursorPaginationQueryDto = z.infer<
+  typeof cursorPaginationQuerySchema
+>;
 
 export const paginationMetaSchema = z.object({
   limit: z.number().int(),
-  page: z.number().int(),
-  total: z.number().int(),
-  lastPage: z.number().int(),
   from: z.number().int().nullable(),
   to: z.number().int().nullable(),
   hasNextPage: z.boolean(),
   hasPrevPage: z.boolean(),
-  nextCursor: z.uuid().nullable().optional(),
+  nextCursor: z.uuid().nullable(),
 });
 
 export type PaginationMetaDto = z.infer<typeof paginationMetaSchema>;
@@ -43,3 +41,9 @@ export function createPaginatedResponseSchema<T extends z.ZodType>(
     pagination: paginationMetaSchema,
   });
 }
+
+/** @deprecated Use cursorPaginationQuerySchema */
+export const paginationQuerySchema = cursorPaginationQuerySchema;
+
+/** @deprecated Use CursorPaginationQueryDto */
+export type PaginationQueryDto = CursorPaginationQueryDto;
