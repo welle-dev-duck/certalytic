@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "@/components/ui/link";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { LoadingSwap } from "@/components/loading-swap";
 import { Button } from "@/components/ui/button";
@@ -17,12 +16,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { routes } from "@/lib/routes";
-
-const forgotPasswordSchema = z.object({
-  email: z.string().email("Enter a valid email address"),
-});
-
-type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
+import {
+  forgotPasswordSchema,
+  type ForgotPasswordValues,
+} from "@/features/auth/schemas/forgot-password-schema";
 
 export function ForgotPasswordForm() {
   const form = useForm<ForgotPasswordValues>({

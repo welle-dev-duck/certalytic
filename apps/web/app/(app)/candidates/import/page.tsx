@@ -1,5 +1,7 @@
-import { ImportCandidatesForm } from "./_components/import-candidates-form";
+import { redirect } from "next/navigation";
 
-export default function CandidateImportPage() {
-  return <ImportCandidatesForm />;
+import { routes } from "@/lib/routes";
+
+export default function ImportCandidatesPage() {
+  redirect(routes.candidates());
 }

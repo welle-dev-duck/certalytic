@@ -1,5 +1,6 @@
 export const MAX_TRANSCRIPT_FILES = 3;
 
+/** Mirrors backend defaults in `CERTALYTIC_CV_MAX_KB` and related env limits. */
 export const SCREENING_LIMITS = {
   cv_max_kilobytes: 5120,
   cv_text_max_words: 10_000,

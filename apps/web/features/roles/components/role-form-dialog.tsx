@@ -30,6 +30,7 @@ import {
   useUpdateRole,
 } from "@/features/roles/hooks/use-roles";
 import type { RoleListItem } from "@/features/roles/types";
+import { handleMutationError } from "@/lib/mutation-errors";
 
 const titleMax = SCREENING_LIMITS.role_title_max_characters;
 const descriptionMax = SCREENING_LIMITS.role_description_max_characters;
@@ -88,9 +89,9 @@ export function RoleFormDialog({
           onOpenChange(false);
         },
         onError: (error) => {
-          toast.error(
-            error instanceof Error ? error.message : "Something went wrong.",
-          );
+          handleMutationError(error, {
+            fallbackMessage: "Something went wrong.",
+          });
         },
       },
     );

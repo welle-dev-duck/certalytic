@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 
-import { AuthPageHeading } from "../_components/auth-page-heading";
-import { SignInForm } from "./_components/sign-in-form";
+import { AuthPageHeading, SignInForm } from "@/features/auth/components";
 
 export default async function SignIn() {
   return (

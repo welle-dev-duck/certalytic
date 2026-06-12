@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import { useAuth } from "@/providers/auth-provider";
+import { useQueryClient } from "@tanstack/react-query";
 
 const createTeamSchema = z.object({
   name: z.string().trim().min(1, "Organization name is required").max(100),
@@ -43,6 +45,8 @@ export function CreateTeamModal({
   canCreateTeam = true,
 }: CreateTeamModalProps) {
   const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const { refetchOrganizations } = useAuth();
 
   const form = useForm<CreateTeamValues>({
     resolver: zodResolver(createTeamSchema),
@@ -76,7 +80,8 @@ export function CreateTeamModal({
     toast.success("Organization created.");
     setOpen(false);
     form.reset();
-    window.location.reload();
+    refetchOrganizations();
+    await queryClient.invalidateQueries();
   }
 
   return (

@@ -2,6 +2,9 @@ import { Check } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { ENTERPRISE_PLAN, SUBSCRIPTION_PLANS } from "@/features/billing/plans";
+import { getIntegrityColor } from "@/lib/integrity";
+
+const successColor = getIntegrityColor("high");
 
 type SubscriptionPlan = (typeof SUBSCRIPTION_PLANS)[number];
 
@@ -72,7 +75,11 @@ export function SubscriptionPlanCard({
         ) : null}
         {displayFeatures.map((feature) => (
           <div key={feature} className="flex items-start gap-2">
-            <Check size={12} className="mt-0.5 shrink-0 text-[#10B981]" />
+            <Check
+              size={12}
+              className="mt-0.5 shrink-0"
+              style={{ color: successColor }}
+            />
             <span className="text-xs text-foreground">{feature}</span>
           </div>
         ))}
@@ -102,7 +109,11 @@ export function EnterprisePlanCard({ footer }: EnterprisePlanCardProps) {
       <div className="space-y-1.5">
         {ENTERPRISE_PLAN.features.map((feature) => (
           <div key={feature} className="flex items-start gap-2">
-            <Check size={12} className="mt-0.5 shrink-0 text-[#10B981]" />
+            <Check
+              size={12}
+              className="mt-0.5 shrink-0"
+              style={{ color: successColor }}
+            />
             <span className="text-xs text-foreground">{feature}</span>
           </div>
         ))}

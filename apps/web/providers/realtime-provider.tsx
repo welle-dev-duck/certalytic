@@ -80,7 +80,7 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
         }
 
         queryClient.setQueryData<CandidateDetail>(detailKey, (old) =>
-          old ? { ...old, status: status as CandidateDetail["status"], errorMessage } : old,
+          old ? { ...old, status, errorMessage } : old,
         );
         return;
       }

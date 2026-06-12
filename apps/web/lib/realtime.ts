@@ -1,9 +1,17 @@
+import type { CandidateStatus } from "@/features/candidates/types";
+
+export type RoleExportStatus =
+  | "pending"
+  | "processing"
+  | "complete"
+  | "failed";
+
 export type CandidateUpdatedEvent = {
   type: "candidate.updated";
   organizationId: string;
   payload: {
     candidateId: string;
-    status: string;
+    status: CandidateStatus;
     errorMessage: string | null;
   };
 };
@@ -14,7 +22,7 @@ export type RoleExportUpdatedEvent = {
   payload: {
     roleExportId: string;
     roleId: string;
-    status: string;
+    status: RoleExportStatus;
     downloadUrl: string | null;
     errorMessage: string | null;
   };

@@ -17,25 +17,59 @@ export const organizationDirectoryKeys = {
     [...organizationDirectoryKeys.all, "invitations", orgId] as const,
 };
 
-function normalizeMembers(data: unknown): OrganizationMember[] {
+type ListMembersEnvelope = {
+  members: OrganizationMember[];
+};
+
+function isOrganizationMember(value: unknown): value is OrganizationMember {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "id" in value &&
+    "role" in value &&
+    typeof (value as OrganizationMember).id === "string" &&
+    typeof (value as OrganizationMember).role === "string" &&
+    "user" in value &&
+    typeof (value as OrganizationMember).user === "object" &&
+    (value as OrganizationMember).user !== null
+  );
+}
+
+function isOrganizationInvitation(
+  value: unknown,
+): value is OrganizationInvitation {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "id" in value &&
+    "email" in value &&
+    typeof (value as OrganizationInvitation).id === "string" &&
+    typeof (value as OrganizationInvitation).email === "string"
+  );
+}
+
+function parseMembersResponse(data: unknown): OrganizationMember[] {
   if (!data) return [];
 
-  const members =
+  if (Array.isArray(data)) {
+    return data.filter(isOrganizationMember);
+  }
+
+  if (
     typeof data === "object" &&
     data !== null &&
     "members" in data &&
-    Array.isArray((data as { members: unknown }).members)
-      ? (data as { members: OrganizationMember[] }).members
-      : Array.isArray(data)
-        ? (data as OrganizationMember[])
-        : [];
+    Array.isArray((data as ListMembersEnvelope).members)
+  ) {
+    return (data as ListMembersEnvelope).members.filter(isOrganizationMember);
+  }
 
-  return members;
+  return [];
 }
 
-function normalizeInvitations(data: unknown): OrganizationInvitation[] {
-  if (!data) return [];
-  return Array.isArray(data) ? (data as OrganizationInvitation[]) : [];
+function parseInvitationsResponse(data: unknown): OrganizationInvitation[] {
+  if (!Array.isArray(data)) return [];
+  return data.filter(isOrganizationInvitation);
 }
 
 export function useOrganizationMembers(organizationId?: string) {
@@ -57,7 +91,7 @@ export function useOrganizationMembers(organizationId?: string) {
         throw new Error(result.error.message ?? "Failed to load members.");
       }
 
-      return normalizeMembers(result.data);
+      return parseMembersResponse(result.data);
     },
     enabled: !!resolvedOrgId,
   });
@@ -80,7 +114,7 @@ export function useOrganizationInvitations(organizationId?: string) {
         throw new Error(result.error.message ?? "Failed to load invitations.");
       }
 
-      return normalizeInvitations(result.data);
+      return parseInvitationsResponse(result.data);
     },
     enabled: !!resolvedOrgId,
   });

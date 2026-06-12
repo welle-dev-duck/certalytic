@@ -3,8 +3,11 @@
 import { Download, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import { apiUrl } from "@/lib/api-client";
+import { handleMutationError } from "@/lib/mutation-errors";
 import {
   useRequestRoleExport,
   useRoleLatestExport,
@@ -65,9 +68,10 @@ export function RoleExportAction({ roleId }: RoleExportActionProps) {
         downloadedExportIdRef.current = result.id;
         window.location.assign(apiUrl(result.downloadUrl));
       }
-    } catch {
+    } catch (error) {
       setOptimisticExporting(false);
       exportInitiatedRef.current = false;
+      handleMutationError(error, { fallbackMessage: "Export failed." });
     }
   }
 

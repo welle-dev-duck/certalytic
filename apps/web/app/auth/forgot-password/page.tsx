@@ -1,12 +1,11 @@
-import { AuthPageHeading } from "../_components/auth-page-heading";
-import { ForgotPasswordForm } from "./_components/forgot-password-form";
+import { AuthPageHeading, ForgotPasswordForm } from "@/features/auth/components";
 
-export default function ForgotPasswordPage() {
+export default function ForgotPassword() {
   return (
     <>
       <AuthPageHeading
-        title="Forgot password"
-        description="Enter your email to receive a password reset link"
+        title="Forgot your password?"
+        description="Enter your email and we'll send you a reset link."
       />
       <ForgotPasswordForm />
     </>

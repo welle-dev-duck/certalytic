@@ -1,3 +1,5 @@
+import { getMetricBarColor } from "@/lib/integrity";
+
 export function MetricBar({
   label,
   value,
@@ -26,9 +28,7 @@ export function MetricBar({
   }
 
   const pct = Math.min(100, Math.max(0, value));
-  const isGood = invert ? pct < 30 : pct > 70;
-  const isMedium = invert ? pct < 60 : pct > 40;
-  const color = isGood ? "#10B981" : isMedium ? "#F59E0B" : "#EF4444";
+  const color = getMetricBarColor(pct, invert);
 
   return (
     <div className="space-y-1.5">

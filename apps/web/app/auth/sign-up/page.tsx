@@ -1,5 +1,4 @@
-import { AuthPageHeading } from "../_components/auth-page-heading";
-import { SignUpForm } from "./_components/sign-up-form";
+import { AuthPageHeading, SignUpForm } from "@/features/auth/components";
 
 export default async function SignUp() {
   return (
@@ -8,7 +7,6 @@ export default async function SignUp() {
         title="Create an account"
         description="Enter your details below to create your account"
       />
-
       <SignUpForm />
     </>
   );

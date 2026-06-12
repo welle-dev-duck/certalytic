@@ -38,7 +38,6 @@ export function SignUpForm() {
   const { isSubmitting } = form.formState;
 
   async function handleSignUp(data: SignUpSchema) {
-    console.log(data);
     await authClient.signUp.email(
       {
         name: data.name,

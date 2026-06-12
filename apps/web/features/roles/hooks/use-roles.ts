@@ -8,8 +8,8 @@ import {
 
 import { useOrgId } from "@/features/organizations/hooks/use-org-id";
 import { api } from "@/lib/api-client";
+import type { Paginated } from "@/lib/pagination";
 import type {
-  PaginatedRoles,
   RoleDetail,
   RoleExportSummary,
   RoleListItem,
@@ -42,7 +42,7 @@ export function useRoles(
   return useQuery({
     queryKey: roleKeys.list(orgId, { ...filters, limit }),
     queryFn: () =>
-      api<PaginatedRoles<RoleListItem>>("/api/roles", {
+      api<Paginated<RoleListItem>>("/api/roles", {
         params: {
           limit,
           cursor: filters.cursor,

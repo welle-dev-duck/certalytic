@@ -1,6 +1,9 @@
 import { ShieldCheck } from "lucide-react";
 
+import { getIntegrityColor } from "@/lib/integrity";
 import { cn } from "@/lib/utils";
+
+const successColor = getIntegrityColor("high");
 
 type DataPrivacyPanelProps = {
   className?: string;
@@ -31,7 +34,8 @@ export function DataPrivacyPanel({
         <div className="flex items-start gap-3">
           <ShieldCheck
             size={prominent ? 20 : 16}
-            className="mt-0.5 shrink-0 text-[#10B981]"
+            className="mt-0.5 shrink-0"
+            style={{ color: successColor }}
           />
           <div>
             <p
@@ -76,10 +80,8 @@ export function DataPrivacyPanel({
             </p>
           </div>
           <span
-            className={cn(
-              "font-bold text-[#10B981]",
-              prominent ? "text-sm" : "text-xs",
-            )}
+            className={cn("font-bold", prominent ? "text-sm" : "text-xs")}
+            style={{ color: successColor }}
           >
             Guaranteed
           </span>

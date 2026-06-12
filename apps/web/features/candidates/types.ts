@@ -1,6 +1,10 @@
 import type { Flag, IntegrityLevel } from "@/lib/integrity";
+import type { Paginated } from "@/lib/pagination";
+import type { ScreeningEvaluation } from "@/features/candidates/lib/screening-evaluation.schema";
 
 export type CandidateStatus = "pending" | "processing" | "complete" | "failed";
+
+export type { Paginated };
 
 export type CandidateListItem = {
   id: string;
@@ -17,22 +21,10 @@ export type CandidateListItem = {
   createdAt: string;
 };
 
-export type PaginatedResponse<T> = {
-  data: T[];
-  pagination: {
-    limit: number;
-    from: number | null;
-    to: number | null;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-    nextCursor: string | null;
-  };
-};
-
 export type CandidateDetail = CandidateListItem & {
   linkedinUrl: string | null;
   githubUsername: string | null;
-  scoreBreakdown: Record<string, unknown> | null;
+  scoreBreakdown: ScreeningEvaluation | Record<string, unknown> | null;
   followUpSuggested: string[] | null;
   rounds: Array<{
     id: string;
@@ -40,7 +32,12 @@ export type CandidateDetail = CandidateListItem & {
     wasTruncated: boolean;
     varianceDelta: number | null;
     deepDivePrompts: string[] | null;
-    roundScores: Record<string, unknown> | null;
+    roundScores: {
+      s_int?: number;
+      s_id?: number;
+      observations?: string[];
+      anomalies?: string[];
+    } | null;
   }>;
 };
 

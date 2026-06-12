@@ -2,10 +2,10 @@
 
 import { useSearchParams } from "next/navigation";
 
-import { AuthPageHeading } from "../../_components/auth-page-heading";
 import Link from "@/components/ui/link";
+import { AuthPageHeading } from "@/features/auth/components/auth-page-heading";
+import { EmailVerificationPanel } from "@/features/auth/components/email-verification-panel";
 import { routes } from "@/lib/routes";
-import { EmailVerificationPanel } from "./panel";
 
 export function VerifyEmail() {
   const searchParams = useSearchParams();
@@ -34,7 +34,8 @@ export function VerifyEmail() {
         description={
           <>
             To activate your account, please check your email at{" "}
-            <span className="font-medium text-foreground">{email}</span> and click the link to verify your email address.
+            <span className="font-medium text-foreground">{email}</span> and
+            click the link to verify your email address.
           </>
         }
       />

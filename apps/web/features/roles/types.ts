@@ -36,14 +36,4 @@ export type RoleExportSummary = {
   downloadUrl: string | null;
 };
 
-export type PaginatedRoles<T> = {
-  data: T[];
-  pagination: {
-    limit: number;
-    from: number | null;
-    to: number | null;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-    nextCursor: string | null;
-  };
-};
+export type { Paginated } from "@/lib/pagination";

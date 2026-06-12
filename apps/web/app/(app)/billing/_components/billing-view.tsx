@@ -4,6 +4,7 @@ import { Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { TokenUsageBar } from "@/components/billing/token-usage-bar";
 import { Button } from "@/components/ui/button";
 import {
   EnterprisePlanCard,
@@ -102,20 +103,7 @@ export function BillingView() {
             </p>
           </div>
           {planQuota > 0 && (
-            <div className="h-2 overflow-hidden rounded-full bg-border">
-              <div
-                className="h-full rounded-full transition-all"
-                style={{
-                  width: `${Math.min(100, tokenPct)}%`,
-                  background:
-                    tokenPct > 85
-                      ? "#EF4444"
-                      : tokenPct > 65
-                        ? "#F59E0B"
-                        : "var(--primary)",
-                }}
-              />
-            </div>
+            <TokenUsageBar usedPct={tokenPct / 100} className="h-2" />
           )}
           <p className="text-[10px] text-muted-foreground">
             {planTokens} included left · {usage?.available ?? 0} available now

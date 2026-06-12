@@ -1,16 +1,15 @@
 import { Suspense } from "react";
 
-import { AuthPageHeading } from "../_components/auth-page-heading";
-import { ResetPasswordForm } from "./_components/reset-password-form";
+import { AuthPageHeading, ResetPasswordForm } from "@/features/auth/components";
 
-export default function ResetPasswordPage() {
+export default function ResetPassword() {
   return (
     <>
       <AuthPageHeading
-        title="Reset password"
-        description="Please enter your new password below"
+        title="Reset your password"
+        description="Choose a new password for your account."
       />
-      <Suspense fallback={<p className="text-sm text-muted-foreground">Loading…</p>}>
+      <Suspense fallback={null}>
         <ResetPasswordForm />
       </Suspense>
     </>

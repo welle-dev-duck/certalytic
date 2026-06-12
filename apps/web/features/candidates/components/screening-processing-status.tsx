@@ -4,6 +4,9 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import { getScoreColor } from "@/lib/integrity";
+
+const completeStageColor = getScoreColor(80);
 
 const STAGES = [
   "Extracting CV Data",
@@ -77,7 +80,8 @@ export function ScreeningProcessingStatus({
               {isComplete ? (
                 <CheckCircle2
                   size={14}
-                  className="shrink-0 text-[#10B981]"
+                  className="shrink-0"
+                  style={{ color: completeStageColor }}
                 />
               ) : isCurrent ? (
                 <Loader2

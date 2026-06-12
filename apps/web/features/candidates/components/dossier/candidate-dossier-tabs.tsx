@@ -31,6 +31,11 @@ import { DossierPanel } from "@/features/candidates/components/dossier/panel";
 import { InfoRow } from "@/features/candidates/components/dossier/info-row";
 import { MetricBar } from "@/features/candidates/components/dossier/metric-bar";
 import type { CandidateDetail, CandidateReport } from "@/features/candidates/types";
+import {
+  getAuthenticityStyle,
+  getIntegrityColor,
+  getRiskVectorColor,
+} from "@/lib/integrity";
 import { cn } from "@/lib/utils";
 
 const TABS = [
@@ -185,13 +190,7 @@ export function CandidateDossierTabs({
                         {report.riskVectors.map((entry) => (
                           <Cell
                             key={entry.name}
-                            fill={
-                              entry.value > 60
-                                ? "#EF4444"
-                                : entry.value > 30
-                                  ? "#F59E0B"
-                                  : "#10B981"
-                            }
+                            fill={getRiskVectorColor(entry.value)}
                             fillOpacity={0.8}
                           />
                         ))}
@@ -478,14 +477,7 @@ export function CandidateDossierTabs({
                   <div className="rounded bg-muted/40 p-3 font-mono text-xs leading-relaxed text-muted-foreground">
                     <p
                       className="text-xs font-bold"
-                      style={{
-                        color:
-                          report.level === "high"
-                            ? "#10B981"
-                            : report.level === "medium"
-                              ? "#F59E0B"
-                              : "#EF4444",
-                      }}
+                      style={{ color: getIntegrityColor(report.level) }}
                     >
                       {report.verdict.title}
                     </p>
@@ -543,13 +535,11 @@ function PlatformStatusBadge({
   analysis: CandidateReport["linkedin"];
 }) {
   const authentic = analysis.status === "authentic";
+  const style = getAuthenticityStyle(authentic);
   return (
     <span
       className="rounded px-2 py-1 text-[10px] font-bold"
-      style={{
-        background: authentic ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)",
-        color: authentic ? "#10B981" : "#EF4444",
-      }}
+      style={style}
     >
       {analysis.statusLabel}
     </span>

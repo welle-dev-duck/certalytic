@@ -1,3 +1,5 @@
+export type SubscriptionPlanId = "free" | "starter" | "growth" | "scale";
+
 export const SUBSCRIPTION_PLANS = [
   {
     value: "free",
@@ -97,4 +99,6 @@ export const ENTERPRISE_PLAN = {
   ],
 };
 
-export const CONTACT_EMAIL = "hello@certalytic.com";
+import { COMPANY } from "@/lib/company";
+
+export const CONTACT_EMAIL = COMPANY.email;

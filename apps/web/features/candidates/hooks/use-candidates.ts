@@ -7,12 +7,13 @@ import {
 } from "@tanstack/react-query";
 
 import { useOrgId } from "@/features/organizations/hooks/use-org-id";
+import { parseScreeningEvaluation } from "@/features/candidates/lib/screening-evaluation.schema";
 import { api } from "@/lib/api-client";
+import type { Paginated } from "@/lib/pagination";
 import type {
   CandidateDetail,
   CandidateListItem,
   CandidateReport,
-  PaginatedResponse,
 } from "@/features/candidates/types";
 
 export const candidateKeys = {
@@ -34,6 +35,19 @@ export type CandidateListFilters = {
   status?: string;
 };
 
+function normalizeCandidateDetail(data: CandidateDetail): CandidateDetail {
+  if (!data.scoreBreakdown || typeof data.scoreBreakdown !== "object") {
+    return data;
+  }
+
+  const parsed = parseScreeningEvaluation(data.scoreBreakdown);
+  if (!parsed) {
+    return data;
+  }
+
+  return { ...data, scoreBreakdown: parsed };
+}
+
 export function useCandidates(filters: CandidateListFilters) {
   const orgId = useOrgId();
   const limit = filters.limit ?? 25;
@@ -41,7 +55,7 @@ export function useCandidates(filters: CandidateListFilters) {
   return useQuery({
     queryKey: candidateKeys.list(orgId, { ...filters, limit }),
     queryFn: () =>
-      api<PaginatedResponse<CandidateListItem>>("/api/candidates", {
+      api<Paginated<CandidateListItem>>("/api/candidates", {
         params: {
           limit,
           cursor: filters.cursor,
@@ -59,7 +73,8 @@ export function useCandidate(id: string) {
 
   return useQuery({
     queryKey: candidateKeys.detail(orgId, id),
-    queryFn: () => api<CandidateDetail>(`/api/candidates/${id}`),
+    queryFn: async () =>
+      normalizeCandidateDetail(await api<CandidateDetail>(`/api/candidates/${id}`)),
     enabled: !!id && !!orgId,
   });
 }
@@ -110,27 +125,6 @@ export function useCreateCandidate() {
       api<{ id: string }>("/api/candidates", {
         method: "POST",
         body: formData,
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: candidateKeys.lists() });
-    },
-  });
-}
-
-export type ImportCandidateRow = {
-  name: string;
-  email?: string | null;
-  transcript: string;
-};
-
-export function useImportCandidates() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (body: { role_id: string; rows: ImportCandidateRow[] }) =>
-      api<{ queued: number }>("/api/candidates/import", {
-        method: "POST",
-        body,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: candidateKeys.lists() });

@@ -11,6 +11,7 @@ import {
 } from "@/components/certalytic/status-badge";
 import { DecisionSupportDisclaimer } from "@/features/candidates/components/dossier/decision-support-disclaimer";
 import { marketingMockReport } from "@/lib/marketing-mock-report";
+import { getScoreBackground, getScoreColor } from "@/lib/integrity";
 
 const componentLabels = {
   s_cv: "CV authenticity",
@@ -128,13 +129,16 @@ export function MarketingScreeningPreview() {
         <div
           className="rounded-lg p-4"
           style={{
-            background: "rgba(239,68,68,0.05)",
-            border: "1px solid rgba(239,68,68,0.2)",
+            background: getScoreBackground(0),
+            border: `1px solid ${getScoreBackground(0, 0.2)}`,
           }}
         >
           <div className="mb-3 flex items-center gap-2">
-            <AlertCircle size={14} style={{ color: "#EF4444" }} />
-            <p className="text-sm font-semibold" style={{ color: "#EF4444" }}>
+            <AlertCircle size={14} style={{ color: getScoreColor(0) }} />
+            <p
+              className="text-sm font-semibold"
+              style={{ color: getScoreColor(0) }}
+            >
               {report.flags.length} active flags detected
             </p>
           </div>

@@ -17,6 +17,7 @@ import Link from "@/components/ui/link";
 import { usePathname, useRouter } from "next/navigation";
 
 import { CreateTeamModal } from "@/components/layout/create-team-modal";
+import { TokenUsageBar } from "@/components/billing/token-usage-bar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,12 +38,6 @@ const NAV_ITEMS = [
   { label: "Billing", icon: CreditCard, href: routes.billing(), match: "/billing" },
   { label: "Settings", icon: Settings, href: routes.settingsProfile(), match: "/settings" },
 ] as const;
-
-function tokenBarClass(pct: number): string {
-  if (pct > 0.85) return "bg-destructive";
-  if (pct > 0.65) return "bg-chart-3";
-  return "bg-primary";
-}
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -215,15 +210,7 @@ export function AppSidebar() {
                   <span className="text-sidebar-foreground/60">/{planQuota}</span>
                 </span>
               </div>
-              <div className="h-1 overflow-hidden rounded-full bg-sidebar-border">
-                <div
-                  className={cn(
-                    "h-full rounded-full",
-                    tokenBarClass(includedPct),
-                  )}
-                  style={{ width: `${Math.round(includedPct * 100)}%` }}
-                />
-              </div>
+              <TokenUsageBar usedPct={includedPct} className="h-1" />
             </div>
 
             <div>

@@ -1,5 +1,7 @@
+import type { SubscriptionPlanId } from "@/features/billing/plans";
+
 export type BillingUsage = {
-  plan: string;
+  plan: SubscriptionPlanId;
   planLabel: string;
   planQuota: number | null;
   planTokens: number;

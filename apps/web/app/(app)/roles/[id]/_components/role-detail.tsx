@@ -2,7 +2,6 @@
 
 import {
   ArrowLeft,
-  ChevronRight,
   Pencil,
   Plus,
   Search,
@@ -13,14 +12,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { ScoreRing } from "@/components/certalytic/score-ring";
-import { TablePagination } from "@/components/certalytic/table-pagination";
-import { StatusBadge } from "@/components/certalytic/status-badge";
 import { Button } from "@/components/ui/button";
-import { CandidateRowActions } from "@/features/candidates/components/candidate-row-actions";
-import { DeleteCandidateDialog } from "@/features/candidates/components/delete-candidate-dialog";
-import { RerunCandidateDialog } from "@/features/candidates/components/rerun-candidate-dialog";
-import { StartScreeningModal } from "@/features/candidates/components/start-screening-modal";
+import { CandidatesTable } from "@/features/candidates/components/candidates-table";
+import { ScreeningDialogs } from "@/features/candidates/components/screening-dialogs";
+import { useCandidateScreeningDialogs } from "@/features/candidates/hooks/use-candidate-screening-dialogs";
+import { useDebouncedSearch } from "@/features/candidates/hooks/use-debounced-search";
 import { useCandidates } from "@/features/candidates/hooks/use-candidates";
+import {
+  formatCandidateDate,
+} from "@/features/candidates/lib/candidate-table-utils";
 import type { CandidateListItem } from "@/features/candidates/types";
 import { RoleExportAction } from "@/features/roles/components/role-export-action";
 import { RoleFormDialog } from "@/features/roles/components/role-form-dialog";
@@ -29,34 +29,9 @@ import {
   useRole,
 } from "@/features/roles/hooks/use-roles";
 import { useCursorPagination, cursorPageRange } from "@/hooks/use-cursor-pagination";
-import { getScoreColor } from "@/lib/integrity";
+import { INTEGRITY_DISTRIBUTION_META } from "@/lib/integrity";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
-
-const DIST_META: {
-  key: "high" | "medium" | "low";
-  label: string;
-  color: string;
-}[] = [
-  { key: "high", label: "High (75+)", color: "#10B981" },
-  { key: "medium", label: "Medium (50–74)", color: "#F59E0B" },
-  { key: "low", label: "Low (<50)", color: "#EF4444" },
-];
-
-function formatDate(value: string | null): string {
-  if (!value) return "-";
-
-  return new Date(value).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function toScore(value: number | null): number | null {
-  if (value === null) return null;
-  return Math.round(value);
-}
 
 function CollapsibleJobDescription({ text }: { text: string }) {
   const [expanded, setExpanded] = useState(false);
@@ -107,18 +82,21 @@ function CollapsibleJobDescription({ text }: { text: string }) {
 export function RoleDetail({ roleId }: { roleId: string }) {
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
-  const [screenOpen, setScreenOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [rerunOpen, setRerunOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [selectedCandidate, setSelectedCandidate] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
   const [pageSize, setPageSize] = useState(25);
   const { cursor, hasPrevPage, pageIndex, goNext, goPrev, reset } =
     useCursorPagination();
+  const {
+    screenOpen,
+    setScreenOpen,
+    deleteOpen,
+    rerunOpen,
+    openDelete,
+    openRerun,
+    handleDeleteOpenChange,
+    handleRerunOpenChange,
+    selectedCandidate,
+  } = useCandidateScreeningDialogs();
+  const { search, setSearch, debouncedSearch } = useDebouncedSearch(350, reset);
 
   const { data: role, isLoading } = useRole(roleId);
   const deleteRole = useDeleteRole();
@@ -139,14 +117,6 @@ export function RoleDetail({ roleId }: { roleId: string }) {
   );
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setDebouncedSearch(search.trim());
-      reset();
-    }, 350);
-    return () => clearTimeout(timeout);
-  }, [search]);
-
-  useEffect(() => {
     reset();
   }, [pageSize, reset]);
 
@@ -160,14 +130,12 @@ export function RoleDetail({ roleId }: { roleId: string }) {
 
   const stats = role.stats;
 
-  function openDelete(candidate: CandidateListItem) {
-    setSelectedCandidate({ id: candidate.id, name: candidate.name });
-    setDeleteOpen(true);
+  function openDeleteCandidate(candidate: CandidateListItem) {
+    openDelete({ id: candidate.id, name: candidate.name });
   }
 
-  function openRerun(candidate: CandidateListItem) {
-    setSelectedCandidate({ id: candidate.id, name: candidate.name });
-    setRerunOpen(true);
+  function openRerunCandidate(candidate: CandidateListItem) {
+    openRerun({ id: candidate.id, name: candidate.name });
   }
 
   function handleDeleteRole() {
@@ -186,33 +154,22 @@ export function RoleDetail({ roleId }: { roleId: string }) {
 
   return (
     <div className="space-y-5 p-6">
-      <DeleteCandidateDialog
-        open={deleteOpen}
-        onOpenChange={(open) => {
-          setDeleteOpen(open);
-          if (!open) setSelectedCandidate(null);
-        }}
-        candidate={selectedCandidate}
-      />
-      <RerunCandidateDialog
-        open={rerunOpen}
-        onOpenChange={(open) => {
-          setRerunOpen(open);
-          if (!open) setSelectedCandidate(null);
-        }}
-        candidate={selectedCandidate}
+      <ScreeningDialogs
+        screenOpen={screenOpen}
+        onScreenOpenChange={setScreenOpen}
+        deleteOpen={deleteOpen}
+        onDeleteOpenChange={handleDeleteOpenChange}
+        rerunOpen={rerunOpen}
+        onRerunOpenChange={handleRerunOpenChange}
+        selectedCandidate={selectedCandidate}
+        preselectedRoleId={roleId}
+        lockRole
       />
       <RoleFormDialog
         open={editOpen}
         onOpenChange={setEditOpen}
         mode="edit"
         role={role}
-      />
-      <StartScreeningModal
-        open={screenOpen}
-        onOpenChange={setScreenOpen}
-        preselectedRoleId={roleId}
-        lockRole
       />
 
       <div className="flex items-center justify-between gap-4">
@@ -251,7 +208,7 @@ export function RoleDetail({ roleId }: { roleId: string }) {
       <div>
         <h1 className="text-2xl font-bold text-foreground">{role.title}</h1>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          Created {formatDate(role.createdAt)} · {role.candidatesCount}{" "}
+          Created {formatCandidateDate(role.createdAt)} · {role.candidatesCount}{" "}
           screening{role.candidatesCount === 1 ? "" : "s"}
         </p>
       </div>
@@ -282,7 +239,7 @@ export function RoleDetail({ roleId }: { roleId: string }) {
             </div>
 
             <div className="mt-5 space-y-2.5">
-              {DIST_META.map((item) => {
+              {INTEGRITY_DISTRIBUTION_META.map((item) => {
                 const value = stats.distribution[item.key];
                 const pct =
                   stats.scored > 0 ? (value / stats.scored) * 100 : 0;
@@ -353,115 +310,25 @@ export function RoleDetail({ roleId }: { roleId: string }) {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px]">
-                <thead>
-                  <tr className="border-b border-border">
-                    {["Candidate", "Status", "Rounds", "Score", "Screened"].map(
-                      (header, index) => (
-                        <th
-                          key={header}
-                          className={`px-4 py-2.5 text-[10px] font-bold tracking-widest text-muted-foreground ${
-                            index === 0 ? "text-left" : "text-right"
-                          }`}
-                        >
-                          {header}
-                        </th>
-                      ),
-                    )}
-                    <th className="w-10 px-2 py-2.5" aria-label="Actions" />
-                    <th className="w-10 px-2 py-2.5" aria-label="View" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {!candidatesLoading && candidates.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={7}
-                        className="px-4 py-12 text-center text-sm text-muted-foreground"
-                      >
-                        {debouncedSearch
-                          ? "No candidates match your search."
-                          : "No candidates screened for this role yet."}
-                      </td>
-                    </tr>
-                  ) : null}
-                  {candidates.map((candidate, index) => {
-                    const score = toScore(candidate.integrityScore);
-
-                    return (
-                      <tr
-                        key={candidate.id}
-                        onClick={() =>
-                          router.push(routes.candidate(candidate.id))
-                        }
-                        className="group cursor-pointer transition-colors hover:bg-muted/50"
-                        style={{
-                          borderBottom:
-                            index < candidates.length - 1
-                              ? "1px solid var(--border)"
-                              : "none",
-                        }}
-                      >
-                        <td className="px-4 py-3">
-                          <p className="text-sm font-semibold text-foreground group-hover:underline">
-                            {candidate.name}
-                          </p>
-                          <p className="text-[11px] text-muted-foreground">
-                            {candidate.email ?? "-"}
-                          </p>
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex justify-end">
-                            <StatusBadge status={candidate.status} />
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-right font-mono text-xs text-muted-foreground">
-                          {candidate.roundsCount}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          {score !== null ? (
-                            <span
-                              className="font-mono text-xs font-bold"
-                              style={{ color: getScoreColor(score) }}
-                            >
-                              {score}
-                            </span>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">
-                              -
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-right font-mono text-[11px] text-muted-foreground">
-                          {formatDate(candidate.processedAt)}
-                        </td>
-                        <td className="px-2 py-3 text-right">
-                          <CandidateRowActions
-                            candidateId={candidate.id}
-                            status={candidate.status}
-                            onRerun={() => openRerun(candidate)}
-                            onDelete={() => openDelete(candidate)}
-                          />
-                        </td>
-                        <td className="px-2 py-3 text-right">
-                          <ChevronRight
-                            size={16}
-                            className="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
-                          />
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {candidatesPagination ? (
-              <TablePagination
-                meta={{ ...candidatesPagination, from, to }}
+              <CandidatesTable
+                candidates={candidates}
+                variant="role"
+                isLoading={candidatesLoading}
+                emptyMessage={
+                  debouncedSearch
+                    ? "No candidates match your search."
+                    : "No candidates screened for this role yet."
+                }
+                onRerun={openRerunCandidate}
+                onDelete={openDeleteCandidate}
+                pagination={
+                  candidatesPagination
+                    ? { ...candidatesPagination, from, to }
+                    : undefined
+                }
                 hasPrevPage={hasPrevPage}
                 onNextPage={() => {
-                  if (candidatesPagination.nextCursor) {
+                  if (candidatesPagination?.nextCursor) {
                     goNext(candidatesPagination.nextCursor);
                   }
                 }}
@@ -471,7 +338,7 @@ export function RoleDetail({ roleId }: { roleId: string }) {
                   reset();
                 }}
               />
-            ) : null}
+            </div>
           </div>
         </div>
       </div>
