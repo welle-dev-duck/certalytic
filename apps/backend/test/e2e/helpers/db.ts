@@ -7,6 +7,13 @@ import { user } from '../../../src/db/schema/auth.schema';
 export async function truncateAuthTables() {
   await db.execute(sql`
     TRUNCATE TABLE
+      interview_rounds,
+      candidates,
+      role_exports,
+      role_documents,
+      roles,
+      billing_pack_purchases,
+      billing,
       subscription,
       invitation,
       member,

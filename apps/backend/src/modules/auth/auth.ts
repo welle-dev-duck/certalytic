@@ -11,7 +11,10 @@ import { env } from '../../config/env';
 import { db } from '../../db/index';
 import type { Database } from '../../db/index';
 import { generateId } from '../../lib/id';
-import type { BillingService } from '../billing/billing.service';
+import {
+  BillingService,
+  buildStripeSubscriptionPlans,
+} from '../billing/billing.service';
 import type { EmailsProducer } from '../emails/emails.producer';
 import type { AuthService } from './auth.service';
 
@@ -103,6 +106,9 @@ export class Auth {
           stripeClient: this.billingService.getStripeClient(),
           stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
           organization: { enabled: true },
+          onEvent: async (event) => {
+            await this.billingService.handleStripeEvent(event);
+          },
           subscription: {
             authorizeReference: async ({ user, referenceId }) =>
               this.billingService.canManageStripeSubscription(
@@ -110,7 +116,10 @@ export class Auth {
                 user.id,
               ),
             enabled: true,
-            plans: [],
+            plans: buildStripeSubscriptionPlans(),
+            onSubscriptionComplete: async ({ subscription }) => {
+              await this.billingService.resetPlanTokens(subscription.referenceId);
+            },
           },
         }),
       ],

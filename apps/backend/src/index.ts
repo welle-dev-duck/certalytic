@@ -1,29 +1,103 @@
 import 'dotenv/config';
 
+import { createServer } from 'node:http';
+
+import Redis from 'ioredis';
+
 import { createApp } from './app';
 import { env } from './config/env';
+import { db } from './db/index';
 import { createRedisConnection } from './lib/redis';
+import { PlanFeaturesService } from './modules/billing/plans';
+import { CandidateEvaluator } from './modules/screening/candidate-evaluator';
+import { CvContentResolver } from './modules/screening/cv-content-resolver';
+import { RoleContextResolver } from './modules/screening/role-context-resolver';
+import { ScreeningProducer } from './modules/screening/screening.producer';
+import { HttpPublicProfileFetcher } from './modules/screening/public-profile-fetcher';
+import { ScreeningService } from './modules/screening/screening.service';
+import { ScreeningWorkers } from './modules/screening/screening.worker';
+import { DocumentExtractor } from './modules/mistral/document-extractor';
+import { MistralClient } from './modules/mistral/mistral.client';
 import { EmailsProducer } from './modules/emails/emails.producer';
 import { EmailsService } from './modules/emails/emails.service';
 import { EmailsWorkers } from './modules/emails/emails.worker';
+import { RolesDocumentService } from './modules/roles/roles-document.service';
+import { RolesExportService } from './modules/roles/roles-export.service';
+import { RolesProducer } from './modules/roles/roles.producer';
+import { RolesWorkers } from './modules/roles/roles.worker';
 import { Queues } from './queues/queues';
+import { RedisRealtimePublisher } from './realtime/publisher';
+import { RealtimeSubscriber } from './realtime/subscriber';
+import { RealtimeServer } from './realtime/ws.server';
+import { createStorageClient } from './storage/storage.client';
 
 const redisConnection = createRedisConnection();
 const queues = new Queues(redisConnection);
 const emailsProducer = new EmailsProducer(queues.emails);
+const rolesProducer = new RolesProducer(queues.roles);
+const screeningProducer = new ScreeningProducer(queues.screening);
+const realtimePublisher = new RedisRealtimePublisher(new Redis(env.REDIS_URL));
 const emailsService = new EmailsService();
 const emailsWorkers = new EmailsWorkers(redisConnection, emailsService);
+const storage = createStorageClient();
+const mistralClient = new MistralClient();
+const documentExtractor = new DocumentExtractor(mistralClient, storage);
+const rolesDocumentService = new RolesDocumentService(
+  db,
+  storage,
+  documentExtractor,
+);
+const planFeatures = new PlanFeaturesService(db);
+const rolesExportService = new RolesExportService(
+  db,
+  storage,
+  planFeatures,
+  rolesProducer,
+  realtimePublisher,
+);
+const rolesWorkers = new RolesWorkers(
+  redisConnection,
+  rolesDocumentService,
+  rolesExportService,
+);
+const screeningService = new ScreeningService(
+  db,
+  planFeatures,
+  new CvContentResolver(storage, documentExtractor),
+  new RoleContextResolver(db),
+  new CandidateEvaluator(mistralClient),
+  new HttpPublicProfileFetcher(),
+  realtimePublisher,
+);
+const screeningWorkers = new ScreeningWorkers(redisConnection, screeningService);
 
-const app = createApp({ emailsProducer, queues });
+const { app, auth, organizationsService } = createApp({
+  emailsProducer,
+  rolesProducer,
+  screeningProducer,
+  queues,
+  storage,
+  realtimePublisher,
+});
 
-app.listen(env.PORT, () => {
+const server = createServer(app);
+const realtimeServer = new RealtimeServer(server, auth, organizationsService);
+const realtimeSubscriber = new RealtimeSubscriber(realtimeServer);
+
+server.listen(env.PORT, () => {
   console.log(`API listening on ${env.BASE_URL} (port ${env.PORT})`);
+  console.log(`Realtime WebSocket available at ${env.BASE_URL}/api/realtime`);
 });
 
 async function shutdown(signal: string) {
   console.log(`Received ${signal}, shutting down...`);
+  await realtimeSubscriber.close();
+  await realtimeServer.close();
   await emailsWorkers.close();
+  await rolesWorkers.close();
+  await screeningWorkers.close();
   await queues.close();
+  server.close();
   process.exit(0);
 }
 

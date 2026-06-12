@@ -29,7 +29,7 @@ export function createMockResponse(): MockResponse {
 }
 
 export function createMockNext(): NextFunction & ReturnType<typeof vi.fn> {
-  return vi.fn();
+  return vi.fn() as unknown as NextFunction & ReturnType<typeof vi.fn>;
 }
 
 export function getJsonBody(res: MockResponse): unknown {

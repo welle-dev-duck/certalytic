@@ -8,6 +8,23 @@ Port the Laravel Inertia UI from `php-migration/resources/js/` to `apps/web` wit
 
 **Target stack:** Next.js App Router, shadcn/ui, **react-hook-form**, **zod**, **TanStack Query (react-query)**, better-auth client.
 
+### Intentional removals (hard delete — do not port)
+
+The Turborepo frontend **does not include** the legacy Tools or Transcription surfaces. This is a deliberate product cut, not a redirect or hide.
+
+| Legacy UI | Action in `apps/web` |
+|---|---|
+| Tools page (`tools/transcription.tsx`) | **Do not create** — no route, no redirect |
+| Transcription library (`transcriptions/index.tsx`, `transcriptions/show.tsx`) | **Do not create** |
+| Sidebar / nav "Tools" or "Transcription" links | **Omit** — do not leave dead links |
+| Components only used by tools/transcription | **Do not port** — grep `php-migration/resources/js` for imports from those pages and exclude |
+| Transcript token purchase UI | **Do not port** — billing shows **screening** balance only (`plan_tokens` + `refill_tokens`) |
+| Marketing copy referencing standalone transcription tool | Update when porting `welcome.tsx` — remove tool CTAs |
+
+**Still in scope:** Interview **text** transcript paste/upload on candidate create/show — that is screening input, not the transcription tool.
+
+**Hard delete rule:** When copying shared components from Laravel, strip transcription-specific props, hooks, and nav entries at the source — do not add `if (false)` or empty routes as placeholders.
+
 ---
 
 ## 1. Current state
@@ -23,7 +40,7 @@ Port the Laravel Inertia UI from `php-migration/resources/js/` to `apps/web` wit
 
 - Design tokens **do not match** Laravel (`--primary` teal, `--radius: 0rem`, Hanken Grotesk, dark sidebar)
 - No team-scoped routing (`/{team_slug}/...`)
-- No product pages (dashboard, candidates, roles, billing, transcription)
+- No product pages (dashboard, candidates, roles, billing)
 - Forms not yet standardized on react-hook-form + zod + mutations
 
 ---
@@ -137,11 +154,10 @@ Laravel uses `{current_team}` (team slug) as the first path segment:
 /[teamSlug]/candidates/[id]
 /[teamSlug]/roles
 /[teamSlug]/roles/[id]
-/[teamSlug]/tools/transcription
-/[teamSlug]/transcriptions
-/[teamSlug]/transcriptions/[id]
 /[teamSlug]/billing
 ```
+
+**Not routed (removed product):** `/tools/*`, `/transcriptions/*` — no pages, no middleware redirects.
 
 Legacy redirects: `/screenings/*` → `/candidates/*` (keep redirects in Next middleware for bookmark compatibility).
 
@@ -169,10 +185,10 @@ app/
       dashboard/page.tsx
       candidates/...
       roles/...
-      tools/transcription/...
-      transcriptions/...
       billing/...
 ```
+
+No `tools/` or `transcriptions/` route segments.
 
 **Middleware (`middleware.ts`):**
 
@@ -195,11 +211,14 @@ app/
 
 | Pattern | Implementation |
 |---|---|
-| List data | `useQuery({ queryKey: ['teams', slug, 'candidates'], queryFn })` |
+| List data (paginated) | `useInfiniteQuery` or cursor state — `limit` + `cursor` query params on `GET /api/candidates` and `GET /api/roles` (see backend plan §4) |
+| List data (detail) | `useQuery` for single resource |
 | Detail | `useQuery({ queryKey: ['teams', slug, 'candidates', id] })` |
 | Create/update | `useMutation` + `invalidateQueries` |
 | Optimistic UI | Only where Laravel had instant feedback |
-| Polling | Candidate `processing` status — `refetchInterval: 3000` until terminal state |
+| Realtime (screening) | WebSocket `candidate.updated` → update query cache; invalidate on `complete` \| `failed` — [async-job-ui-updates.md](./async-job-ui-updates.md) |
+| Realtime (role export) | WebSocket `role_export.updated` → invalidate + auto-download on `complete` |
+| Fallback | Slow poll or refetch on reconnect only if socket disconnected |
 | Errors | Map API `{ errors: { field: string[] } }` to form |
 
 ### API client
@@ -210,6 +229,14 @@ app/
 ```
 
 No Inertia — every page explicitly fetches what it needs.
+
+### Async screening progress (WebSockets)
+
+**Target:** WebSocket push instead of Laravel’s 4s polling. `RealtimeProvider` connects with the session cookie, joins `org:{organizationId}`, and listens for `candidate.updated` / `role_export.updated`. On status change, patch React Query cache or `invalidateQueries` for full report on `complete`.
+
+Port `ScreeningProcessingStatus` for the loading UI (cosmetic stages stay client-side). Optionally invalidate the candidates list on org-level events — an improvement over legacy.
+
+Slow-poll fallback only when the socket is disconnected. Full design: [async-job-ui-updates.md](./async-job-ui-updates.md).
 
 ### Shared data (replacing Inertia shared props)
 
@@ -264,7 +291,8 @@ Port Laravel Form Request rules to Zod in `features/*/schemas/`:
 
 ### File uploads
 
-- CV, audio, role documents: `<input type="file">` + `FormData` mutation
+- CV, interview transcript files, role documents: `<input type="file">` + `FormData` mutation
+- **No audio upload** — transcription tool removed
 - Progress: optional `onUploadProgress` if using XHR; else loading state on submit
 
 ### Multi-step flows
@@ -275,11 +303,21 @@ Candidate create (CV + transcripts + URLs): port wizard steps from Laravel page 
 
 ## 7. Page migration inventory
 
-All 30 Inertia pages in `php-migration/resources/js/pages/`. Track status as pages land.
+27 Inertia pages to port; **3 pages explicitly dropped** (tools/transcription). Track status as pages land.
+
+### Dropped — do not port
+
+| Laravel page | Reason |
+|---|---|
+| `tools/transcription.tsx` | Transcription tool removed from product |
+| `transcriptions/index.tsx` | Transcription library removed |
+| `transcriptions/show.tsx` | Transcription detail removed |
+
+### Port
 
 | Laravel page | Next route | Backend phase | Priority |
 |---|---|---|---|
-| `welcome.tsx` | `(marketing)/page.tsx` | Phase 8 | P2 |
+| `welcome.tsx` | `(marketing)/page.tsx` | Phase 7 | P2 |
 | `legal/privacy.tsx` | `legal/privacy` | Static | P3 |
 | `legal/terms.tsx` | `legal/terms` | Static | P3 |
 | `legal/dpa.tsx` | `legal/dpa` | Static | P3 |
@@ -292,18 +330,15 @@ All 30 Inertia pages in `php-migration/resources/js/pages/`. Track status as pag
 | `auth/reset-password.tsx` | `auth/reset-password` | Auth | P1 |
 | `auth/confirm-password.tsx` | `auth/confirm-password` | Auth | P2 |
 | `auth/two-factor-challenge.tsx` | `auth/two-factor` | Auth | P1 |
-| `dashboard.tsx` | `[teamSlug]/dashboard` | Phase 7 | P1 |
+| `dashboard.tsx` | `[teamSlug]/dashboard` | Phase 6 | P1 |
 | `candidates/create.tsx` | `[teamSlug]/candidates/create` | Phase 3 | P0 |
 | `screenings/index.tsx` | `[teamSlug]/candidates` | Phase 3 | P0 |
 | `screenings/show.tsx` | `[teamSlug]/candidates/[id]` | Phase 3 | P0 |
 | `screenings/import.tsx` | `[teamSlug]/candidates/import` | Phase 3 | P1 |
 | `roles/index.tsx` | `[teamSlug]/roles` | Phase 2 | P1 |
 | `roles/show.tsx` | `[teamSlug]/roles/[id]` | Phase 2 | P1 |
-| `tools/transcription.tsx` | `[teamSlug]/tools/transcription` | Phase 5 | P2 |
-| `transcriptions/index.tsx` | `[teamSlug]/transcriptions` | Phase 5 | P2 |
-| `transcriptions/show.tsx` | `[teamSlug]/transcriptions/[id]` | Phase 5 | P2 |
-| `billing/index.tsx` | `[teamSlug]/billing` | Phase 6 | P1 |
-| `settings/profile.tsx` | `settings/profile` | Phase 7 | P1 |
+| `billing/index.tsx` | `[teamSlug]/billing` | Phase 5 | P1 |
+| `settings/profile.tsx` | `settings/profile` | Phase 6 | P1 |
 | `settings/security.tsx` | `settings/security` | Auth | P1 |
 | `settings/appearance.tsx` | `settings/appearance` | — | P3 |
 | `settings/organization.tsx` | `settings/organization` | Phase 1 | P1 |
@@ -320,14 +355,15 @@ Port `php-migration/resources/js/layouts/app-layout.tsx` (or equivalent):
 2. **Header** — breadcrumbs, user menu, sign out
 3. **Content area** — max-width and padding from Laravel
 
-Nav items (typical):
+Nav items (target app — no Tools/Transcription):
 
 - Dashboard
 - Candidates
 - Roles
-- Transcription (if plan allows)
 - Billing
 - Settings
+
+When porting `app-sidebar.tsx` from Laravel, **remove** Tools and Transcription entries and any related icons/imports — do not comment them out.
 
 Use `usePathname()` for active link styling — match Laravel `NavMain` classes exactly.
 
@@ -345,23 +381,19 @@ Use `usePathname()` for active link styling — match Laravel `NavMain` classes 
 
 - Tabs: Overview, Integrity breakdown, Behaviour, Personality, Transcripts
 - Recharts graphs — port chart config from Laravel (colors from CSS variables)
-- Export PDF button → triggers API → poll or download link
+- Export PDF button → triggers API → WS updates status → download on complete
 
 ### Roles
 
 - Document upload zone (Scale+ gated) — show upgrade CTA matching Laravel
-- Export batch button with job polling
+- Export batch button with WS-driven status (same as legacy auto-download on complete)
 
 ### Billing
 
-- Plan cards — same copy/pricing from `product-overview.md`
+- Plan cards — same copy/pricing from `product-overview.md` (omit transcription token pack)
 - Stripe checkout redirect — `billingService.createCheckout` pattern from backend
-- Token balance display for transcription
-
-### Transcription
-
-- Audio upload + job status polling
-- Diarized transcript viewer — port segment UI
+- Screening balance: display `plan_tokens` + `refill_tokens` from `GET /api/billing` (or org billing endpoint)
+- Screening pack purchase only — no transcript token UI
 
 ---
 
@@ -398,7 +430,7 @@ Ensure versions align with monorepo `pnpm` workspace.
 
 - [ ] Port `app.css` tokens + fonts to `globals.css` / `layout.tsx`
 - [ ] Port app shell (sidebar, header, team switcher)
-- [ ] Query provider + API client
+- [ ] Query provider + API client + `RealtimeProvider` (WebSocket)
 - [ ] Middleware: auth + team slug
 
 ### Phase F1 — Settings & team (depends backend Phase 1)
@@ -414,18 +446,17 @@ Ensure versions align with monorepo `pnpm` workspace.
 ### Phase F3 — Candidates (depends backend Phase 3) — **critical path**
 
 - [ ] List, create wizard, show/report, edit
-- [ ] Processing polling UI
+- [ ] Processing UI + WebSocket-driven status updates
 - [ ] Integrity dossier tabs
 
-### Phase F4 — Billing & dashboard (depends backend Phase 6–7)
+### Phase F4 — Billing & dashboard (depends backend Phase 5–6)
 
-- [ ] Billing page, plan cards
+- [ ] Billing page, plan cards, screening token balance (`plan_tokens` / `refill_tokens`)
 - [ ] Dashboard stats cards
 
-### Phase F5 — Transcription + marketing
+### Phase F5 — Marketing & legal
 
-- [ ] Transcription tool page
-- [ ] Public landing + legal
+- [ ] Public landing + legal (strip standalone transcription tool from marketing copy)
 
 ---
 
@@ -445,6 +476,7 @@ Ensure versions align with monorepo `pnpm` workspace.
 - **Do not** use Server Actions for domain mutations unless team standardizes on them — use React Query mutations against Express API for parity with backend skill
 - **Do not** redesign layouts "while migrating" — port first, improve later
 - **Do not** embed business validation only in Zod — backend remains source of truth; Zod mirrors for UX
+- **Do not** port or stub Tools/Transcription routes — hard delete from nav, layouts, and shared components
 
 ---
 
@@ -456,4 +488,4 @@ Ensure versions align with monorepo `pnpm` workspace.
 - [ ] No Inertia or Wayfinder dependencies
 - [ ] Lighthouse/a11y not worse than Laravel baseline
 
-Coordinate backend API availability per [backend-migration-plan.md](./backend-migration-plan.md); frontend phases F1–F5 map directly to backend Phases 1–7.
+Coordinate backend API availability per [backend-migration-plan.md](./backend-migration-plan.md); frontend phases F1–F5 map to backend Phases 1–7 (no transcription phase).
