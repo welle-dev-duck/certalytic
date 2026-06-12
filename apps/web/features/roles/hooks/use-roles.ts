@@ -28,7 +28,7 @@ export const roleKeys = {
 
 export type RoleListFilters = {
   limit?: number;
-  page?: number;
+  cursor?: string;
   search?: string;
 };
 
@@ -37,16 +37,15 @@ export function useRoles(
   options?: { enabled?: boolean },
 ) {
   const orgId = useOrgId();
-  const page = filters.page ?? 1;
   const limit = filters.limit ?? 25;
 
   return useQuery({
-    queryKey: roleKeys.list(orgId, { ...filters, page, limit }),
+    queryKey: roleKeys.list(orgId, { ...filters, limit }),
     queryFn: () =>
       api<PaginatedRoles<RoleListItem>>("/api/roles", {
         params: {
           limit,
-          page,
+          cursor: filters.cursor,
           search: filters.search,
         },
       }),

@@ -66,11 +66,9 @@ describe('roles (e2e)', () => {
     });
     expect(listResponse.body.pagination).toMatchObject({
       limit: 25,
-      page: 1,
-      total: 1,
-      lastPage: 1,
       hasNextPage: false,
       hasPrevPage: false,
+      nextCursor: null,
     });
   });
 

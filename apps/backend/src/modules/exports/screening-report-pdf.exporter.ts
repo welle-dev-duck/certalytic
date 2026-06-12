@@ -1,3 +1,4 @@
+import { env } from '../../config/env';
 import { AppError } from '../../lib/errors';
 import type { PlanFeaturesService } from '../billing/plans';
 import type { CandidateDetailDto } from '../candidates/candidates.dto';
@@ -29,21 +30,22 @@ export class ScreeningReportPdfExporter {
 
     const report = this.reportService.build(candidate);
     const builder = await PdfDocumentBuilder.create({ watermarked });
-    const generatedAt = new Date().toISOString().slice(0, 16).replace('T', ' ');
+    const generatedAt = new Date()
+      .toISOString()
+      .slice(0, 16)
+      .replace('T', ' ');
 
-    builder.addBrandHeader(
-      candidate.name,
-      `${candidate.roleTitle ?? 'Role not specified'} · Generated ${generatedAt} UTC`,
-    );
+    const title = candidate.roleTitle ?? candidate.name;
+
+    builder.addCoverHeader(title, `${generatedAt} UTC`, {
+      candidatesScreened: 1,
+    });
 
     if (candidate.roleTitle) {
-      builder.addRoleSection(
-        candidate.roleTitle,
-        candidate.jobDescription ?? null,
-      );
+      builder.addRoleOverview(candidate.jobDescription ?? null);
     }
 
-    builder.addDisclaimer();
+    builder.startCandidatePage();
     builder.addCandidateReport(candidate.name, report, {
       email: candidate.email,
       linkedinUrl: candidate.linkedinUrl,
@@ -51,6 +53,7 @@ export class ScreeningReportPdfExporter {
       followUpSuggested: candidate.followUpSuggested,
     });
 
+    builder.addClosingPage(env.WEB_APP_URL);
     const buffer = await builder.build();
 
     return {

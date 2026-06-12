@@ -57,11 +57,12 @@ export function AppSidebar() {
 
   const planLabel = usage?.planLabel ?? "Free";
   const planQuota = usage?.planQuota ?? 0;
-  const includedUsed = usage?.includedUsed ?? 0;
   const includedRemaining = usage?.includedRemaining ?? usage?.planTokens ?? 0;
   const refillTokens = usage?.refillTokens ?? 0;
   const includedPct =
-    planQuota > 0 ? Math.min(1, includedUsed / planQuota) : 0;
+    planQuota > 0
+      ? Math.min(1, Math.max(0, (planQuota - includedRemaining) / planQuota))
+      : 0;
   const refillPct =
     planQuota > 0
       ? Math.min(1, refillTokens / planQuota)
@@ -210,11 +211,11 @@ export function AppSidebar() {
                   </span>
                 </div>
                 <span className="font-mono text-[10px] font-semibold text-sidebar-foreground">
-                  {includedUsed}
+                  {includedRemaining}
                   <span className="text-sidebar-foreground/60">/{planQuota}</span>
                 </span>
               </div>
-              <div className="mb-1 h-1 overflow-hidden rounded-full bg-sidebar-border">
+              <div className="h-1 overflow-hidden rounded-full bg-sidebar-border">
                 <div
                   className={cn(
                     "h-full rounded-full",
@@ -223,9 +224,6 @@ export function AppSidebar() {
                   style={{ width: `${Math.round(includedPct * 100)}%` }}
                 />
               </div>
-              <p className="text-[10px] text-sidebar-foreground/60">
-                {includedRemaining} included left
-              </p>
             </div>
 
             <div>

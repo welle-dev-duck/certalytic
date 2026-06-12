@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-export const PAGE_SIZES = [10, 25, 50, 100] as const;
+// TODO: remove option 1 before prod
+export const PAGE_SIZES = [1, 10, 25, 50, 100] as const;
 
 export type PageSize = (typeof PAGE_SIZES)[number];
 

@@ -28,6 +28,7 @@ import {
   useDeleteRole,
   useRole,
 } from "@/features/roles/hooks/use-roles";
+import { useCursorPagination, cursorPageRange } from "@/hooks/use-cursor-pagination";
 import { getScoreColor } from "@/lib/integrity";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
@@ -115,8 +116,9 @@ export function RoleDetail({ roleId }: { roleId: string }) {
     id: string;
     name: string;
   } | null>(null);
-  const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
+  const { cursor, hasPrevPage, pageIndex, goNext, goPrev, reset } =
+    useCursorPagination();
 
   const { data: role, isLoading } = useRole(roleId);
   const deleteRole = useDeleteRole();
@@ -124,24 +126,29 @@ export function RoleDetail({ roleId }: { roleId: string }) {
   const { data: candidatesData, isLoading: candidatesLoading } = useCandidates({
     role_id: roleId,
     limit: pageSize,
-    page,
+    cursor,
     search: debouncedSearch || undefined,
   });
 
   const candidates = candidatesData?.data ?? [];
   const candidatesPagination = candidatesData?.pagination;
+  const { from, to } = cursorPageRange(
+    pageIndex,
+    pageSize,
+    candidates.length,
+  );
 
   useEffect(() => {
     const timeout = setTimeout(() => {
       setDebouncedSearch(search.trim());
-      setPage(1);
+      reset();
     }, 350);
     return () => clearTimeout(timeout);
   }, [search]);
 
   useEffect(() => {
-    setPage(1);
-  }, [pageSize]);
+    reset();
+  }, [pageSize, reset]);
 
   if (isLoading || !role) {
     return (
@@ -451,11 +458,17 @@ export function RoleDetail({ roleId }: { roleId: string }) {
 
             {candidatesPagination ? (
               <TablePagination
-                meta={candidatesPagination}
-                onPageChange={setPage}
+                meta={{ ...candidatesPagination, from, to }}
+                hasPrevPage={hasPrevPage}
+                onNextPage={() => {
+                  if (candidatesPagination.nextCursor) {
+                    goNext(candidatesPagination.nextCursor);
+                  }
+                }}
+                onPrevPage={goPrev}
                 onPageSizeChange={(size) => {
                   setPageSize(size);
-                  setPage(1);
+                  reset();
                 }}
               />
             ) : null}

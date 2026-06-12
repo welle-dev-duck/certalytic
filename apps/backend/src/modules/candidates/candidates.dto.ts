@@ -8,7 +8,8 @@ export const candidateListQuerySchema = z.object({
   limit: z.coerce
     .number()
     .int()
-    .refine((value) => [10, 25, 50, 100].includes(value))
+    // TODO: remove option 1 before prod
+    .refine((value) => [1, 10, 25, 50, 100].includes(value))
     .default(25),
   page: z.coerce.number().int().min(1).default(1),
   cursor: z.uuid().optional(),

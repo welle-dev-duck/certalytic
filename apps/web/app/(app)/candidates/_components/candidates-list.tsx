@@ -19,6 +19,7 @@ import { StartScreeningModal } from "@/features/candidates/components/start-scre
 import { useCandidates } from "@/features/candidates/hooks/use-candidates";
 import type { CandidateListItem } from "@/features/candidates/types";
 import { useBillingUsage } from "@/features/billing/hooks/use-billing";
+import { useCursorPagination, cursorPageRange } from "@/hooks/use-cursor-pagination";
 import { getIntegrityLevel } from "@/lib/integrity";
 import { routes } from "@/lib/routes";
 
@@ -59,9 +60,10 @@ export function CandidatesList() {
     id: string;
     name: string;
   } | null>(null);
-  const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const firstRender = useRef(true);
+  const { cursor, hasPrevPage, pageIndex, goNext, goPrev, reset } =
+    useCursorPagination();
 
   const { data: usage } = useBillingUsage();
 
@@ -69,11 +71,12 @@ export function CandidatesList() {
     search: debouncedSearch || undefined,
     status: statusFilter ?? undefined,
     limit: pageSize,
-    page,
+    cursor,
   });
 
   const candidates = data?.data ?? [];
   const pagination = data?.pagination;
+  const { from, to } = cursorPageRange(pageIndex, pageSize, candidates.length);
 
   useEffect(() => {
     if (searchParams.get("screen") === "1") {
@@ -90,14 +93,14 @@ export function CandidatesList() {
 
     const timeout = setTimeout(() => {
       setDebouncedSearch(search);
-      setPage(1);
+      reset();
     }, 350);
     return () => clearTimeout(timeout);
   }, [search]);
 
   useEffect(() => {
-    setPage(1);
-  }, [statusFilter, pageSize]);
+    reset();
+  }, [statusFilter, pageSize, reset]);
 
   const openDelete = (candidate: CandidateListItem) => {
     setSelectedCandidate({ id: candidate.id, name: candidate.name });
@@ -355,11 +358,17 @@ export function CandidatesList() {
             </div>
             {pagination ? (
               <TablePagination
-                meta={pagination}
-                onPageChange={setPage}
+                meta={{ ...pagination, from, to }}
+                hasPrevPage={hasPrevPage}
+                onNextPage={() => {
+                  if (pagination.nextCursor) {
+                    goNext(pagination.nextCursor);
+                  }
+                }}
+                onPrevPage={goPrev}
                 onPageSizeChange={(size) => {
                   setPageSize(size);
-                  setPage(1);
+                  reset();
                 }}
               />
             ) : null}

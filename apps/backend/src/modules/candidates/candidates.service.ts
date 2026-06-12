@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gt, ilike, lt, or, sql } from 'drizzle-orm';
+import { and, desc, eq, gt, ilike, lt, or, sql } from 'drizzle-orm';
 
 import type { Database } from '../../db/index';
 import {
@@ -11,7 +11,7 @@ import { AppError, NotFoundError } from '../../lib/errors';
 import { generateId } from '../../lib/id';
 import { logger } from '../../lib/logger';
 import { limitTranscriptText } from '../../lib/text-content-limiter';
-import { paginateByPage } from '../../lib/pagination';
+import { paginateByCursor } from '../../lib/pagination';
 import type { BillingService } from '../billing/billing.service';
 import type { PlanFeaturesService } from '../billing/plans';
 import {
@@ -43,7 +43,7 @@ export class CandidatesService {
   async list(
     organizationId: string,
     query: CandidateListQueryDto,
-  ): Promise<ReturnType<typeof paginateByPage<CandidateListItemDto>>> {
+  ): Promise<ReturnType<typeof paginateByCursor<CandidateListItemDto>>> {
     const filters = [eq(candidates.organizationId, organizationId)];
 
     if (query.role_id) {
@@ -61,15 +61,11 @@ export class CandidatesService {
       );
     }
 
+    if (query.cursor) {
+      filters.push(lt(candidates.id, query.cursor));
+    }
+
     const whereClause = and(...filters);
-    const offset = (query.page - 1) * query.limit;
-
-    const [totalRow] = await this.db
-      .select({ value: count() })
-      .from(candidates)
-      .where(whereClause);
-
-    const total = Number(totalRow?.value ?? 0);
 
     const rows = await this.db
       .select({
@@ -93,8 +89,7 @@ export class CandidatesService {
       .leftJoin(roles, eq(candidates.roleId, roles.id))
       .where(whereClause)
       .orderBy(desc(candidates.id))
-      .limit(query.limit)
-      .offset(offset);
+      .limit(query.limit + 1);
 
     const items: CandidateListItemDto[] = rows.map((row) => ({
       id: row.id,
@@ -111,7 +106,7 @@ export class CandidatesService {
       createdAt: row.createdAt,
     }));
 
-    return paginateByPage(items, total, query.page, query.limit);
+    return paginateByCursor(items, query.limit);
   }
 
   async getById(

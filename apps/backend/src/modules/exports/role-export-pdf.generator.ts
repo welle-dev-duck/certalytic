@@ -1,5 +1,6 @@
 import { and, desc, eq } from 'drizzle-orm';
 
+import { env } from '../../config/env';
 import type { Database } from '../../db/index';
 import { candidates } from '../../db/schema/candidates.schema';
 import type { RoleExportStatus } from '../../db/schema/roles.schema';
@@ -83,29 +84,26 @@ export class RoleExportPdfGenerator {
         : null;
 
     const builder = await PdfDocumentBuilder.create({ watermarked });
-    const generatedAt = new Date().toISOString().slice(0, 16).replace('T', ' ');
+    const generatedAt = new Date()
+      .toISOString()
+      .slice(0, 16)
+      .replace('T', ' ');
 
-    builder.addBrandHeader(
-      role.title,
-      `Role dossier · Generated ${generatedAt} UTC`,
-    );
-    builder.addRoleSection(role.title, role.description);
-    builder.addDisclaimer();
-    builder.addSection('Role summary');
-    builder.addKeyValue('Completed candidates', String(completedCandidates.length));
-    builder.addKeyValue('Scored candidates', String(scored.length));
-    builder.addKeyValue(
-      'Average integrity',
-      avgIntegrity !== null ? avgIntegrity.toFixed(1) : 'n/a',
-    );
-    builder.addKeyValue('High integrity (>=75)', String(distribution.high));
-    builder.addKeyValue('Medium integrity (50-74)', String(distribution.medium));
-    builder.addKeyValue('Low integrity (<50)', String(distribution.low));
+    builder.addCoverHeader(role.title, `${generatedAt} UTC`, {
+      candidatesScreened: completedCandidates.length,
+    });
+    builder.addRoleOverview(role.description, {
+      avgIntegrity,
+      scored: scored.length,
+      completedCount: completedCandidates.length,
+      distribution,
+    });
 
     for (const candidate of completedCandidates) {
       const detail = this.toCandidateDetail(candidate);
       const report = this.reportService.build(detail);
 
+      builder.startCandidatePage();
       builder.addCandidateReport(candidate.name, report, {
         email: detail.email,
         linkedinUrl: detail.linkedinUrl,
@@ -114,6 +112,7 @@ export class RoleExportPdfGenerator {
       });
     }
 
+    builder.addClosingPage(env.WEB_APP_URL);
     const buffer = await builder.build();
     const path = roleExportPath(
       exportRecord.organizationId,

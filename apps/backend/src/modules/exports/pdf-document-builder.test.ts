@@ -114,18 +114,26 @@ describe('PdfDocumentBuilder', () => {
   it('builds a multi-section candidate dossier PDF', async () => {
     const builder = await PdfDocumentBuilder.create({ watermarked: false });
 
-    builder.addBrandHeader('Jane Doe', 'Senior Engineer · Generated 2026-06-12 12:00 UTC');
-    builder.addRoleSection(
-      'Senior Engineer',
+    builder.addCoverHeader('Senior Engineer', '2026-06-12 12:00 UTC', {
+      candidatesScreened: 3,
+    });
+    builder.addRoleOverview(
       'Build scalable backend services and mentor junior engineers.',
+      {
+        avgIntegrity: 72,
+        scored: 3,
+        completedCount: 3,
+        distribution: { high: 1, medium: 1, low: 1 },
+      },
     );
-    builder.addDisclaimer();
+    builder.startCandidatePage();
     builder.addCandidateReport('Jane Doe', sampleReport, {
       email: 'jane@example.com',
       linkedinUrl: 'https://linkedin.com/in/jane',
       githubUsername: 'jane-dev',
       followUpSuggested: ['Verify reference for earliest role'],
     });
+    builder.addClosingPage('https://certalytic.com');
 
     const buffer = await builder.build();
 

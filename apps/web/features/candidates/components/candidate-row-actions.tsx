@@ -67,7 +67,7 @@ export function CandidateRowActions({
         ) : null}
         <DropdownMenuItem className="cursor-pointer" onSelect={onRerun}>
           <RefreshCw />
-          Re-run screening
+          Re-run
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer text-destructive focus:text-destructive"

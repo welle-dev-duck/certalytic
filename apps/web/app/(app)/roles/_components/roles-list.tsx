@@ -33,6 +33,7 @@ import {
 import { RoleFormDialog } from "@/features/roles/components/role-form-dialog";
 import { useDeleteRole, useRoles } from "@/features/roles/hooks/use-roles";
 import type { RoleListItem } from "@/features/roles/types";
+import { useCursorPagination, cursorPageRange } from "@/hooks/use-cursor-pagination";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
@@ -54,19 +55,21 @@ export function RolesList() {
   const [editingRole, setEditingRole] = useState<RoleListItem | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [roleToDelete, setRoleToDelete] = useState<RoleListItem | null>(null);
-  const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const firstRender = useRef(true);
+  const { cursor, hasPrevPage, pageIndex, goNext, goPrev, reset } =
+    useCursorPagination();
 
   const deleteRole = useDeleteRole();
   const { data, isLoading } = useRoles({
     search: debouncedSearch || undefined,
     limit: pageSize,
-    page,
+    cursor,
   });
 
   const roles = data?.data ?? [];
   const pagination = data?.pagination;
+  const { from, to } = cursorPageRange(pageIndex, pageSize, roles.length);
 
   useEffect(() => {
     if (firstRender.current) {
@@ -75,14 +78,14 @@ export function RolesList() {
     }
     const timeout = setTimeout(() => {
       setDebouncedSearch(search);
-      setPage(1);
+      reset();
     }, 350);
     return () => clearTimeout(timeout);
   }, [search]);
 
   useEffect(() => {
-    setPage(1);
-  }, [pageSize]);
+    reset();
+  }, [pageSize, reset]);
 
   function confirmDelete() {
     if (!roleToDelete) return;
@@ -296,11 +299,17 @@ export function RolesList() {
             </div>
             {pagination ? (
               <TablePagination
-                meta={pagination}
-                onPageChange={setPage}
+                meta={{ ...pagination, from, to }}
+                hasPrevPage={hasPrevPage}
+                onNextPage={() => {
+                  if (pagination.nextCursor) {
+                    goNext(pagination.nextCursor);
+                  }
+                }}
+                onPrevPage={goPrev}
                 onPageSizeChange={(size) => {
                   setPageSize(size);
-                  setPage(1);
+                  reset();
                 }}
               />
             ) : null}

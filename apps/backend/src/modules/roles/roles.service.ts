@@ -15,7 +15,7 @@ import type { Database } from '../../db/index';
 import { candidates } from '../../db/schema/candidates.schema';
 import { roleDocuments, roles } from '../../db/schema/roles.schema';
 import { AppError, NotFoundError } from '../../lib/errors';
-import { paginateByPage } from '../../lib/pagination';
+import { paginateByCursor } from '../../lib/pagination';
 import { generateId } from '../../lib/id';
 import type { StorageClient } from '../../storage/storage.client';
 import { roleDocumentPath } from '../../storage/storage.paths';
@@ -41,7 +41,7 @@ export class RolesService {
   async list(
     organizationId: string,
     query: RoleListQueryDto,
-  ): Promise<ReturnType<typeof paginateByPage<RoleListItemDto>>> {
+  ): Promise<ReturnType<typeof paginateByCursor<RoleListItemDto>>> {
     await this.assertSavedRoles(organizationId);
 
     const filters = [eq(roles.organizationId, organizationId)];
@@ -50,15 +50,11 @@ export class RolesService {
       filters.push(ilike(roles.title, `%${query.search}%`));
     }
 
+    if (query.cursor) {
+      filters.push(lt(roles.id, query.cursor));
+    }
+
     const whereClause = and(...filters);
-    const offset = (query.page - 1) * query.limit;
-
-    const [totalRow] = await this.db
-      .select({ value: count() })
-      .from(roles)
-      .where(whereClause);
-
-    const total = Number(totalRow?.value ?? 0);
 
     const rows = await this.db
       .select({
@@ -71,8 +67,7 @@ export class RolesService {
       .from(roles)
       .where(whereClause)
       .orderBy(desc(roles.id))
-      .limit(query.limit)
-      .offset(offset);
+      .limit(query.limit + 1);
 
     const roleIds = rows.map((row) => row.id);
     const metricsByRole = await this.loadRoleMetricsBatch(
@@ -94,7 +89,7 @@ export class RolesService {
       };
     });
 
-    return paginateByPage(items, total, query.page, query.limit);
+    return paginateByCursor(items, query.limit);
   }
 
   async getById(

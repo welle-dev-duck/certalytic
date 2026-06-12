@@ -28,7 +28,7 @@ export const candidateKeys = {
 
 export type CandidateListFilters = {
   limit?: number;
-  page?: number;
+  cursor?: string;
   search?: string;
   role_id?: string;
   status?: string;
@@ -36,16 +36,15 @@ export type CandidateListFilters = {
 
 export function useCandidates(filters: CandidateListFilters) {
   const orgId = useOrgId();
-  const page = filters.page ?? 1;
   const limit = filters.limit ?? 25;
 
   return useQuery({
-    queryKey: candidateKeys.list(orgId, { ...filters, page, limit }),
+    queryKey: candidateKeys.list(orgId, { ...filters, limit }),
     queryFn: () =>
       api<PaginatedResponse<CandidateListItem>>("/api/candidates", {
         params: {
           limit,
-          page,
+          cursor: filters.cursor,
           search: filters.search,
           role_id: filters.role_id,
           status: filters.status,

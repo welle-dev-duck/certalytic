@@ -5,6 +5,7 @@ export const SUBSCRIPTION_PLANS = [
     price: 0,
     tokens: 3,
     seats: 1,
+    recommendation: null as string | null,
     features: [
       "3 screenings / month",
       "Saved roles",
@@ -19,14 +20,18 @@ export const SUBSCRIPTION_PLANS = [
     price: 159,
     tokens: 20,
     seats: 1,
-    features: [] as string[],
-    incrementalFeatures: [
+    recommendation:
+      "Choose this if you expect to manage around 4 roles / month",
+    features: [
       "20 screenings / month",
       "Full integrity breakdown",
-      "Manual cross-source checks",
-      "Token pack purchases",
+      "Cross-Reference checks",
+      "Refillable screening tokens",
+      "Export Integrity Dossiers in 2 languages",
+      "Email Support",
     ],
-    includesPlan: "Free",
+    incrementalFeatures: [] as string[],
+    includesPlan: null as string | null,
   },
   {
     value: "growth",
@@ -34,11 +39,13 @@ export const SUBSCRIPTION_PLANS = [
     price: 349,
     tokens: 50,
     seats: 3,
+    recommendation:
+      "Choose this if you expect to manage around 10 roles / month",
     features: [] as string[],
     incrementalFeatures: [
       "50 screenings / month",
       "3 seats",
-      "Automated cross-source checks",
+      "Priority Email Support",
     ],
     includesPlan: "Starter",
   },
@@ -48,12 +55,14 @@ export const SUBSCRIPTION_PLANS = [
     price: 799,
     tokens: 125,
     seats: 5,
+    recommendation:
+      "Choose this if you expect to manage around 25 roles / month",
     features: [] as string[],
     incrementalFeatures: [
       "125 screenings / month",
       "5 seats",
-      "Role context documents",
-      "Priority queue",
+      "Priority Queue (faster Candidate evaluation)",
+      "Premium Support (Slack Access)",
     ],
     includesPlan: "Growth",
   },
@@ -77,6 +86,7 @@ export const TOKEN_PACKS = [
 
 export const ENTERPRISE_PLAN = {
   label: "Enterprise",
+  recommendation: "Choose this if you have custom needs.",
   features: [
     "Unlimited seats & tokens",
     "Dedicated support",

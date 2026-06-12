@@ -221,13 +221,16 @@ export function OrganizationSettings() {
       </SettingsSection>
 
       <SettingsSection label="INVITE MEMBER">
-        <form onSubmit={inviteForm.handleSubmit(onInvite)} className="space-y-4">
-          <FieldGroup>
+        <form onSubmit={inviteForm.handleSubmit(onInvite)}>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <Controller
               name="email"
               control={inviteForm.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field
+                  data-invalid={fieldState.invalid}
+                  className="min-w-0 flex-1"
+                >
                   <FieldLabel htmlFor="invite-email">
                     <Required>Email</Required>
                   </FieldLabel>
@@ -248,14 +251,17 @@ export function OrganizationSettings() {
               name="role"
               control={inviteForm.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field
+                  data-invalid={fieldState.invalid}
+                  className="w-full sm:w-40"
+                >
                   <FieldLabel htmlFor="invite-role">
                     <Required>Role</Required>
                   </FieldLabel>
                   <select
                     {...field}
                     id="invite-role"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    className="h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
                   >
                     <option value="member">Member</option>
                     <option value="admin">Admin</option>
@@ -266,16 +272,19 @@ export function OrganizationSettings() {
                 </Field>
               )}
             />
-          </FieldGroup>
-
-          <Button type="submit" disabled={isInviting}>
-            <LoadingSwap isLoading={isInviting}>
-              <span className="flex items-center gap-1.5">
-                <UserPlus size={14} />
-                Send invitation
-              </span>
-            </LoadingSwap>
-          </Button>
+            <Button
+              type="submit"
+              disabled={isInviting}
+              className="w-full shrink-0 sm:w-auto"
+            >
+              <LoadingSwap isLoading={isInviting}>
+                <span className="flex items-center gap-1.5">
+                  <UserPlus size={14} />
+                  Send invitation
+                </span>
+              </LoadingSwap>
+            </Button>
+          </div>
         </form>
       </SettingsSection>
 

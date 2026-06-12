@@ -126,111 +126,111 @@ export function BillingView() {
       <section>
         <SectionHeader label="PLANS" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-          {SUBSCRIPTION_PLANS.map((plan) => {
-            const isCurrent = plan.value === currentPlan;
-            const displayFeatures =
-              plan.includesPlan !== null
-                ? plan.incrementalFeatures
-                : plan.features;
+          {SUBSCRIPTION_PLANS.filter((plan) => plan.value !== "free").map(
+            (plan) => {
+              const isCurrent = plan.value === currentPlan;
+              const displayFeatures =
+                plan.includesPlan !== null
+                  ? plan.incrementalFeatures
+                  : plan.features;
 
-            return (
-              <div
-                key={plan.value}
-                className="flex flex-col gap-4 rounded-lg border p-5"
-                style={{
-                  background: isCurrent
-                    ? "color-mix(in oklch, var(--primary) 7%, transparent)"
-                    : "var(--c-surface)",
-                  borderColor: isCurrent
-                    ? "color-mix(in oklch, var(--primary) 35%, transparent)"
-                    : "var(--c-border)",
-                }}
-              >
-                <div>
-                  <div className="mb-1 flex items-center gap-2">
-                    <p
-                      className="text-sm font-bold"
-                      style={{
-                        color: isCurrent ? "var(--c-cyan)" : "var(--c-text)",
-                      }}
-                    >
-                      {plan.label}
-                    </p>
-                    {isCurrent && (
-                      <span
-                        className="rounded px-2 py-0.5 text-[10px] font-bold tracking-wide"
+              return (
+                <div
+                  key={plan.value}
+                  className="flex flex-col gap-4 rounded-lg border p-5"
+                  style={{
+                    background: isCurrent
+                      ? "color-mix(in oklch, var(--primary) 7%, transparent)"
+                      : "var(--c-surface)",
+                    borderColor: isCurrent
+                      ? "color-mix(in oklch, var(--primary) 35%, transparent)"
+                      : "var(--c-border)",
+                  }}
+                >
+                  <div>
+                    <div className="mb-1 flex items-center gap-2">
+                      <p
+                        className="text-sm font-bold"
                         style={{
-                          background:
-                            "color-mix(in oklch, var(--primary) 15%, transparent)",
-                          color: "var(--c-cyan)",
-                          border:
-                            "1px solid color-mix(in oklch, var(--primary) 30%, transparent)",
+                          color: isCurrent ? "var(--c-cyan)" : "var(--c-text)",
                         }}
                       >
-                        CURRENT
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-2xl font-bold tabular-nums text-foreground">
-                    €{plan.price}
-                    <span className="text-sm font-normal text-muted-foreground">
-                      /mo
-                    </span>
-                  </p>
-                </div>
-
-                <div className="space-y-1 text-xs text-muted-foreground">
-                  <p>
-                    {plan.seats} seat{plan.seats !== 1 ? "s" : ""} included
-                  </p>
-                  <p>{plan.tokens} screenings / month</p>
-                </div>
-
-                <div className="space-y-1.5">
-                  {plan.includesPlan && (
-                    <p className="text-xs font-semibold text-foreground">
-                      Everything in {plan.includesPlan}, plus:
-                    </p>
-                  )}
-                  {displayFeatures.map((feature) => (
-                    <div key={feature} className="flex items-start gap-2">
-                      <Check
-                        size={12}
-                        className="mt-0.5 shrink-0 text-[#10B981]"
-                      />
-                      <span className="text-xs text-foreground">{feature}</span>
+                        {plan.label}
+                      </p>
+                      {isCurrent && (
+                        <span
+                          className="rounded px-2 py-0.5 text-[10px] font-bold tracking-wide"
+                          style={{
+                            background:
+                              "color-mix(in oklch, var(--primary) 15%, transparent)",
+                            color: "var(--c-cyan)",
+                            border:
+                              "1px solid color-mix(in oklch, var(--primary) 30%, transparent)",
+                          }}
+                        >
+                          CURRENT
+                        </span>
+                      )}
                     </div>
-                  ))}
-                </div>
+                    <p className="text-2xl font-bold tabular-nums text-foreground">
+                      €{plan.price}
+                      <span className="text-sm font-normal text-muted-foreground">
+                        /mo
+                      </span>
+                    </p>
+                    {plan.recommendation ? (
+                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                        {plan.recommendation}
+                      </p>
+                    ) : null}
+                  </div>
 
-                {isCurrent ? (
-                  <Button
-                    className="mt-auto w-full"
-                    variant="default"
-                    onClick={openPortal}
-                    disabled={billingPortal.isPending || plan.value === "free"}
-                  >
-                    {plan.value === "free" ? "Current plan" : "Manage subscription"}
-                  </Button>
-                ) : plan.value === "free" ? (
-                  <Button className="mt-auto w-full" variant="outline" disabled>
-                    Downgrade via portal
-                  </Button>
-                ) : (
-                  <Button
-                    className="mt-auto w-full"
-                    variant="outline"
-                    disabled={pending !== null || subscriptionUpgrade.isPending}
-                    onClick={() =>
-                      switchPlan(plan.value as "starter" | "growth" | "scale")
-                    }
-                  >
-                    {pending === plan.value ? "Redirecting…" : "Upgrade"}
-                  </Button>
-                )}
-              </div>
-            );
-          })}
+                  <div className="space-y-1.5">
+                    {plan.includesPlan ? (
+                      <p className="text-xs font-semibold text-foreground">
+                        Everything in {plan.includesPlan}, plus:
+                      </p>
+                    ) : null}
+                    {displayFeatures.map((feature) => (
+                      <div key={feature} className="flex items-start gap-2">
+                        <Check
+                          size={12}
+                          className="mt-0.5 shrink-0 text-[#10B981]"
+                        />
+                        <span className="text-xs text-foreground">
+                          {feature}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {isCurrent ? (
+                    <Button
+                      className="mt-auto w-full"
+                      variant="default"
+                      onClick={openPortal}
+                      disabled={billingPortal.isPending}
+                    >
+                      Manage subscription
+                    </Button>
+                  ) : (
+                    <Button
+                      className="mt-auto w-full"
+                      variant="outline"
+                      disabled={pending !== null || subscriptionUpgrade.isPending}
+                      onClick={() =>
+                        switchPlan(
+                          plan.value as "starter" | "growth" | "scale",
+                        )
+                      }
+                    >
+                      {pending === plan.value ? "Redirecting…" : "Upgrade"}
+                    </Button>
+                  )}
+                </div>
+              );
+            },
+          )}
 
           <div className="flex flex-col gap-4 rounded-lg border border-border bg-card p-5">
             <div>
@@ -238,6 +238,9 @@ export function BillingView() {
                 {ENTERPRISE_PLAN.label}
               </p>
               <p className="mt-1 text-2xl font-bold text-foreground">Custom</p>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                {ENTERPRISE_PLAN.recommendation}
+              </p>
             </div>
             <div className="space-y-1.5">
               {ENTERPRISE_PLAN.features.map((feature) => (
