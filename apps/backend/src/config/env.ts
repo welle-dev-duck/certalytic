@@ -72,6 +72,7 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().default(''),
   RESEND_FROM_ADDRESS: z.string().default(''),
   RESEND_FROM_NAME: z.string().min(1).default('Certalytic'),
+  AUTH_COOKIE_DOMAIN: z.string().optional(),
   SENTRY_DSN: z.string().default(''),
   SENTRY_ENVIRONMENT: z.string().optional(),
   SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
@@ -98,6 +99,17 @@ const envSchema = z.object({
 });
 
 export const env = envSchema.parse(process.env);
+
+export function resolveAuthCookieDomain(
+  webAppUrl: string,
+  override?: string,
+): string {
+  if (override) {
+    return override.replace(/^\./, '');
+  }
+
+  return new URL(webAppUrl).hostname.replace(/^www\./, '');
+}
 
 export const scoreWeights = {
   cv: 0.25,

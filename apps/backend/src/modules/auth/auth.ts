@@ -3,7 +3,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { admin as adminPlugin } from 'better-auth/plugins/admin';
 import { eq } from 'drizzle-orm';
 
-import { env } from '../../config/env';
+import { env, resolveAuthCookieDomain } from '../../config/env';
 import { db } from '../../db/index';
 import type { Database } from '../../db/index';
 import { member } from '../../db/schema/auth.schema';
@@ -57,12 +57,31 @@ export class Auth {
     private readonly emailsProducer: EmailsProducer,
     private readonly candidateSensitiveDataService: CandidateSensitiveDataService,
   ) {
+    const isProduction = env.NODE_ENV === 'production';
+    const authCookieDomain = resolveAuthCookieDomain(
+      env.WEB_APP_URL,
+      env.AUTH_COOKIE_DOMAIN,
+    );
+
     this.instance = betterAuth({
       baseURL: env.BASE_URL,
       appName: 'Certalytic',
       trustedOrigins: [env.BASE_URL, env.WEB_APP_URL],
       advanced: {
         cookiePrefix: 'certalytic',
+        ...(isProduction
+          ? {
+              useSecureCookies: true,
+              crossSubDomainCookies: {
+                enabled: true,
+                domain: authCookieDomain,
+              },
+              defaultCookieAttributes: {
+                sameSite: 'none' as const,
+                secure: true,
+              },
+            }
+          : {}),
         database: {
           generateId,
         },
