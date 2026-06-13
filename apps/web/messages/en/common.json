@@ -4,6 +4,15 @@
   "metadata": {
     "description": "EU-sovereign hiring integrity screening - cross-check CVs, transcripts, and public profiles."
   },
+  "notFound": {
+    "metadataTitle": "Page not found · Certalytic",
+    "metadataDescription": "The page you requested does not exist or has been moved.",
+    "tagline": "Integrity screening",
+    "eyebrow": "404",
+    "title": "Page not found",
+    "description": "The link may be broken, expired, or the page may have been removed. Head back home to continue.",
+    "home": "Back to home"
+  },
   "actions": {
     "save": "Save",
     "cancel": "Cancel",

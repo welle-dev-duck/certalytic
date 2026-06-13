@@ -8,19 +8,16 @@ import { cn } from "@/lib/utils";
 
 type StepIndicatorProps = {
   step: number;
-  lockRole?: boolean;
 };
 
-export function StepIndicator({ step, lockRole = false }: StepIndicatorProps) {
+export function StepIndicator({ step }: StepIndicatorProps) {
   const t = useTranslations("app");
   const screeningSteps = getScreeningSteps(t);
 
   return (
     <div className="flex items-center justify-between gap-2 px-1">
       {screeningSteps.map((item, itemIndex) => {
-        const isComplete = lockRole
-          ? item.id === 1 || step > item.id
-          : step > item.id;
+        const isComplete = step > item.id;
         const isActive = step === item.id;
 
         return (

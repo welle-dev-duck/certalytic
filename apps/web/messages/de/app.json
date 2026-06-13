@@ -132,7 +132,8 @@
       "confirming": "Wird erneut eingereiht…",
       "toast": {
         "success": "Screening erneut eingereiht.",
-        "failed": "Screening konnte nicht erneut ausgeführt werden."
+        "failed": "Screening konnte nicht erneut ausgeführt werden.",
+        "expired": "Dieses Screening kann nicht mehr erneut ausgeführt werden. Fehlgeschlagene Screenings werden 30 Tage aufbewahrt."
       }
     },
     "detail": {
@@ -171,9 +172,9 @@
       "start": "Screening starten"
     },
     "steps": {
-      "role": {
-        "title": "Rolle",
-        "description": "Position auswählen"
+      "general": {
+        "title": "Allgemein",
+        "description": "Rolle & Sprache"
       },
       "candidate": {
         "title": "Kandidat",
@@ -187,6 +188,18 @@
         "title": "Interviews",
         "description": "Zusammengeführte Transkripte"
       }
+    },
+    "generalStep": {
+      "description": "Wählen Sie die Rolle und die Sprache für Analyse-Zusammenfassungen und PDF-Export.",
+      "empty": "Erstellen Sie ein Rollenprofil, bevor Sie Kandidaten screenen.",
+      "goToRoles": "Zu Rollen",
+      "roleLabel": "Rolle",
+      "rolePlaceholder": "Rolle auswählen…",
+      "roleSearchPlaceholder": "Rollen suchen…",
+      "roleEmpty": "Keine Rollen gefunden.",
+      "languageLabel": "Berichtssprache",
+      "languagePlaceholder": "Sprache auswählen…",
+      "languageDescription": "Zusammenfassungen und PDF-Export werden in dieser Sprache erstellt. Die Bewertungslogik bleibt unverändert."
     },
     "roleStep": {
       "description": "Wählen Sie eine gespeicherte Rolle, um den Integritätswert einzuordnen.",
@@ -252,6 +265,7 @@
       "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein.",
       "emailMaxLength": "E-Mail darf {max} Zeichen nicht überschreiten.",
       "roleRequired": "Wählen Sie eine Rolle.",
+      "languageInvalid": "Wählen Sie Englisch oder Deutsch.",
       "cvFileRequired": "Laden Sie eine Lebenslauf-Datei hoch oder wechseln Sie zur manuellen Texteingabe.",
       "cvFileMaxSize": "Lebenslauf-Datei darf {maxMb} MB nicht überschreiten.",
       "cvTextMinLength": "Fügen Sie mindestens 50 Zeichen Lebenslauf-Inhalt ein.",

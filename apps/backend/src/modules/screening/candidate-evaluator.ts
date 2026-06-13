@@ -10,6 +10,10 @@ import type {
 } from './dtos/screening-evaluation.dto';
 import { buildCandidateEvaluationSystemPrompt } from './prompts/candidate-evaluation.prompt';
 import {
+  buildEvaluationLanguageInstruction,
+  type OrganizationLanguage,
+} from './organization-language';
+import {
   roleContextToPromptArray,
   type RoleContext,
 } from './role-context';
@@ -39,6 +43,7 @@ export class CandidateEvaluator {
     publicProfiles: PublicProfiles,
     includeCrossSource: boolean,
     roleContext: RoleContext,
+    language: OrganizationLanguage = 'en',
   ): Promise<ScreeningEvaluation> {
     const response = await this.mistralClient.chat({
       model: env.MISTRAL_CHAT_MODEL,
@@ -47,7 +52,9 @@ export class CandidateEvaluator {
       messages: [
         {
           role: 'system',
-          content: buildCandidateEvaluationSystemPrompt(roleContext),
+          content: `${buildCandidateEvaluationSystemPrompt(roleContext)}
+
+${buildEvaluationLanguageInstruction(language)}`,
         },
         {
           role: 'user',

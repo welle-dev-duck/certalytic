@@ -52,10 +52,12 @@ export function CandidateDetailHeader({
             </a>
           </Button>
         ) : null}
-        <Button type="button" variant="outline" size="sm" onClick={onRerun}>
-          <RefreshCw size={14} />
-          {t("candidates.detail.rerun")}
-        </Button>
+        {candidate.status === "failed" ? (
+          <Button type="button" variant="outline" size="sm" onClick={onRerun}>
+            <RefreshCw size={14} />
+            {t("candidates.detail.rerun")}
+          </Button>
+        ) : null}
         <Button
           type="button"
           variant="outline"

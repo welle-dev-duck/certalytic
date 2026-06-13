@@ -1,21 +1,25 @@
-import { betterAuth } from 'better-auth';
-import { drizzleAdapter } from 'better-auth/adapters/drizzle';import { admin as adminPlugin } from 'better-auth/plugins/admin';
-import { organization } from 'better-auth/plugins/organization';
-import { stripe } from '@better-auth/stripe';
-import Stripe from 'stripe';
+import { betterAuth, APIError } from 'better-auth';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { admin as adminPlugin } from 'better-auth/plugins/admin';
+import { eq } from 'drizzle-orm';
 
 import { env } from '../../config/env';
 import { db } from '../../db/index';
 import type { Database } from '../../db/index';
+import { member } from '../../db/schema/auth.schema';
 import { generateId } from '../../lib/id';
 import { resolveOrganizationSlug } from '../../lib/organization-slug';
 import {
   BillingService,
   buildStripeSubscriptionPlans,
 } from '../billing/billing.service';
+import type { CandidateSensitiveDataService } from '../candidates/candidate-sensitive-data.service';
 import type { EmailsProducer } from '../emails/emails.producer';
 import type { AuthService } from './auth.service';
 import { organizationSchemaConfig } from './organization-fields';
+import { organization } from 'better-auth/plugins/organization';
+import { stripe } from '@better-auth/stripe';
+import Stripe from 'stripe';
 
 /** Used by the Better Auth CLI (`auth:generate`) to derive the Drizzle schema. */
 export const auth = betterAuth({
@@ -51,6 +55,7 @@ export class Auth {
     private readonly authService: AuthService,
     private readonly billingService: BillingService,
     private readonly emailsProducer: EmailsProducer,
+    private readonly candidateSensitiveDataService: CandidateSensitiveDataService,
   ) {
     this.instance = betterAuth({
       baseURL: env.BASE_URL,
@@ -117,6 +122,11 @@ export class Auth {
                 },
               };
             },
+            beforeDeleteOrganization: async ({ organization: orgData }) => {
+              await this.candidateSensitiveDataService.wipeOrganizationStorage(
+                orgData.id,
+              );
+            },
           },
           sendInvitationEmail: async ({
             email,
@@ -159,6 +169,23 @@ export class Auth {
         }),
       ],
       databaseHooks: {
+        user: {
+          delete: {
+            before: async (user) => {
+              const ownership = await this.db.query.member.findFirst({
+                where: eq(member.userId, user.id),
+                columns: { id: true, role: true },
+              });
+
+              if (ownership?.role === 'owner') {
+                throw new APIError('BAD_REQUEST', {
+                  message:
+                    'Transfer or delete your organizations before deleting your account.',
+                });
+              }
+            },
+          },
+        },
         session: {
           create: {
             before: async (userSession) => {

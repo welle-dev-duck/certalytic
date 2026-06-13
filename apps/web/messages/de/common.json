@@ -4,6 +4,15 @@
   "metadata": {
     "description": "EU-souveränes Hiring-Integritäts-Screening - CVs, Transkripte und öffentliche Profile abgleichen."
   },
+  "notFound": {
+    "metadataTitle": "Seite nicht gefunden · Certalytic",
+    "metadataDescription": "Die angeforderte Seite existiert nicht oder wurde verschoben.",
+    "tagline": "Integritäts-Screening",
+    "eyebrow": "404",
+    "title": "Seite nicht gefunden",
+    "description": "Der Link ist möglicherweise ungültig, abgelaufen oder die Seite wurde entfernt. Kehren Sie zur Startseite zurück.",
+    "home": "Zur Startseite"
+  },
   "actions": {
     "save": "Speichern",
     "cancel": "Abbrechen",

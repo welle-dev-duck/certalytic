@@ -8,6 +8,11 @@ export type RoleListItem = {
   createdAt: string;
 };
 
+export type RoleOption = {
+  id: string;
+  title: string;
+};
+
 export type RoleStats = {
   avgIntegrity: number | null;
   scored: number;

@@ -1,10 +1,13 @@
-import type { RoleListItem } from "@/features/roles/types";
+import type { RoleOption } from "@/features/roles/types";
+import type { OrganizationLanguage } from "@/lib/i18n/organization-language";
+import { ORGANIZATION_LANGUAGE_DEFAULT } from "@/lib/i18n/organization-language";
 import type { Translator } from "@/lib/i18n/translate";
 
 export type ScreeningFormState = {
   name: string;
   email: string;
   roleId: string | null;
+  language: OrganizationLanguage;
   cvInputMode: "auto" | "manual";
   cvFile: File | null;
   cvText: string;
@@ -22,8 +25,8 @@ export function getScreeningSteps(t: Translator) {
   return [
     {
       id: 1,
-      title: t("screening.steps.role.title"),
-      description: t("screening.steps.role.description"),
+      title: t("screening.steps.general.title"),
+      description: t("screening.steps.general.description"),
     },
     {
       id: 2,
@@ -44,9 +47,10 @@ export function getScreeningSteps(t: Translator) {
 }
 
 export function buildInitialFormState(
-  roles: RoleListItem[],
+  roles: RoleOption[],
   preselectedRoleId?: string | null,
   lockRole = false,
+  defaultLanguage: OrganizationLanguage = ORGANIZATION_LANGUAGE_DEFAULT,
 ): ScreeningFormState {
   const selected = roles.find((role) => role.id === preselectedRoleId);
 
@@ -56,6 +60,7 @@ export function buildInitialFormState(
     roleId: lockRole
       ? (selected?.id ?? preselectedRoleId ?? null)
       : (selected?.id ?? roles[0]?.id ?? null),
+    language: defaultLanguage,
     cvInputMode: "auto",
     cvFile: null,
     cvText: "",

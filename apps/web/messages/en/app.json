@@ -132,7 +132,8 @@
       "confirming": "Re-queuing…",
       "toast": {
         "success": "Screening re-queued.",
-        "failed": "Failed to re-run screening."
+        "failed": "Failed to re-run screening.",
+        "expired": "This screening can no longer be re-run. Failed screenings are kept for 30 days."
       }
     },
     "detail": {
@@ -171,9 +172,9 @@
       "start": "Start screening"
     },
     "steps": {
-      "role": {
-        "title": "Role",
-        "description": "Choose the position"
+      "general": {
+        "title": "General",
+        "description": "Role & language"
       },
       "candidate": {
         "title": "Candidate",
@@ -187,6 +188,18 @@
         "title": "Interviews",
         "description": "Merged transcripts"
       }
+    },
+    "generalStep": {
+      "description": "Choose the role and the language for analysis summaries and PDF export.",
+      "empty": "Create a role profile before screening candidates.",
+      "goToRoles": "Go to Roles",
+      "roleLabel": "Role",
+      "rolePlaceholder": "Select a role…",
+      "roleSearchPlaceholder": "Search roles…",
+      "roleEmpty": "No roles found.",
+      "languageLabel": "Report language",
+      "languagePlaceholder": "Select language…",
+      "languageDescription": "Summaries and PDF export will be generated in this language. Scoring logic is unchanged."
     },
     "roleStep": {
       "description": "Select a saved role to contextualize the integrity score.",
@@ -252,6 +265,7 @@
       "emailInvalid": "Enter a valid email address.",
       "emailMaxLength": "Email must not exceed {max} characters.",
       "roleRequired": "Select a role.",
+      "languageInvalid": "Select English or German.",
       "cvFileRequired": "Upload a CV file or switch to manual text input.",
       "cvFileMaxSize": "CV file must not exceed {maxMb} MB.",
       "cvTextMinLength": "Paste at least 50 characters of CV content.",

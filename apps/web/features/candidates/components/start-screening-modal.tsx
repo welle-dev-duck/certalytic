@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import { CandidateStep } from "@/features/candidates/components/start-screening/candidate-step";
 import { CrossRefStep } from "@/features/candidates/components/start-screening/cross-ref-step";
+import { GeneralStep } from "@/features/candidates/components/start-screening/general-step";
 import { InterviewsStep } from "@/features/candidates/components/start-screening/interviews-step";
-import { RoleStep } from "@/features/candidates/components/start-screening/role-step";
 import { StepIndicator } from "@/features/candidates/components/start-screening/step-indicator";
 import { useStartScreeningForm } from "@/features/candidates/hooks/use-start-screening-form";
 import { useTranslations } from "@/lib/i18n/client";
@@ -58,7 +58,7 @@ export function StartScreeningModal({
           </DialogDescription>
         </DialogHeader>
 
-        <StepIndicator step={screening.step} lockRole={lockRole} />
+        <StepIndicator step={screening.step} />
 
         {Object.keys(screening.errors).length > 0 ? (
           <Alert variant="destructive">
@@ -69,8 +69,12 @@ export function StartScreeningModal({
         ) : null}
 
         <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-          {screening.step === 1 && !lockRole ? (
-            <RoleStep {...stepProps} roles={screening.roles} />
+          {screening.step === 1 ? (
+            <GeneralStep
+              {...stepProps}
+              roles={screening.roles}
+              lockRole={lockRole}
+            />
           ) : null}
 
           {screening.step === 2 ? (

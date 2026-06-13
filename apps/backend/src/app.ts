@@ -95,6 +95,7 @@ export function createApp(container: AppContainer): CreateAppResult {
     authService,
     container.billingService,
     container.emailsProducer,
+    container.candidateSensitiveDataService,
   );
   const authRouter = new AuthRouter(auth);
 
@@ -133,6 +134,7 @@ export function createApp(container: AppContainer): CreateAppResult {
     container.planFeatures,
     container.storage,
     container.rolesProducer,
+    container.candidateSensitiveDataService,
   );
   const rolesController = new RolesController(
     rolesService,
@@ -148,6 +150,7 @@ export function createApp(container: AppContainer): CreateAppResult {
     container.screeningProducer,
     container.storage,
     container.realtimePublisher,
+    container.candidateSensitiveDataService,
   );
   const screeningReportPdfExporter = new ScreeningReportPdfExporter(
     container.planFeatures,

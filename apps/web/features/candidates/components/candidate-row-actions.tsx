@@ -67,10 +67,12 @@ export function CandidateRowActions({
             </a>
           </DropdownMenuItem>
         ) : null}
-        <DropdownMenuItem className="cursor-pointer" onSelect={onRerun}>
-          <RefreshCw />
-          {t("candidates.rowActions.rerun")}
-        </DropdownMenuItem>
+        {status === "failed" ? (
+          <DropdownMenuItem className="cursor-pointer" onSelect={onRerun}>
+            <RefreshCw />
+            {t("candidates.rowActions.rerun")}
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuItem
           className="cursor-pointer text-destructive focus:text-destructive"
           onSelect={onDelete}

@@ -7,6 +7,7 @@ export class ApiError extends Error {
     message: string,
     public readonly status: number,
     public readonly body: unknown,
+    public readonly code?: string,
   ) {
     super(message);
     this.name = "ApiError";
@@ -81,15 +82,29 @@ export async function api<T>(
     : await response.text();
 
   if (!response.ok) {
-    const message =
+    const nestedError =
       typeof payload === "object" &&
       payload !== null &&
-      "message" in payload &&
-      typeof (payload as { message: unknown }).message === "string"
-        ? (payload as { message: string }).message
-        : `Request failed with status ${response.status}`;
+      "error" in payload &&
+      typeof (payload as { error: unknown }).error === "object" &&
+      (payload as { error: unknown }).error !== null
+        ? (payload as { error: { message?: unknown; code?: unknown } }).error
+        : null;
 
-    throw new ApiError(message, response.status, payload);
+    const message =
+      typeof nestedError?.message === "string"
+        ? nestedError.message
+        : typeof payload === "object" &&
+            payload !== null &&
+            "message" in payload &&
+            typeof (payload as { message: unknown }).message === "string"
+          ? (payload as { message: string }).message
+          : `Request failed with status ${response.status}`;
+
+    const code =
+      typeof nestedError?.code === "string" ? nestedError.code : undefined;
+
+    throw new ApiError(message, response.status, payload, code);
   }
 
   return payload as T;

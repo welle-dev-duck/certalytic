@@ -22,11 +22,16 @@ import {
   firstZodError,
   formatZodErrors,
 } from "@/features/candidates/lib/screening-schema";
-import { useRoles } from "@/features/roles/hooks/use-roles";
+import { useRoleOptions } from "@/features/roles/hooks/use-roles";
 import { ApiError } from "@/lib/api-client";
+import {
+  ORGANIZATION_LANGUAGE_DEFAULT,
+  resolveOrganizationLanguage,
+} from "@/lib/i18n/organization-language";
 import { useTranslations } from "@/lib/i18n/client";
 import { handleMutationError, mapValidationErrors } from "@/lib/mutation-errors";
 import { routes } from "@/lib/routes";
+import { useAuth } from "@/providers/auth-provider";
 
 type UseStartScreeningFormOptions = {
   open: boolean;
@@ -43,20 +48,23 @@ export function useStartScreeningForm({
 }: UseStartScreeningFormOptions) {
   const router = useRouter();
   const t = useTranslations("app");
+  const { activeOrganization } = useAuth();
   const createCandidate = useCreateCandidate();
   const { data: usage } = useBillingUsage();
-  const { data: rolesData } = useRoles({ limit: 100 }, { enabled: open });
-  const roles = rolesData?.data ?? [];
+  const { data: roles = [] } = useRoleOptions({ enabled: open });
+
+  const defaultLanguage = resolveOrganizationLanguage(
+    activeOrganization?.language ?? ORGANIZATION_LANGUAGE_DEFAULT,
+  );
 
   const planFeatures = getPlanFeatures(usage?.plan);
   const canUseProfileUrls =
     planFeatures.crossSource || planFeatures.crossSourceManual;
 
-  const initialStep = lockRole ? 2 : 1;
-  const [step, setStep] = useState(initialStep);
+  const [step, setStep] = useState(1);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [form, setForm] = useState<ScreeningFormState>(() =>
-    buildInitialFormState(roles, preselectedRoleId, lockRole),
+    buildInitialFormState(roles, preselectedRoleId, lockRole, defaultLanguage),
   );
 
   const screeningSchema = useMemo(
@@ -74,12 +82,19 @@ export function useStartScreeningForm({
 
   useEffect(() => {
     if (!open) return;
-    setStep(lockRole ? 2 : 1);
+    setStep(1);
     setErrors({});
-    setForm(buildInitialFormState(roles, preselectedRoleId, lockRole));
+    setForm(
+      buildInitialFormState(
+        roles,
+        preselectedRoleId,
+        lockRole,
+        defaultLanguage,
+      ),
+    );
     // Reset only when the dialog opens - roles is memoized from query data.
     // eslint-disable-next-line react-hooks/exhaustive-deps -- roles read at open time
-  }, [open, preselectedRoleId, lockRole]);
+  }, [open, preselectedRoleId, lockRole, defaultLanguage]);
 
   function updateForm<K extends keyof ScreeningFormState>(
     key: K,
@@ -97,6 +112,7 @@ export function useStartScreeningForm({
       name: form.name,
       email: form.email,
       roleId: form.roleId,
+      language: form.language,
       cvInputMode: form.cvInputMode,
       cvFile: form.cvFile,
       cvText: form.cvText,
@@ -139,14 +155,14 @@ export function useStartScreeningForm({
   }
 
   function goBack() {
-    if (step === 1 || (lockRole && step === 2)) {
+    if (step === 1) {
       onOpenChange(false);
     } else {
       setStep((current) => current - 1);
     }
   }
 
-  const isFirstStep = step === 1 || (lockRole && step === 2);
+  const isFirstStep = step === 1;
   const isLastStep = step >= SCREENING_STEP_COUNT;
   const processing = createCandidate.isPending;
   const tokenAvailable = usage?.available ?? 0;

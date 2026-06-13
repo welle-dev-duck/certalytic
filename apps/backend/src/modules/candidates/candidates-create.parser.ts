@@ -29,6 +29,7 @@ const candidateCreateFormSchema = z.object({
       .optional(),
   ),
   role_id: z.uuid(),
+  language: z.enum(['en', 'de']).optional(),
   cv_input_mode: z.enum(['auto', 'manual']),
   cv_text: z.string().optional(),
   transcript_input_mode: z.enum(['manual', 'auto']),
@@ -41,6 +42,7 @@ export type CreateCandidateInput = {
   name: string;
   email: string | null;
   role_id: string;
+  language?: 'en' | 'de';
   cvText: string | null;
   cvFile: Express.Multer.File | null;
   cvFormat: CvFormat | null;
@@ -330,6 +332,7 @@ export async function parseCandidateCreateRequest(
     name: data.name,
     email: normalizeOptionalText(data.email),
     role_id: data.role_id,
+    language: data.language,
     cvText,
     cvFile: storedCvFile,
     cvFormat,

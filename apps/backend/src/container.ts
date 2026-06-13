@@ -10,6 +10,7 @@ import { BillingRefundProducer } from './modules/billing/billing-refund.producer
 import { BillingRefundWorkers } from './modules/billing/billing-refund.worker';
 import { BillingService } from './modules/billing/billing.service';
 import { PlanFeaturesService } from './modules/billing/plans';
+import { CandidateSensitiveDataService } from './modules/candidates/candidate-sensitive-data.service';
 import { CandidateReportService } from './modules/candidates/candidate-report.service';
 import { EmailsProducer } from './modules/emails/emails.producer';
 import { EmailsService } from './modules/emails/emails.service';
@@ -53,6 +54,7 @@ export type AppContainer = {
   roleExportsProducer: RoleExportsProducer;
   billingRefundProducer: BillingRefundProducer;
   candidateReportService: CandidateReportService;
+  candidateSensitiveDataService: CandidateSensitiveDataService;
   rolesExportService: RolesExportService;
   screeningService: ScreeningService;
   rolesDocumentService: RolesDocumentService;
@@ -98,6 +100,10 @@ export function createContainer(
     documentExtractor,
   );
   const candidateReportService = new CandidateReportService();
+  const candidateSensitiveDataService = new CandidateSensitiveDataService(
+    db,
+    storage,
+  );
   const rolesExportService = new RolesExportService(
     db,
     storage,
@@ -115,6 +121,7 @@ export function createContainer(
     new HttpPublicProfileFetcher(),
     realtimePublisher,
     billingRefundProducer,
+    candidateSensitiveDataService,
   );
 
   const emailsService = new EmailsService();
@@ -151,6 +158,7 @@ export function createContainer(
     roleExportsProducer,
     billingRefundProducer,
     candidateReportService,
+    candidateSensitiveDataService,
     rolesExportService,
     screeningService,
     rolesDocumentService,

@@ -41,6 +41,7 @@ export const candidateListItemSchema = z.object({
   roundsCount: z.number().int().nonnegative(),
   highInconsistencyWarning: z.boolean(),
   processedAt: z.coerce.date().nullable(),
+  failedAt: z.coerce.date().nullable().optional(),
   errorMessage: z.string().nullable(),
   createdAt: z.coerce.date(),
 });
@@ -56,6 +57,7 @@ export const interviewRoundSchema = z.object({
 
 export const candidateDetailSchema = candidateListItemSchema.extend({
   jobDescription: z.string().nullable().optional(),
+  language: z.enum(['en', 'de']).optional(),
   linkedinUrl: z.string().nullable(),
   githubUsername: z.string().nullable(),
   scoreBreakdown: z.record(z.string(), z.unknown()).nullable(),

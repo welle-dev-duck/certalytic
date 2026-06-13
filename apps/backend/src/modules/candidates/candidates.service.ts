@@ -27,6 +27,9 @@ import type {
 } from './candidates.dto';
 import type { StorageClient } from '../../storage/storage.client';
 import { candidateCvPath } from '../../storage/storage.paths';
+import { organization } from '../../db/schema/auth.schema';
+import { CandidateSensitiveDataService } from './candidate-sensitive-data.service';
+import { parseOrganizationLanguage } from '../screening/organization-language';
 
 export class CandidatesService {
   constructor(
@@ -36,6 +39,7 @@ export class CandidatesService {
     private readonly screeningProducer: ScreeningProducer,
     private readonly storage: StorageClient,
     private readonly realtimePublisher: RealtimePublisher = new NoopRealtimePublisher(),
+    private readonly candidateSensitiveDataService: CandidateSensitiveDataService,
   ) {}
 
   async list(
@@ -76,6 +80,7 @@ export class CandidatesService {
         integrityScore: candidates.integrityScore,
         highInconsistencyWarning: candidates.highInconsistencyWarning,
         processedAt: candidates.processedAt,
+        failedAt: candidates.failedAt,
         errorMessage: candidates.errorMessage,
         createdAt: candidates.createdAt,
         roundsCount: sql<number>`(
@@ -100,6 +105,7 @@ export class CandidatesService {
       roundsCount: row.roundsCount,
       highInconsistencyWarning: row.highInconsistencyWarning,
       processedAt: row.processedAt,
+      failedAt: row.failedAt ?? null,
       errorMessage: row.errorMessage,
       createdAt: row.createdAt,
     }));
@@ -163,6 +169,9 @@ export class CandidatesService {
     const roundId = generateId();
     let cvPath: string | null = null;
     let uploadedCvPath: string | null = null;
+    const language =
+      input.language ??
+      (await this.resolveOrganizationLanguage(organizationId));
 
     try {
       if (input.cvFile) {
@@ -188,6 +197,7 @@ export class CandidatesService {
           linkedinText: input.linkedinText,
           githubUsername: input.githubUsername,
           status: 'pending',
+          language,
         });
 
         await tx.insert(interviewRounds).values({
@@ -262,18 +272,10 @@ export class CandidatesService {
       throw new NotFoundError('Candidate not found');
     }
 
-    if (candidate.cvPath) {
-      await this.deleteStoredObject(candidate.cvPath);
-    }
-
-    await this.db
-      .delete(candidates)
-      .where(
-        and(
-          eq(candidates.id, candidateId),
-          eq(candidates.organizationId, organizationId),
-        ),
-      );
+    await this.candidateSensitiveDataService.deleteCandidateCompletely(
+      candidateId,
+      organizationId,
+    );
   }
 
   async retry(
@@ -281,6 +283,25 @@ export class CandidatesService {
     candidateId: string,
   ): Promise<CandidateDetailDto> {
     const candidate = await this.getById(organizationId, candidateId);
+
+    if (candidate.status !== 'failed') {
+      throw new AppError(
+        'Only failed screenings can be re-run.',
+        409,
+        'CANDIDATE_RETRY_NOT_ALLOWED',
+      );
+    }
+
+    const failedAt = await this.getCandidateFailedAt(candidateId);
+
+    if (this.candidateSensitiveDataService.isRetryExpired(failedAt)) {
+      throw new AppError(
+        'This screening can no longer be re-run.',
+        409,
+        'CANDIDATE_RETRY_EXPIRED',
+      );
+    }
+
     const previousStatus = candidate.status;
     const previousErrorMessage = candidate.errorMessage;
 
@@ -304,6 +325,7 @@ export class CandidatesService {
           highInconsistencyWarning: false,
           errorMessage: null,
           processedAt: null,
+          failedAt: null,
         })
         .where(eq(candidates.id, candidateId));
 
@@ -391,6 +413,28 @@ export class CandidatesService {
     }
   }
 
+  private async resolveOrganizationLanguage(
+    organizationId: string,
+  ): Promise<'en' | 'de'> {
+    const org = await this.db.query.organization.findFirst({
+      where: eq(organization.id, organizationId),
+      columns: { language: true },
+    });
+
+    return parseOrganizationLanguage(org?.language);
+  }
+
+  private async getCandidateFailedAt(
+    candidateId: string,
+  ): Promise<Date | null> {
+    const row = await this.db.query.candidates.findFirst({
+      where: eq(candidates.id, candidateId),
+      columns: { failedAt: true },
+    });
+
+    return row?.failedAt ?? null;
+  }
+
   private async deleteStoredObject(key: string): Promise<void> {
     try {
       await this.storage.deleteObject(key);
@@ -463,10 +507,12 @@ export class CandidatesService {
     integrityScore: string | null;
     highInconsistencyWarning: boolean;
     processedAt: Date | null;
+    failedAt: Date | null;
     errorMessage: string | null;
     createdAt: Date;
     linkedinUrl: string | null;
     githubUsername: string | null;
+    language?: string | null;
     scoreBreakdown: Record<string, unknown> | null;
     followUpSuggested: string[] | null;
     interviewRounds: Array<{
@@ -493,8 +539,13 @@ export class CandidatesService {
       roundsCount: candidate.interviewRounds.length,
       highInconsistencyWarning: candidate.highInconsistencyWarning,
       processedAt: candidate.processedAt,
+      failedAt: candidate.failedAt,
       errorMessage: candidate.errorMessage,
       createdAt: candidate.createdAt,
+      language:
+        candidate.language === 'de' || candidate.language === 'en'
+          ? candidate.language
+          : 'en',
       linkedinUrl: candidate.linkedinUrl,
       githubUsername: candidate.githubUsername,
       scoreBreakdown: candidate.scoreBreakdown,

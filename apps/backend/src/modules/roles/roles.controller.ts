@@ -7,6 +7,7 @@ import {
   roleDetailSchema,
   roleExportSummarySchema,
   roleListResponseSchema,
+  roleOptionsResponseSchema,
   type CreateRoleBodyDto,
   type RoleListQueryDto,
   type UpdateRoleBodyDto,
@@ -27,6 +28,12 @@ export class RolesController {
     );
 
     sendJson(res, roleListResponseSchema, result);
+  };
+
+  listOptions = async (req: Request, res: Response): Promise<void> => {
+    const options = await this.rolesService.listOptions(req.organization!.id);
+
+    sendJson(res, roleOptionsResponseSchema, { data: options });
   };
 
   getById = async (req: Request, res: Response): Promise<void> => {

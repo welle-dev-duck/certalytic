@@ -35,6 +35,7 @@ export function buildScreeningFormData(
   const payload = new FormData();
   payload.set("name", form.name.trim());
   payload.set("role_id", form.roleId);
+  payload.set("language", form.language);
   payload.set("cv_input_mode", form.cvInputMode);
 
   if (form.email.trim()) {

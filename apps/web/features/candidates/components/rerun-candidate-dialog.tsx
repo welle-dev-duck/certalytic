@@ -12,6 +12,7 @@ import {
 import { toast } from "sonner";
 
 import { useRetryCandidate } from "@/features/candidates/hooks/use-candidates";
+import { ApiError } from "@/lib/api-client";
 import { useTranslations } from "@/lib/i18n/client";
 
 type CandidateRef = {
@@ -42,6 +43,14 @@ export function RerunCandidateDialog({
         onOpenChange(false);
       },
       onError: (error) => {
+        if (
+          error instanceof ApiError &&
+          error.code === "CANDIDATE_RETRY_EXPIRED"
+        ) {
+          toast.error(t("candidates.rerunDialog.toast.expired"));
+          return;
+        }
+
         toast.error(
           error instanceof Error
             ? error.message

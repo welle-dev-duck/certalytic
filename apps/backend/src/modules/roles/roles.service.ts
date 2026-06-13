@@ -21,11 +21,13 @@ import type { StorageClient } from '../../storage/storage.client';
 import { roleDocumentPath } from '../../storage/storage.paths';
 import type { PlanFeaturesService } from '../billing/plans';
 import type { RolesProducer } from './roles.producer';
+import type { CandidateSensitiveDataService } from '../candidates/candidate-sensitive-data.service';
 import type {
   CreateRoleBodyDto,
   RoleDetailDto,
   RoleListItemDto,
   RoleListQueryDto,
+  RoleOptionDto,
   UpdateRoleBodyDto,
   UploadedRoleDocumentFile,
 } from './roles.dto';
@@ -36,6 +38,7 @@ export class RolesService {
     private readonly planFeatures: PlanFeaturesService,
     private readonly storage: StorageClient,
     private readonly rolesProducer: RolesProducer,
+    private readonly candidateSensitiveDataService?: CandidateSensitiveDataService,
   ) {}
 
   async list(
@@ -90,6 +93,21 @@ export class RolesService {
     });
 
     return paginateByCursor(items, query.limit);
+  }
+
+  async listOptions(organizationId: string): Promise<RoleOptionDto[]> {
+    await this.assertSavedRoles(organizationId);
+
+    const rows = await this.db
+      .select({
+        id: roles.id,
+        title: roles.title,
+      })
+      .from(roles)
+      .where(eq(roles.organizationId, organizationId))
+      .orderBy(desc(roles.id));
+
+    return rows;
   }
 
   async getById(
@@ -184,6 +202,13 @@ export class RolesService {
 
     if (!role) {
       throw new NotFoundError('Role not found');
+    }
+
+    if (this.candidateSensitiveDataService) {
+      await this.candidateSensitiveDataService.deleteCandidatesForRole(
+        organizationId,
+        roleId,
+      );
     }
 
     await Promise.all(

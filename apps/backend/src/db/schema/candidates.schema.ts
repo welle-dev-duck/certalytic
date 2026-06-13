@@ -64,7 +64,9 @@ export const candidates = pgTable(
       .notNull()
       .default(false),
     errorMessage: text('error_message'),
+    language: text('language').notNull().default('en'),
     processedAt: timestamp('processed_at'),
+    failedAt: timestamp('failed_at'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at')
       .defaultNow()

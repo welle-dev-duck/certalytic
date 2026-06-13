@@ -5,11 +5,17 @@ import { createServer } from 'node:http';
 import { createApp } from './app';
 import { env } from './config/env';
 import { createContainer } from './container';
+import { CandidateRetentionScheduler } from './modules/candidates/candidate-retention.scheduler';
 import { logger } from './lib/logger';
 import { RealtimeSubscriber } from './realtime/subscriber';
 import { RealtimeServer } from './realtime/ws.server';
 
 const container = createContainer();
+const candidateRetentionScheduler = new CandidateRetentionScheduler(
+  container.candidateSensitiveDataService,
+);
+candidateRetentionScheduler.start();
+
 const { app, auth, organizationsService } = createApp(container);
 
 const server = createServer(app);
@@ -32,6 +38,7 @@ async function shutdown(signal: string) {
 
   await realtimeSubscriber.close();
   await realtimeServer.close();
+  candidateRetentionScheduler.stop();
 
   await new Promise<void>((resolve, reject) => {
     server.close((error) => {

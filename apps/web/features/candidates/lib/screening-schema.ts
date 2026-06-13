@@ -33,6 +33,9 @@ export function createScreeningSchema(t: Translator, limits: ScreeningLimits) {
         .optional()
         .or(z.literal("")),
       roleId: z.string().uuid(t("screening.validation.roleRequired")).nullable(),
+      language: z.enum(["en", "de"], {
+        message: t("screening.validation.languageInvalid"),
+      }),
       cvInputMode: z.enum(["auto", "manual"]),
       cvFile: z.instanceof(File).nullable(),
       cvText: z.string(),

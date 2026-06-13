@@ -7,6 +7,7 @@ import {
   parseCvFormat,
 } from '../../db/schema/candidates.schema';
 import type { BillingRefundProducer } from '../billing/billing-refund.producer';
+import type { CandidateSensitiveDataService } from '../candidates/candidate-sensitive-data.service';
 import type { PlanFeaturesService } from '../billing/plans';
 import { logger } from '../../lib/logger';
 import {
@@ -25,6 +26,10 @@ import { IntegrityScoreCalculator } from './integrity-score';
 import { MistralInputBudgeter } from './mistral-input-budgeter';
 import { RoleContextResolver } from './role-context-resolver';
 import { ScreeningRoundSync } from './screening-round-sync';
+import {
+  buildEvaluationLanguageInstruction,
+  parseOrganizationLanguage,
+} from './organization-language';
 import { TranscriptIntegritySignalDetector } from './transcript-integrity-signal-detector';
 import { TranscriptProcessor } from './transcript-processor';
 
@@ -48,6 +53,7 @@ export class ScreeningService {
     private readonly publicProfileFetcher: PublicProfileFetcher,
     private readonly realtimePublisher: RealtimePublisher = new NoopRealtimePublisher(),
     private readonly billingRefundProducer?: BillingRefundProducer,
+    private readonly candidateSensitiveDataService?: CandidateSensitiveDataService,
   ) {
     this.roundSync = new ScreeningRoundSync(db, this.scoreCalculator);
   }
@@ -128,6 +134,7 @@ export class ScreeningService {
         publicProfiles,
         includeCrossSource,
         roleContext,
+        parseOrganizationLanguage(candidate.language),
       );
 
       const hasExternalProfiles = Boolean(
@@ -186,6 +193,11 @@ export class ScreeningService {
         })
         .where(eq(candidates.id, candidate.id));
 
+      await this.candidateSensitiveDataService?.eraseCandidateSensitiveData(
+        candidate.id,
+        candidate.organizationId,
+      );
+
       await this.realtimePublisher.candidateUpdated({
         candidateId: candidate.id,
         organizationId: candidate.organizationId,
@@ -232,6 +244,7 @@ export class ScreeningService {
       .set({
         status: 'failed',
         errorMessage: 'Screening could not be completed. Please try again.',
+        failedAt: new Date(),
       })
       .where(eq(candidates.id, candidate.id));
 

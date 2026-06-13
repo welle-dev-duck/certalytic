@@ -64,6 +64,17 @@ export const roleListItemSchema = z.object({
   createdAt: z.coerce.date(),
 });
 
+export const roleOptionSchema = z.object({
+  id: z.uuid(),
+  title: z.string(),
+});
+
+export const roleOptionsResponseSchema = z.object({
+  data: z.array(roleOptionSchema),
+});
+
+export type RoleOptionDto = z.infer<typeof roleOptionSchema>;
+
 export const roleDocumentSummarySchema = z.object({
   id: z.uuid(),
   originalName: z.string(),

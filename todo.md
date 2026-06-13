@@ -18,15 +18,32 @@
 
 ### Screening Process (High)
 - Modify the multi step form:
-    [ ] - Rename first step to General: Refactor role selection, it should be a searchavble shadcn combobox (we need to load all the roles the org has with no pagination, if screening is done from a Role details page then we pre-select that one from this combobox), Add a mew field Language with a short description to explain the analysis summary and pdf export will be generated in this language, for now only English and German, defaults to the orgs language -> This means we need to also modify the backend so it knows about the field and we need to append the prompt to give the info in the selected languag
-- [ ] Ensure when a screening is done completely (succeeded), we delete (or replace with empty string if we cannot use null) from the database and file storage: cv, cvtext, interview transcript files, interview texts, internal notes, linkedin and github profile data if we kept it.
-- [ ] A screening can be only re-run if if it failed completely (5 times), if it completely failed, set a failed_at field, and create a cron job or something that runs every day and if there are failed candidates older than 30 days we completely erase every sensitive data about them and they cannot be re-run (if failed_at is bigger than 30 days and they try to re-run it we show an error toast, backend also denies the request)
+    [x] - Rename first step to General: Refactor role selection, it should be a searchavble shadcn combobox (we need to load all the roles the org has with no pagination, if screening is done from a Role details page then we pre-select that one from this combobox), Add a mew field Language with a short description to explain the analysis summary and pdf export will be generated in this language, for now only English and German, defaults to the orgs language -> This means we need to also modify the backend so it knows about the field and we need to append the prompt to give the info in the selected languag
+- [x] Ensure when a screening is done completely (succeeded), we delete (or replace with empty string if we cannot use null) from the database and file storage: cv, cvtext, interview transcript files, interview texts, internal notes, linkedin and github profile data if we kept it.
+- [x] A screening can be only re-run if if it failed completely (5 times), if it completely failed, set a failed_at field, and create a cron job or something that runs every day and if there are failed candidates older than 30 days we completely erase every sensitive data about them and they cannot be re-run (if failed_at is bigger than 30 days and they try to re-run it we show an error toast, backend also denies the request)
 
 ### Deletion (Medium)
-[ ] - When a role is deleted, we completely wipe everything. Role data, candidates, files if left some, everything. Same if the user is deleting 
+[x] - When a role is deleted, we completely wipe everything. Role data, candidates, files if left some, everything. Same if the user is deleting 
 a failed screening then every data about it everything needs to be wiped.
-[ ] - Users should be only deleted if they have an org (owner) they cannot be deleted probably better auth hook
-[ ] - If we delete an org, delete every data it had completely wipe (just keep subscription data, i guess database cascades here are the best?)
+[x] - Users should be only deleted if they have an org (owner) they cannot be deleted probably better auth hook
+[x] - If we delete an org, delete every data it had completely wipe (just keep subscription data, i guess database cascades here are the best?)
+
+
+### Email delivery (required before production)
+
+`EmailsService` currently logs to stdout instead of sending mail. Auth already enqueues jobs for:
+
+- Password reset (`sendResetPassword`)
+- Email verification (`sendVerificationEmail`)
+- Organization invitations (`sendInvitationEmail`)
+
+**Work required:**
+
+1. Choose provider (e.g. Resend, Postmark, AWS SES EU region)
+2. Implement `EmailsService.process()` with HTML/text templates (emails in english only for now)
+3. Add env vars for API keys and from-address
+4. Replace `console.error` in `EmailsWorkers` failed handler with structured logger (Phase 5)
+5. Add integration test or e2e smoke test with provider sandbox
 
 
 ### Analytics (Low)
@@ -34,6 +51,16 @@ a failed screening then every data about it everything needs to be wiped.
 [ ] - We need to measure churn, and subscription things, we need to measure behaviour on the marketing page (number of visitors, where they came from (referrer), how long are they on the landing page, what buttons they click on it, how many times, etc)
 
 ### 404 Page (Low)
+- [x] Global 404 page
+
+### Propert Metadata & SEO
+- [ ] Marketing page has proper SEO set up, only 1 h1 tag, clear hierarchy, canonical links, etc
+- [ ] App pages have at least title and description set up
+- [ ] Favicon
+- [ ] Twitter cards
+- [ ] OG Data
+- [ ] Auth pages have at least title and description set up
 
 
 ### Error Page + Sentry for frontend (Medium)
+

@@ -13,10 +13,12 @@ export type CandidateListItem = {
   roleId: string | null;
   roleTitle: string | null;
   status: CandidateStatus;
+  language: "en" | "de";
   integrityScore: number | null;
   roundsCount: number;
   highInconsistencyWarning: boolean;
   processedAt: string | null;
+  failedAt: string | null;
   errorMessage: string | null;
   createdAt: string;
 };

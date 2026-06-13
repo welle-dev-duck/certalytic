@@ -25,6 +25,12 @@ export class RolesRouter {
     const withOrganization = [requireAuth, requireOrganization];
 
     this.router.get(
+      '/options',
+      ...withOrganization,
+      rolesController.listOptions,
+    );
+
+    this.router.get(
       '/',
       ...withOrganization,
       validate({ query: roleListQuerySchema }),

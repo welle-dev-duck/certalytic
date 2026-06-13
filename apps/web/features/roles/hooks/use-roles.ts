@@ -13,6 +13,7 @@ import type {
   RoleDetail,
   RoleExportSummary,
   RoleListItem,
+  RoleOption,
 } from "@/features/roles/types";
 
 export const roleKeys = {
@@ -22,6 +23,8 @@ export const roleKeys = {
     [...roleKeys.lists(), orgId, filters] as const,
   detail: (orgId: string | undefined, id: string) =>
     [...roleKeys.all, "detail", orgId, id] as const,
+  options: (orgId: string | undefined) =>
+    [...roleKeys.all, "options", orgId] as const,
   latestExport: (orgId: string | undefined, id: string) =>
     [...roleKeys.all, "latest-export", orgId, id] as const,
 };
@@ -31,6 +34,19 @@ export type RoleListFilters = {
   cursor?: string;
   search?: string;
 };
+
+export function useRoleOptions(options?: { enabled?: boolean }) {
+  const orgId = useOrgId();
+
+  return useQuery({
+    queryKey: roleKeys.options(orgId),
+    queryFn: () =>
+      api<{ data: RoleOption[] }>("/api/roles/options").then(
+        (response) => response.data,
+      ),
+    enabled: (options?.enabled ?? true) && !!orgId,
+  });
+}
 
 export function useRoles(
   filters: RoleListFilters = {},
