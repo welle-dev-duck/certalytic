@@ -10,7 +10,10 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
   BASE_URL: z.url(),
   WEB_APP_URL: z.url(),
-  SIGNUP_DISABLED: z.boolean().default(false),
+  SIGNUP_DISABLED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true'),
   DATABASE_URL: z.string().min(1),
   REDIS_URL: z.string().min(1).default('redis://localhost:6379'),
   STRIPE_SECRET_KEY: z.string().min(1),
