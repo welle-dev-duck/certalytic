@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Briefcase,
   FileText,
@@ -8,103 +10,65 @@ import {
   Scale,
   Sparkles,
   Users,
+  type LucideIcon,
 } from "lucide-react";
 
-const signals = [
-  {
-    icon: FileText,
-    title: "CV authenticity",
-    weight: "25%",
-    description:
-      "Timeline coherence, employment gaps, and inflated seniority claims against the uploaded CV.",
-  },
-  {
-    icon: Mic,
-    title: "Interview behavioral",
-    weight: "50%",
-    description:
-      "Transcript depth, response latency, rehearsed phrasing, and consistency across interview rounds.",
-  },
-  {
-    icon: Globe2,
-    title: "Cross-source consistency",
-    weight: "15%",
-    description:
-      "LinkedIn, GitHub, and pasted profile content compared against CV and interview claims.",
-  },
-  {
-    icon: Fingerprint,
-    title: "Identity confidence",
-    weight: "10%",
-    description:
-      "Name, email, and handle alignment across documents and public sources.",
-  },
+import { useTranslations } from "@/lib/i18n/client";
+
+type SignalConfig = {
+  id: "cv" | "interview" | "crossSource" | "identity";
+  icon: LucideIcon;
+  weight: string;
+};
+
+type FeatureConfig = {
+  id:
+    | "compositeScore"
+    | "speakerTranscripts"
+    | "roleProfiles"
+    | "teamWorkspaces"
+    | "signalSummary"
+    | "behaviourAnalysis"
+    | "personalityAnalysis";
+  icon: LucideIcon;
+};
+
+const signals: SignalConfig[] = [
+  { id: "cv", icon: FileText, weight: "25%" },
+  { id: "interview", icon: Mic, weight: "50%" },
+  { id: "crossSource", icon: Globe2, weight: "15%" },
+  { id: "identity", icon: Fingerprint, weight: "10%" },
 ];
 
-const features = [
-  {
-    icon: Scale,
-    title: "Composite integrity score",
-    description:
-      "Weighted sub-scores roll up into one explainable hiring integrity index with cited flags.",
-  },
-  {
-    icon: Mic,
-    title: "Speaker-labelled transcripts",
-    description:
-      "Upload Zoom or Teams audio — every line tagged by speaker for diarized review.",
-  },
-  {
-    icon: Briefcase,
-    title: "Reusable role profiles",
-    description:
-      "Save job descriptions once; every screening inherits the same role context.",
-  },
-  {
-    icon: Users,
-    title: "Team workspaces",
-    description:
-      "Shared pipelines for in-house TA squads and agencies with seat-based access.",
-  },
-  {
-    icon: Layers,
-    title: "Signal summary & follow-ups",
-    description:
-      "AI-generated summaries, anomaly flags, and suggested deep-dive questions for interviewers.",
-  },
-  {
-    icon: Users,
-    title: "Candidate behaviour analysis",
-    description:
-      "Communication style, collaboration indicators, and behavioural watchpoints from interview transcripts.",
-  },
-  {
-    icon: Sparkles,
-    title: "Candidate personality analysis",
-    description:
-      "Work style, motivation signals, and culture-fit indicators for hiring-manager context.",
-  },
+const features: FeatureConfig[] = [
+  { id: "compositeScore", icon: Scale },
+  { id: "speakerTranscripts", icon: Mic },
+  { id: "roleProfiles", icon: Briefcase },
+  { id: "teamWorkspaces", icon: Users },
+  { id: "signalSummary", icon: Layers },
+  { id: "behaviourAnalysis", icon: Users },
+  { id: "personalityAnalysis", icon: Sparkles },
 ];
 
 export function MarketingFeaturesBento() {
+  const t = useTranslations("marketing");
+
   return (
     <div className="grid auto-rows-[minmax(140px,auto)] grid-cols-1 gap-3 md:grid-cols-12">
       <div className="border border-border bg-card p-6 md:col-span-7 md:row-span-2">
         <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
-          Four integrity signals
+          {t("featuresBento.signalsEyebrow")}
         </p>
         <h3 className="mt-2 text-xl font-semibold text-foreground">
-          Four signals. One dossier. One decision checkpoint.
+          {t("featuresBento.signalsTitle")}
         </h3>
         <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
-          Recruiters upload the CV and merged transcripts to build the integrity
-          dossier. Each dimension produces a sub-score, indicators, and cited
-          flags before the offer letter goes out.
+          {t("featuresBento.signalsDescription")}
         </p>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           {signals.map((signal) => (
             <div
-              key={signal.title}
+              key={signal.id}
               className="border border-border bg-muted/20 p-4"
             >
               <div className="flex items-center justify-between gap-2">
@@ -114,10 +78,10 @@ export function MarketingFeaturesBento() {
                 </span>
               </div>
               <p className="mt-3 text-sm font-semibold text-foreground">
-                {signal.title}
+                {t(`featuresBento.signals.${signal.id}.title`)}
               </p>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                {signal.description}
+                {t(`featuresBento.signals.${signal.id}.description`)}
               </p>
             </div>
           ))}
@@ -126,26 +90,30 @@ export function MarketingFeaturesBento() {
 
       {features.slice(0, 2).map((feature, index) => (
         <div
-          key={feature.title}
+          key={feature.id}
           className={`border border-border p-6 md:col-span-5 ${index === 0 ? "bg-primary/5" : "bg-card"}`}
         >
           <feature.icon size={18} className="text-primary" />
-          <h3 className="mt-4 font-semibold text-foreground">{feature.title}</h3>
+          <h3 className="mt-4 font-semibold text-foreground">
+            {t(`featuresBento.features.${feature.id}.title`)}
+          </h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            {feature.description}
+            {t(`featuresBento.features.${feature.id}.description`)}
           </p>
         </div>
       ))}
 
       {features.slice(2).map((feature) => (
         <div
-          key={feature.title}
+          key={feature.id}
           className="border border-border bg-card p-6 md:col-span-4"
         >
           <feature.icon size={18} className="text-primary" />
-          <h3 className="mt-4 font-semibold text-foreground">{feature.title}</h3>
+          <h3 className="mt-4 font-semibold text-foreground">
+            {t(`featuresBento.features.${feature.id}.title`)}
+          </h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            {feature.description}
+            {t(`featuresBento.features.${feature.id}.description`)}
           </p>
         </div>
       ))}

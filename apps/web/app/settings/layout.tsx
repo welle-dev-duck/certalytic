@@ -3,15 +3,24 @@ import type { ReactNode } from "react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { SettingsNav } from "@/components/settings/settings-nav";
 import { Separator } from "@/components/ui/separator";
+import { getTranslations } from "@/lib/i18n/server";
 
-export default function SettingsLayout({ children }: { children: ReactNode }) {
+export default async function SettingsLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const t = await getTranslations("settings");
+
   return (
     <AppLayout>
       <div className="px-4 py-6">
         <div className="mb-6">
-          <h1 className="text-xl font-bold text-foreground">Settings</h1>
+          <h1 className="text-xl font-bold text-foreground">
+            {t("layout.title")}
+          </h1>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            Manage your profile and account settings
+            {t("layout.description")}
           </p>
         </div>
 

@@ -1,68 +1,79 @@
-import Link from "@/components/ui/link"
+import Link from "@/components/ui/link";
 
 import { LegalDocumentLayout } from "@/components/marketing/legal-document-layout";
 import { COMPANY } from "@/lib/company";
+import { getTranslations } from "@/lib/i18n/server";
 import { routes } from "@/lib/routes";
 
-export default function PrivacyPolicyPage() {
+const companyParams = {
+  company: COMPANY.name,
+  legalName: COMPANY.legalName,
+  email: COMPANY.email,
+  addressLine: COMPANY.addressLine,
+  zip: COMPANY.zip,
+  city: COMPANY.city,
+  registrationNumber: COMPANY.registrationNumber,
+  vatId: COMPANY.vatId,
+};
+
+export default async function PrivacyPolicyPage() {
+  const t = await getTranslations("legal");
+
   return (
     <LegalDocumentLayout
-      title="Privacy Policy"
-      description={`How ${COMPANY.name} processes personal data for recruiters, team members, and candidates.`}
+      title={t("privacy.title")}
+      description={t("privacy.description", companyParams)}
     >
-      <p>
-        {COMPANY.legalName} ({COMPANY.name}) operates an interview integrity
-        decision-support platform for B2B customers. This Privacy Policy
-        explains what we collect, why we process it, where it is stored, and
-        your rights under the GDPR.
-      </p>
-      <h2>1. Roles under GDPR</h2>
+      <p>{t("privacy.intro", companyParams)}</p>
+      <h2>{t("privacy.rolesHeading")}</h2>
       <ul>
         <li>
-          <strong>Customer organisations</strong> are typically the{" "}
-          <strong>Data Controller</strong> for candidate screening data they
-          upload.
+          {t("privacy.rolesCustomerOrgsBefore")}
+          <strong>{t("privacy.rolesCustomerOrgsEmphasis")}</strong>
+          {t("privacy.rolesCustomerOrgsAfter")}
         </li>
         <li>
-          {COMPANY.legalName} acts as a <strong>Data Processor</strong> when
-          handling candidate CVs, transcripts, and analysis on behalf of
-          customers.
+          {t("privacy.rolesProcessorBefore", companyParams)}
+          <strong>{t("privacy.rolesProcessorEmphasis")}</strong>
+          {t("privacy.rolesProcessorAfter")}
         </li>
         <li>
-          For account, billing, and marketing data relating to recruiters who
-          register, we act as <strong>Data Controller</strong>.
+          {t("privacy.rolesControllerBefore")}
+          <strong>{t("privacy.rolesControllerEmphasis")}</strong>
+          {t("privacy.rolesControllerAfter")}
         </li>
       </ul>
-      <h2>2. Data sovereignty & sub-processors</h2>
+      <h2>{t("privacy.sovereigntyHeading")}</h2>
       <p>
-        All candidate content storage and AI inference remain within the European
-        Union. Primary infrastructure is hosted on{" "}
-        <strong>Hetzner Online GmbH</strong> (Germany / Finland). AI inference
-        uses <strong>Mistral AI</strong> (France).
+        {t("privacy.sovereigntyParagraphBefore")}
+        <strong>{t("privacy.sovereigntyParagraphHetzner")}</strong>
+        {t("privacy.sovereigntyParagraphMiddle")}
+        <strong>{t("privacy.sovereigntyParagraphMistral")}</strong>
+        {t("privacy.sovereigntyParagraphAfter")}
       </p>
-      <h2>3. Your rights</h2>
+      <h2>{t("privacy.rightsHeading")}</h2>
       <p>
-        Contact{" "}
+        {t("privacy.rightsContactPrefix")}
         <a href={`mailto:${COMPANY.email}`} className="text-primary">
           {COMPANY.email}
         </a>
-        . You may lodge a complaint with your local supervisory authority.
+        {t("privacy.rightsContactSuffix")}
       </p>
-      <h2>4. Related documents</h2>
+      <h2>{t("privacy.relatedDocsHeading")}</h2>
       <p>
-        See also our{" "}
+        {t("privacy.relatedDocsPrefix")}
         <Link href={routes.legal.terms()} className="text-primary">
-          Terms of Service
+          {t("privacy.relatedDocsTerms")}
         </Link>
-        ,{" "}
+        {t("privacy.relatedDocsTermsSeparator")}
         <Link href={routes.legal.dpa()} className="text-primary">
-          Data Processing Agreement
+          {t("privacy.relatedDocsDpa")}
         </Link>
-        , and{" "}
+        {t("privacy.relatedDocsDpaSeparator")}
         <Link href={routes.legal.cookies()} className="text-primary">
-          Cookie Policy
+          {t("privacy.relatedDocsCookies")}
         </Link>
-        .
+        {t("privacy.relatedDocsSuffix")}
       </p>
     </LegalDocumentLayout>
   );

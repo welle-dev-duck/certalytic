@@ -1,0 +1,272 @@
+{
+  "header": {
+    "features": "Features",
+    "process": "Prozess",
+    "demo": "Demo",
+    "pricing": "Preise",
+    "openMenu": "Menü öffnen",
+    "logIn": "Anmelden",
+    "startFree": "Kostenlos starten",
+    "dashboard": "Dashboard"
+  },
+  "hero": {
+    "eyebrow": "Die Kontrollstelle vor dem Angebot",
+    "titlePrefix": "Verhindern Sie den",
+    "titleHighlight": "100.000-€-Fehler",
+    "titleSuffix": "einen Proxy-Kandidaten einzustellen.",
+    "description": "Certalytic ist das finale Integritäts-Dossier für Senior-Tech-Hires - CVs, zusammengeführte Interview-Transkripte und öffentliche Profile auf EU-souveräner Infrastruktur. Zwei Minuten Review. Keine automatischen Hire/Reject-Entscheidungen.",
+    "ctaPrimary": "Kandidat screenen",
+    "ctaSecondary": "Vertrieb kontaktieren",
+    "imageAlt": "Recruiter prüft ein Kandidaten-Integritäts-Dossier vor der Einstellungsentscheidung"
+  },
+  "privacy": {
+    "eyebrow": "Die einzige GDPR-souveräne Interview-Intelligence-Schicht",
+    "titlePrefix": "Die Daten Ihrer Kandidaten verlassen nie die",
+    "titleHighlight": "EU-Rechtsprechung.",
+    "description": "In Europa dürfen Kandidaten-Audio und CVs nicht über US-Cloud-LLMs laufen. Certalytic verarbeitet ausschließlich auf EU-Boden - der Compliance-Vorteil gegenüber US-Wettbewerbern in Ihrer Senior-Hiring-Pipeline.",
+    "privacyPolicy": "Datenschutzerklärung",
+    "dpa": "AVV",
+    "imprint": "Impressum",
+    "trustPoints": {
+      "euBased": "Certalytic ist EU-basiert und DSGVO-konform",
+      "euStorage": "Nur EU-Speicher & Inferenz-Pfad",
+      "decisionSupport": "Entscheidungshilfe - keine automatisierte Einstellung",
+      "euInfrastructure": "Kandidatendaten werden in EU-Infrastruktur verarbeitet",
+      "audioDeletion": "Transkriptions-Audio wird nach Abschluss gelöscht"
+    }
+  },
+  "sections": {
+    "product": {
+      "title": "Erstellen Sie das Integritäts-Dossier, bevor Sie das Angebot senden.",
+      "description": "Laden Sie CV und zusammengeführte Interview-Transkripte hoch - der bewusste letzte Schritt nach Ihrer Tech-Runde. Certalytic liefert vier gewichtete Integritätssignale, belegte Flags und Follow-up-Fragen für Ihr Hiring-Team."
+    },
+    "demo": {
+      "title": "Beispiel-Integritäts-Dossier",
+      "description": "Genau das, was Ihr Head of Talent oder CTO vor der Freigabe erhält - Integritätsscore, Signalprofil, Flags und empfohlene Follow-ups. Exportierbar als PDF mit Wasserzeichen."
+    },
+    "pricing": {
+      "title": "Preise, die sich beim ersten verhinderten Fehler amortisieren",
+      "description": "Skalieren Sie auf Agentur-Volumen oder verpflichten Sie teamweite Checkpoints - ein Bruchteil einer Fehlbesetzung.",
+      "freePlanBanner": "{tokens} kostenlose Integritäts-Dossiers pro Monat im Free-Plan, keine Kreditkarte nötig.",
+      "freePlanLink": "Kostenloses Konto erstellen",
+      "getStarted": "Loslegen",
+      "contactSales": "Vertrieb kontaktieren"
+    },
+    "audience": {
+      "title": "Für anspruchsvolles Tech-Hiring - nicht für Volumen-Recruiting.",
+      "cto": "CTOs & Engineering-Leads, die Senior ICs und Staff Engineers einstellen, bei denen eine Fehlbesetzung Monate Runway und technische Schulden kostet.",
+      "agency": "Technische Recruiting-Agenturen für Rollen ab 100.000 €, die einen belastbaren Integritäts-Checkpoint vor der Kandidatenpräsentation brauchen.",
+      "talentHead": "Heads of Talent, die eine zweiminütige finale Screening-Policy über alle Interviewer hinweg vorschreiben - Qualitätskontrolle, keine Dateneingabe.",
+      "cardTitle": "Eine Versicherung an der Zielgeraden",
+      "cardP1": "Certalytic sitzt am Ende Ihrer Interview-Schleife - nach den Tech-Runden, vor dem Angebotsschreiben. Recruiter stellen das Integritäts-Dossier bewusst aus CV- und Transkript-Quellen zusammen. Dieser manuelle Schritt ist der Checkpoint, nicht der Engpass.",
+      "cardP2": "Wir packen Recruiter-Expertise in einen wiederholbaren, EU-souveränen Workflow. Probabilistische Signale zitieren Belege; Ihr Team behält die Kontrolle über jede Weiterleitung oder Absage."
+    },
+    "cta": {
+      "title": "Starten Sie mit drei kostenlosen Integritäts-Dossiers.",
+      "description": "Keine Kreditkarte. CV und zusammengeführtes Transkript hochladen, erstes Dossier in Minuten exportieren.",
+      "button": "Kostenloses Konto erstellen"
+    }
+  },
+  "process": {
+    "eyebrow": "So funktioniert's",
+    "title": "Drei Schritte von der Rolle zum Dossier",
+    "description": "Certalytic passt ans Ende Ihrer Interview-Schleife. Rolle anlegen, jeden Finalisten screenen, evidenzbasierten Report exportieren, bevor jemand unterschreibt.",
+    "steps": {
+      "1": {
+        "title": "Rolle anlegen",
+        "description": "Position einmal definieren - Titel, Stellenbeschreibung und optionale Kontextdokumente. Jeder Kandidat für diese Rolle erhält dieselbe Baseline.",
+        "screenshots": {
+          "createRole": "Formular zur Rollenerstellung"
+        }
+      },
+      "2": {
+        "title": "Kandidaten screenen",
+        "description": "Jeden Bewerber durch das geführte Mehrschritt-Formular: Kandidatendetails & CV, Querverweis-Links, dann zusammengeführte Interview-Transkripte.",
+        "screenshots": {
+          "candidateDetails": "Schritt 1 · Kandidat & CV",
+          "crossRef": "Schritt 2 · LinkedIn & GitHub",
+          "transcripts": "Schritt 3 · Interview-Transkripte"
+        }
+      },
+      "3": {
+        "title": "Report exportieren",
+        "description": "Integritäts-Dossier in der App prüfen, dann PDF mit Wasserzeichen fürs Hiring-Committee exportieren - oder alle Kandidaten einer Rolle im Batch.",
+        "screenshots": {
+          "exportReport": "Integritäts-Dossier & PDF-Export"
+        }
+      }
+    }
+  },
+  "featuresBento": {
+    "signalsEyebrow": "Vier Integritätssignale",
+    "signalsTitle": "Vier Signale. Ein Dossier. Ein Entscheidungs-Checkpoint.",
+    "signalsDescription": "Recruiter laden CV und zusammengeführte Transkripte hoch, um das Integritäts-Dossier zu erstellen. Jede Dimension liefert Sub-Score, Indikatoren und belegte Flags vor dem Angebotsschreiben.",
+    "signals": {
+      "cv": {
+        "title": "CV-Authentizität",
+        "description": "Zeitlinien-Kohärenz, Beschäftigungslücken und aufgeblähte Senioritätsangaben am hochgeladenen CV."
+      },
+      "interview": {
+        "title": "Interview-Verhalten",
+        "description": "Transkript-Tiefe, Antwortlatenz, einstudierte Formulierungen und Konsistenz über Interview-Runden."
+      },
+      "crossSource": {
+        "title": "Quellenübergreifende Konsistenz",
+        "description": "LinkedIn, GitHub und eingefügte Profil-Inhalte im Vergleich zu CV- und Interview-Aussagen."
+      },
+      "identity": {
+        "title": "Identitäts-Vertrauen",
+        "description": "Abgleich von Name, E-Mail und Handles über Dokumente und öffentliche Quellen."
+      }
+    },
+    "features": {
+      "compositeScore": {
+        "title": "Zusammengesetzter Integritätsscore",
+        "description": "Gewichtete Sub-Scores ergeben einen erklärbaren Hiring-Integritätsindex mit belegten Flags."
+      },
+      "speakerTranscripts": {
+        "title": "Sprecher-markierte Transkripte",
+        "description": "Zoom- oder Teams-Audio hochladen - jede Zeile nach Sprecher für diarisierte Prüfung."
+      },
+      "roleProfiles": {
+        "title": "Wiederverwendbare Rollenprofile",
+        "description": "Stellenbeschreibungen einmal speichern; jedes Screening erbt denselben Rollenkontext."
+      },
+      "teamWorkspaces": {
+        "title": "Team-Workspaces",
+        "description": "Geteilte Pipelines für Inhouse-TA und Agenturen mit sitzbasierter Zugriffskontrolle."
+      },
+      "signalSummary": {
+        "title": "Signal-Zusammenfassung & Follow-ups",
+        "description": "KI-Zusammenfassungen, Anomalie-Flags und vorgeschlagene Vertiefungsfragen für Interviewer."
+      },
+      "behaviourAnalysis": {
+        "title": "Verhaltensanalyse des Kandidaten",
+        "description": "Kommunikationsstil, Kollaborationsindikatoren und Verhaltens-Warnpunkte aus Interview-Transkripten."
+      },
+      "personalityAnalysis": {
+        "title": "Persönlichkeitsanalyse des Kandidaten",
+        "description": "Arbeitsstil, Motivationssignale und Culture-Fit-Indikatoren für Hiring-Manager."
+      }
+    }
+  },
+  "screeningPreview": {
+    "eyebrow": "Beispiel-Integritäts-Dossier",
+    "subtitle": "Mock-Kandidatendaten - identische UI und PDF-Export wie in Produktion.",
+    "scoreLabelLine1": "HIRING-INTEGRITÄT",
+    "scoreLabelLine2": "SCORE",
+    "flagsRaised": "Gemeldete Flags",
+    "interviewRounds": "Interview-Runden",
+    "signalProfile": "SIGNALPROFIL",
+    "activeFlags": "{count} aktive Flags erkannt",
+    "confidenceSuffix": "{percent}% Konf.",
+    "metricAnalysis": "Metrikanalyse",
+    "behaviourInsights": "Verhaltens- & Persönlichkeits-Insights",
+    "behaviourDisclaimer": "Nur ergänzender Kontext - nicht im Integritätsscore enthalten.",
+    "behaviourLabel": "Verhalten:",
+    "personalityLabel": "Persönlichkeit:",
+    "aiVerdict": "KI-Urteil",
+    "recommendedFollowUps": "Empfohlene Follow-ups",
+    "components": {
+      "s_cv": "CV-Authentizität",
+      "s_int": "Interview-Verhalten",
+      "s_cross": "Quellenübergreifende Konsistenz",
+      "s_id": "Identitäts-Vertrauen"
+    }
+  },
+  "stats": {
+    "eyebrow": "In Zahlen",
+    "title": "Die Kosten einer Fehlbesetzung auf Senior-Niveau übersteigen den Screening-Preis bei Weitem",
+    "items": {
+      "candidatesScreened": {
+        "label": "Gescreente Kandidaten",
+        "detail": "Integritäts-Reports in Tech-Hiring-Schleifen erstellt"
+      },
+      "teams": {
+        "label": "Teams, die mit Certalytic einstellen",
+        "detail": "Recruiter verbessern Auswahlqualität in {countries} Ländern"
+      },
+      "audioHours": {
+        "label": "Stunden verarbeitetes Interview-Audio",
+        "detail": "Sprecher-markierte Transkripte bereit für Integritätsanalyse"
+      },
+      "savedMillions": {
+        "label": "Geschätzte Kosten vermiedener Senior-Fehlbesetzungen",
+        "detail": "Eine Proxy-Besetzung kann 100.000 €+ an Runway, Gehalt und technischer Schuld kosten"
+      }
+    }
+  },
+  "reviews": {
+    "title": "Vertraut von Teams, die Einstellungsentscheidungen ab 100.000 € absichern",
+    "description": "Inhouse-TA, Agenturen und eingebettete Recruiter berichten, wie Integritätssignale ihr Tech-Screening verändert haben.",
+    "starRatingAria": "{rating} von 5 Sternen",
+    "items": {
+      "1": {
+        "quote": "Wir haben einstudierte Tech-Antworten vor dem Onsite erkannt. Die Integritäts-Aufschlüsselung lieferte konkrete Follow-up-Fragen statt Bauchgefühl.",
+        "name": "Elena V.",
+        "role": "Head of Talent",
+        "org": "Series-B-Fintech"
+      },
+      "2": {
+        "quote": "Der Abgleich von CV-Angaben mit LinkedIn-Einfügungen hat uns vor einer Fehlbesetzung auf Senior-Niveau bewahrt. Das Plattform-Mismatch-Flag stimmte.",
+        "name": "Marcus T.",
+        "role": "Lead Recruiter",
+        "org": "EU-Produktstudio"
+      },
+      "3": {
+        "quote": "Unser Team führt 40+ Tech-Screens pro Monat durch. Certalytic hält das Signal konsistent, ohne ein weiteres ATS-Integrationsprojekt.",
+        "name": "Sofia K.",
+        "role": "VP People",
+        "org": "Remote-first Scale-up"
+      }
+    }
+  },
+  "roadmap": {
+    "title": "Roadmap",
+    "description": "Was als Nächstes kommt - ungefähre Lieferquartale basierend auf aktuellen Engineering-Prioritäten.",
+    "items": {
+      "ats": {
+        "title": "ATS-Integrationen",
+        "description": "Integritäts-Reports in Greenhouse, Lever und Workday ohne manuelles Copy-Paste."
+      },
+      "sso": {
+        "title": "Enterprise-SSO",
+        "description": "SAML- und OIDC-Single-Sign-On mit Sitz-Provisionierung für Agentur- und Inhouse-TA-Teams."
+      },
+      "batch": {
+        "title": "Batch-Screening",
+        "description": "Kohorte von Kandidaten gegen ein Rollenprofil hochladen und Integritätssignale nebeneinander vergleichen."
+      },
+      "api": {
+        "title": "Public API & Webhooks",
+        "description": "Programmatische Screening-Trigger und signierte Webhook-Zustellung für individuelle Hiring-Stacks."
+      }
+    }
+  },
+  "footer": {
+    "tagline": "Das EU-souveräne Integritäts-Dossier für Senior-Tech-Hires. Teure Proxy-Kandidaten vor dem Angebotsschreiben vermeiden - mit probabilistischen Signalen, nie automatischen Gates.",
+    "contact": "Kontakt",
+    "legal": "Rechtliches",
+    "copyright": "© {year} {company}. Alle Rechte vorbehalten.",
+    "social": {
+      "linkedin": "LinkedIn",
+      "github": "GitHub",
+      "x": "X"
+    },
+    "legalLinks": {
+      "privacy": "Datenschutzerklärung",
+      "terms": "Nutzungsbedingungen",
+      "dpa": "Auftragsverarbeitungsvertrag",
+      "cookies": "Cookie-Richtlinie",
+      "imprint": "Impressum"
+    }
+  },
+  "dataPrivacy": {
+    "label": "DATEN & DATENSCHUTZ",
+    "sovereignTitle": "EU-souveräne Verarbeitung",
+    "sovereignDescription": "Alle Kandidatendaten werden ausschließlich in EU-Rechtsprechung verarbeitet - Hetzner EU-Rechenzentren (Deutschland/Finnland) und Mistral AI La Plateforme (Paris, Frankreich). Kein US-Cloud-Compute oder CDN im Datenpfad.",
+    "modelTraining": "Modell-Training",
+    "modelTrainingDescription": "Kandidatendaten werden nie zum Trainieren, Fine-Tuning oder Verbessern von Mistral-Foundation-Modellen verwendet.",
+    "guaranteed": "Garantiert"
+  }
+}

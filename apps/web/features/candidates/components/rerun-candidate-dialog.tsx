@@ -12,6 +12,7 @@ import {
 import { toast } from "sonner";
 
 import { useRetryCandidate } from "@/features/candidates/hooks/use-candidates";
+import { useTranslations } from "@/lib/i18n/client";
 
 type CandidateRef = {
   id: string;
@@ -29,6 +30,7 @@ export function RerunCandidateDialog({
   onOpenChange,
   candidate,
 }: RerunCandidateDialogProps) {
+  const t = useTranslations("app");
   const retry = useRetryCandidate();
 
   function confirmRerun() {
@@ -36,12 +38,14 @@ export function RerunCandidateDialog({
 
     retry.mutate(candidate.id, {
       onSuccess: () => {
-        toast.success("Screening re-queued.");
+        toast.success(t("candidates.rerunDialog.toast.success"));
         onOpenChange(false);
       },
       onError: (error) => {
         toast.error(
-          error instanceof Error ? error.message : "Failed to re-run screening.",
+          error instanceof Error
+            ? error.message
+            : t("candidates.rerunDialog.toast.failed"),
         );
       },
     });
@@ -56,21 +60,11 @@ export function RerunCandidateDialog({
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Re-run screening?</DialogTitle>
+          <DialogTitle>{t("candidates.rerunDialog.title")}</DialogTitle>
           <DialogDescription>
-            {candidate ? (
-              <>
-                This will re-analyze{" "}
-                <span className="font-semibold text-foreground">
-                  {candidate.name}
-                </span>{" "}
-                using the stored CV and merged interview transcripts. The current
-                integrity score will be replaced. This consumes{" "}
-                <span className="font-semibold text-foreground">1 token</span>.
-              </>
-            ) : (
-              "Re-running replaces the current analysis and consumes 1 token."
-            )}
+            {candidate
+              ? t("candidates.rerunDialog.description", { name: candidate.name })
+              : t("candidates.rerunDialog.descriptionFallback")}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2">
@@ -80,14 +74,16 @@ export function RerunCandidateDialog({
             onClick={() => onOpenChange(false)}
             disabled={retry.isPending}
           >
-            Cancel
+            {t("candidates.rerunDialog.cancel")}
           </Button>
           <Button
             type="button"
             onClick={confirmRerun}
             disabled={retry.isPending || candidate === null}
           >
-            {retry.isPending ? "Re-queuing…" : "Re-run screening"}
+            {retry.isPending
+              ? t("candidates.rerunDialog.confirming")
+              : t("candidates.rerunDialog.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>

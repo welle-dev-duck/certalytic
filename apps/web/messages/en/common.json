@@ -1,0 +1,61 @@
+{
+  "language": "Language",
+  "loading": "Loading…",
+  "metadata": {
+    "description": "EU-sovereign hiring integrity screening - cross-check CVs, transcripts, and public profiles."
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "back": "Back"
+  },
+  "errors": {
+    "generic": "Something went wrong."
+  },
+  "pagination": {
+    "showing": "Showing {from}–{to}",
+    "noRows": "No rows",
+    "rows": "ROWS",
+    "previousPage": "Previous page",
+    "nextPage": "Next page"
+  },
+  "badges": {
+    "integrity": {
+      "high": "HIGH INTEGRITY",
+      "medium": "SUSPICIOUS",
+      "low": "LOW INTEGRITY"
+    },
+    "status": {
+      "complete": "COMPLETE",
+      "processing": "PROCESSING",
+      "pending": "PENDING",
+      "failed": "FAILED"
+    },
+    "flags": {
+      "ai_text": "AI TEXT",
+      "synthetic_profile": "SYNTHETIC",
+      "interview_prompt": "LIVE PROMPT",
+      "credential_gap": "CREDENTIAL",
+      "platform_mismatch": "MISMATCH",
+      "insufficient_signal": "CROSS-REFERENCE",
+      "response_latency": "LATENCY",
+      "signal": "SIGNAL"
+    }
+  },
+  "dropzone": {
+    "description": "Drag and drop a file here, or click to browse",
+    "dropFile": "Drop file here",
+    "dropFileActive": "Drop file to upload",
+    "filesSelected": "{count} file selected",
+    "filesSelectedPlural": "{count} files selected",
+    "remove": "Remove"
+  },
+  "integrity": {
+    "distribution": {
+      "high": "High (75+)",
+      "medium": "Medium (50–74)",
+      "low": "Low (<50)"
+    }
+  }
+}

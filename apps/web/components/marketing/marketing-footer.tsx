@@ -1,6 +1,9 @@
-import Link from "@/components/ui/link"
+"use client";
+
+import Link from "@/components/ui/link";
 
 import { COMPANY, SOCIAL_LINKS } from "@/lib/company";
+import { useTranslations } from "@/lib/i18n/client";
 import { routes } from "@/lib/routes";
 
 function LinkedInIcon({ size = 16 }: { size?: number }) {
@@ -46,14 +49,15 @@ function XIcon({ size = 16 }: { size?: number }) {
 }
 
 const LEGAL_LINKS = [
-  { label: "Privacy Policy", href: routes.legal.privacy() },
-  { label: "Terms of Service", href: routes.legal.terms() },
-  { label: "Data Processing Agreement", href: routes.legal.dpa() },
-  { label: "Cookie Policy", href: routes.legal.cookies() },
-  { label: "Imprint", href: routes.legal.imprint() },
+  { key: "privacy", href: routes.legal.privacy() },
+  { key: "terms", href: routes.legal.terms() },
+  { key: "dpa", href: routes.legal.dpa() },
+  { key: "cookies", href: routes.legal.cookies() },
+  { key: "imprint", href: routes.legal.imprint() },
 ] as const;
 
 export function MarketingFooter() {
+  const t = useTranslations("marketing");
   const year = new Date().getFullYear();
 
   return (
@@ -62,9 +66,7 @@ export function MarketingFooter() {
         <div className="space-y-4 lg:col-span-2">
           <p className="text-sm font-bold text-foreground">{COMPANY.name}</p>
           <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-            The EU-sovereign integrity dossier for senior technical hires.
-            Prevent costly proxy candidates before the offer letter—with
-            probabilistic signals, never automated gates.
+            {t("footer.tagline")}
           </p>
           <div className="flex items-center gap-3">
             <a
@@ -72,7 +74,7 @@ export function MarketingFooter() {
               target="_blank"
               rel="noreferrer"
               className="flex h-9 w-9 items-center justify-center border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-              aria-label="LinkedIn"
+              aria-label={t("footer.social.linkedin")}
             >
               <LinkedInIcon />
             </a>
@@ -81,7 +83,7 @@ export function MarketingFooter() {
               target="_blank"
               rel="noreferrer"
               className="flex h-9 w-9 items-center justify-center border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-              aria-label="GitHub"
+              aria-label={t("footer.social.github")}
             >
               <GitHubIcon />
             </a>
@@ -90,7 +92,7 @@ export function MarketingFooter() {
               target="_blank"
               rel="noreferrer"
               className="flex h-9 w-9 items-center justify-center border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-              aria-label="X"
+              aria-label={t("footer.social.x")}
             >
               <XIcon />
             </a>
@@ -98,7 +100,7 @@ export function MarketingFooter() {
         </div>
         <div>
           <p className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-            Contact
+            {t("footer.contact")}
           </p>
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
             <li className="font-semibold text-foreground">{COMPANY.legalName}</li>
@@ -116,7 +118,7 @@ export function MarketingFooter() {
         </div>
         <div>
           <p className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-            Legal
+            {t("footer.legal")}
           </p>
           <ul className="mt-4 space-y-2 text-sm">
             {LEGAL_LINKS.map((link) => (
@@ -125,7 +127,7 @@ export function MarketingFooter() {
                   href={link.href}
                   className="text-muted-foreground hover:text-primary"
                 >
-                  {link.label}
+                  {t(`footer.legalLinks.${link.key}`)}
                 </Link>
               </li>
             ))}
@@ -133,7 +135,7 @@ export function MarketingFooter() {
         </div>
       </div>
       <div className="border-t border-border px-6 py-4 text-center text-xs text-muted-foreground">
-        © {year} {COMPANY.legalName}. All rights reserved.
+        {t("footer.copyright", { year, company: COMPANY.legalName })}
       </div>
     </footer>
   );

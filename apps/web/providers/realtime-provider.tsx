@@ -20,6 +20,7 @@ import {
   getRealtimeWebSocketUrl,
   type RealtimeServerMessage,
 } from "@/lib/realtime";
+import { useTranslations } from "@/lib/i18n/client";
 
 import { useAuth } from "./auth-provider";
 
@@ -37,6 +38,7 @@ const MAX_BACKOFF_MS = 30_000;
 export function RealtimeProvider({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, activeOrganization } = useAuth();
   const queryClient = useQueryClient();
+  const t = useTranslations("app");
   const [isConnected, setIsConnected] = useState(false);
 
   const wsRef = useRef<WebSocket | null>(null);
@@ -98,11 +100,11 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
         });
 
         if (status === "failed") {
-          toast.error(errorMessage ?? "Role export failed.");
+          toast.error(errorMessage ?? t("realtime.roleExportFailed"));
         }
       }
     },
-    [queryClient],
+    [queryClient, t],
   );
 
   useEffect(() => {

@@ -20,8 +20,8 @@ export function WelcomePage() {
         <WelcomeHero />
         <EuPrivacySection />
         <MarketingStatsSection />
-        <MarketingProcessSection />
         <ProductSection />
+        <MarketingProcessSection />
         <DemoSection />
         <PricingSection />
         <AudienceSection />

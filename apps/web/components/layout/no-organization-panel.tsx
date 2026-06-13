@@ -6,8 +6,11 @@ import { AppLogoIcon } from "@/components/brand/app-logo-icon";
 import { CreateTeamModal } from "@/components/layout/create-team-modal";
 import { Button } from "@/components/ui/button";
 import { COMPANY } from "@/lib/company";
+import { useTranslations } from "@/lib/i18n/client";
 
 export function NoOrganizationPanel() {
+  const t = useTranslations("app");
+
   return (
     <div className="flex min-h-dvh flex-col bg-background">
       <header className="flex items-center gap-2.5 border-b border-border px-6 py-4">
@@ -15,7 +18,7 @@ export function NoOrganizationPanel() {
           <ShieldCheck size={14} className="text-primary" />
         </div>
         <p className="text-sm font-bold tracking-tight text-foreground">
-          Certalytic
+          {t("sidebar.brand")}
         </p>
       </header>
 
@@ -26,18 +29,17 @@ export function NoOrganizationPanel() {
               <Building2 className="h-6 w-6 text-primary" />
             </div>
             <h1 className="font-display text-2xl font-semibold tracking-tight">
-              Create your team
+              {t("org.noOrganization.title")}
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Certalytic organizes screenings by team. Create one to save roles,
-              screen candidates, and manage billing.
+              {t("org.noOrganization.description")}
             </p>
           </div>
 
           <CreateTeamModal>
             <Button size="lg" className="h-12 w-full">
               <Building2 className="mr-2 h-4 w-4" />
-              Create team
+              {t("org.noOrganization.createTeam")}
             </Button>
           </CreateTeamModal>
 

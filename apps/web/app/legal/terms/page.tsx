@@ -1,49 +1,58 @@
-import Link from "@/components/ui/link"
+import Link from "@/components/ui/link";
 
 import { LegalDocumentLayout } from "@/components/marketing/legal-document-layout";
 import { COMPANY } from "@/lib/company";
+import { getTranslations } from "@/lib/i18n/server";
 import { routes } from "@/lib/routes";
 
-export default function TermsOfServicePage() {
+const companyParams = {
+  company: COMPANY.name,
+  legalName: COMPANY.legalName,
+  email: COMPANY.email,
+  addressLine: COMPANY.addressLine,
+  zip: COMPANY.zip,
+  city: COMPANY.city,
+  registrationNumber: COMPANY.registrationNumber,
+  vatId: COMPANY.vatId,
+};
+
+export default async function TermsOfServicePage() {
+  const t = await getTranslations("legal");
+  const contactText = t("terms.contactParagraph", companyParams);
+  const [contactBefore, contactAfter = ""] = contactText.split(COMPANY.email);
+
   return (
     <LegalDocumentLayout
-      title="Terms of Service"
-      description={`Terms governing use of the ${COMPANY.name} platform.`}
+      title={t("terms.title")}
+      description={t("terms.description", companyParams)}
     >
+      <p>{t("terms.intro", companyParams)}</p>
+      <h2>{t("terms.serviceHeading")}</h2>
       <p>
-        These Terms are a contract between {COMPANY.legalName} and the
-        organisation or individual registering for an account.
+        {t("terms.serviceParagraphBefore", companyParams)}
+        <strong>{t("terms.serviceParagraphNot")}</strong>
+        {t("terms.serviceParagraphAfter")}
       </p>
-      <h2>1. Service description</h2>
+      <h2>{t("terms.disclaimerHeading")}</h2>
       <p>
-        Certalytic provides interview integrity decision support for technical
-        hiring. The platform does <strong>not</strong> make automated hiring
-        or rejection decisions.
+        <strong>{t("terms.disclaimerEmphasis")}</strong>{" "}
+        {t("terms.disclaimerRest")}
       </p>
-      <h2>2. Decision support disclaimer</h2>
+      <h2>{t("terms.processingHeading")}</h2>
       <p>
-        <strong>
-          Integrity scores represent probability heuristics, not absolute
-          verdicts.
-        </strong>{" "}
-        All outputs must be reviewed by qualified humans before action is taken.
-      </p>
-      <h2>3. Data processing</h2>
-      <p>
-        Our{" "}
+        {t("terms.processingPrefix")}
         <Link href={routes.legal.dpa()} className="text-primary">
-          Data Processing Agreement
+          {t("terms.processingDpaLink")}
         </Link>{" "}
-        applies when we process candidate data on your behalf.
+        {t("terms.processingSuffix")}
       </p>
-      <h2>4. Contact</h2>
+      <h2>{t("terms.contactHeading")}</h2>
       <p>
-        {COMPANY.legalName}, {COMPANY.addressLine}, {COMPANY.zip}{" "}
-        {COMPANY.city}. Email:{" "}
+        {contactBefore}
         <a href={`mailto:${COMPANY.email}`} className="text-primary">
           {COMPANY.email}
         </a>
-        .
+        {contactAfter}
       </p>
     </LegalDocumentLayout>
   );

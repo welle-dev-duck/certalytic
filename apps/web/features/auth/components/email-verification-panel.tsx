@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { LoadingSwap } from "@/components/loading-swap";
 import { authClient } from "@/lib/auth-client";
+import { useTranslations } from "@/lib/i18n/client";
 
 const RESEND_COOLDOWN_SECONDS = 30;
 
@@ -14,6 +15,8 @@ type EmailVerificationPanelProps = {
 };
 
 export function EmailVerificationPanel({ email }: EmailVerificationPanelProps) {
+  const t = useTranslations("auth");
+  const tCommon = useTranslations("common");
   const [timeToNextResend, setTimeToNextResend] = useState(
     RESEND_COOLDOWN_SECONDS,
   );
@@ -64,17 +67,17 @@ export function EmailVerificationPanel({ email }: EmailVerificationPanelProps) {
         callbackURL: process.env.NEXT_PUBLIC_WEB_APP_DASHBOARD_URL,
       });
       if (res.error) {
-        toast.error(res.error.message || "Something went wrong.");
+        toast.error(res.error.message || tCommon("errors.generic"));
         return;
       }
-      toast.success("A new verification link has been sent.");
+      toast.success(t("verifyEmail.resendSuccess"));
     });
   }
 
   const resendLabel =
     timeToNextResend > 0
-      ? `Resend verification email (${timeToNextResend}s)`
-      : "Resend verification email";
+      ? t("verifyEmail.resendCooldown", { seconds: timeToNextResend })
+      : t("verifyEmail.resend");
 
   return (
     <Button

@@ -1,5 +1,8 @@
+"use client";
+
 import { ShieldCheck } from "lucide-react";
 
+import { useTranslations } from "@/lib/i18n/client";
 import { getIntegrityColor } from "@/lib/integrity";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +17,8 @@ export function DataPrivacyPanel({
   className,
   prominent = false,
 }: DataPrivacyPanelProps) {
+  const t = useTranslations("marketing");
+
   return (
     <div
       className={cn(
@@ -28,7 +33,7 @@ export function DataPrivacyPanel({
           prominent ? "text-xs md:text-sm" : "text-[10px]",
         )}
       >
-        DATA & PRIVACY
+        {t("dataPrivacy.label")}
       </p>
       <div className="space-y-4">
         <div className="flex items-start gap-3">
@@ -44,7 +49,7 @@ export function DataPrivacyPanel({
                 prominent ? "text-sm md:text-base" : "text-xs",
               )}
             >
-              EU Sovereign Processing
+              {t("dataPrivacy.sovereignTitle")}
             </p>
             <p
               className={cn(
@@ -52,10 +57,7 @@ export function DataPrivacyPanel({
                 prominent ? "text-sm md:text-base" : "text-xs",
               )}
             >
-              All candidate data is processed exclusively within EU jurisdiction
-              — Hetzner EU datacenters (Germany/Finland) and Mistral AI La
-              Plateforme (Paris, France). No US cloud compute or CDN in the
-              data path.
+              {t("dataPrivacy.sovereignDescription")}
             </p>
           </div>
         </div>
@@ -67,7 +69,7 @@ export function DataPrivacyPanel({
                 prominent ? "text-sm" : "text-xs",
               )}
             >
-              Model Training
+              {t("dataPrivacy.modelTraining")}
             </p>
             <p
               className={cn(
@@ -75,15 +77,14 @@ export function DataPrivacyPanel({
                 prominent ? "text-xs md:text-sm" : "text-[10px]",
               )}
             >
-              Candidate data is never used to train, fine-tune, or improve
-              Mistral foundation models.
+              {t("dataPrivacy.modelTrainingDescription")}
             </p>
           </div>
           <span
             className={cn("font-bold", prominent ? "text-sm" : "text-xs")}
             style={{ color: successColor }}
           >
-            Guaranteed
+            {t("dataPrivacy.guaranteed")}
           </span>
         </div>
       </div>

@@ -6,6 +6,7 @@ import Link from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
 import type { ScreeningStepProps } from "@/features/candidates/components/start-screening/types";
 import type { RoleListItem } from "@/features/roles/types";
+import { useTranslations } from "@/lib/i18n/client";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
@@ -14,25 +15,31 @@ type RoleStepProps = ScreeningStepProps & {
 };
 
 export function RoleStep({ form, errors, updateForm, roles }: RoleStepProps) {
+  const t = useTranslations("app");
+
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Select a saved role to contextualize the integrity score.
+        {t("screening.roleStep.description")}
       </p>
 
       {roles.length === 0 ? (
         <div className="rounded-lg border border-dashed p-6 text-center">
           <p className="text-sm text-muted-foreground">
-            Create a role profile before screening candidates.
+            {t("screening.roleStep.empty")}
           </p>
           <Button asChild className="mt-3" size="sm">
-            <Link href={routes.roles()}>Go to Roles</Link>
+            <Link href={routes.roles()}>{t("screening.roleStep.goToRoles")}</Link>
           </Button>
         </div>
       ) : (
         <div className="grid gap-2 sm:grid-cols-2">
           {roles.map((role) => {
             const selected = form.roleId === role.id;
+            const candidatesKey =
+              role.candidatesCount === 1
+                ? "screening.roleStep.candidatesSingular"
+                : "screening.roleStep.candidatesPlural";
 
             return (
               <button
@@ -55,8 +62,7 @@ export function RoleStep({ form, errors, updateForm, roles }: RoleStepProps) {
                   ) : null}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {role.candidatesCount} candidate
-                  {role.candidatesCount === 1 ? "" : "s"}
+                  {t(candidatesKey, { count: role.candidatesCount })}
                 </span>
               </button>
             );

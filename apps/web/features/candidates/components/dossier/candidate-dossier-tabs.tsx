@@ -15,7 +15,7 @@ import {
   Users,
   XCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -31,6 +31,7 @@ import { DossierPanel } from "@/features/candidates/components/dossier/panel";
 import { InfoRow } from "@/features/candidates/components/dossier/info-row";
 import { MetricBar } from "@/features/candidates/components/dossier/metric-bar";
 import type { CandidateDetail, CandidateReport } from "@/features/candidates/types";
+import { useTranslations } from "@/lib/i18n/client";
 import {
   getAuthenticityStyle,
   getIntegrityColor,
@@ -38,24 +39,33 @@ import {
 } from "@/lib/integrity";
 import { cn } from "@/lib/utils";
 
-const TABS = [
-  "CV Analysis",
-  "Platform Cross-Ref",
-  "Behaviour Analysis",
-  "Personality Analysis",
-  "Interview Analysis",
-  "Signal Summary",
+const TAB_IDS = [
+  "cvAnalysis",
+  "platformCrossRef",
+  "behaviourAnalysis",
+  "personalityAnalysis",
+  "interviewAnalysis",
+  "signalSummary",
 ] as const;
 
-type Tab = (typeof TABS)[number];
+type TabId = (typeof TAB_IDS)[number];
 
-const TAB_ICONS: Record<Tab, React.ReactNode> = {
-  "CV Analysis": <FileText size={13} />,
-  "Platform Cross-Ref": <Globe size={13} />,
-  "Interview Analysis": <Mic size={13} />,
-  "Behaviour Analysis": <Users size={13} />,
-  "Personality Analysis": <Sparkles size={13} />,
-  "Signal Summary": <BarChart2 size={13} />,
+const TAB_LABEL_KEYS: Record<TabId, string> = {
+  cvAnalysis: "dossier.tabs.cvAnalysis",
+  platformCrossRef: "dossier.tabs.platformCrossRef",
+  behaviourAnalysis: "dossier.tabs.behaviourAnalysis",
+  personalityAnalysis: "dossier.tabs.personalityAnalysis",
+  interviewAnalysis: "dossier.tabs.interviewAnalysis",
+  signalSummary: "dossier.tabs.signalSummary",
+};
+
+const TAB_ICONS: Record<TabId, React.ReactNode> = {
+  cvAnalysis: <FileText size={13} />,
+  platformCrossRef: <Globe size={13} />,
+  interviewAnalysis: <Mic size={13} />,
+  behaviourAnalysis: <Users size={13} />,
+  personalityAnalysis: <Sparkles size={13} />,
+  signalSummary: <BarChart2 size={13} />,
 };
 
 export function CandidateDossierTabs({
@@ -65,63 +75,70 @@ export function CandidateDossierTabs({
   candidate: CandidateDetail;
   report: CandidateReport;
 }) {
-  const [activeTab, setActiveTab] = useState<Tab>("Signal Summary");
+  const t = useTranslations("app");
+  const [activeTab, setActiveTab] = useState<TabId>("signalSummary");
+  const tabs = useMemo(
+    () => TAB_IDS.map((id) => ({ id, label: t(TAB_LABEL_KEYS[id]) })),
+    [t],
+  );
 
   return (
     <>
-
       <div>
         <div className="flex gap-0 overflow-x-auto border-b border-border">
-          {TABS.map((tab) => (
+          {tabs.map((tab) => (
             <button
-              key={tab}
+              key={tab.id}
               type="button"
-              onClick={() => setActiveTab(tab)}
+              onClick={() => setActiveTab(tab.id)}
               className={cn(
                 "flex shrink-0 items-center gap-1.5 border-b-2 px-4 py-2.5 text-xs font-semibold transition-all",
-                activeTab === tab
+                activeTab === tab.id
                   ? "border-primary text-primary"
                   : "border-transparent text-muted-foreground hover:text-foreground",
               )}
             >
-              {TAB_ICONS[tab]}
-              {tab}
+              {TAB_ICONS[tab.id]}
+              {tab.label}
             </button>
           ))}
         </div>
 
         <div className="pt-5">
-          {activeTab === "CV Analysis" && (
+          {activeTab === "cvAnalysis" && (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               <div className="space-y-4 lg:col-span-2">
-                <DossierPanel title="AI Text Detection Analysis">
+                <DossierPanel title={t("dossier.cvAnalysis.aiTextDetection")}>
                   <div className="space-y-4">
                     <MetricBar
-                      label="Overall AI-generated text probability"
+                      label={t("dossier.cvAnalysis.overallAiProbability")}
                       value={report.aiTextPercent}
                       invert
                     />
                     <MetricBar
-                      label="Executive summary authenticity"
+                      label={t("dossier.cvAnalysis.executiveSummaryAuthenticity")}
                       value={report.subScores.s_cv}
                     />
                     <MetricBar
-                      label="Work experience narrative"
+                      label={t("dossier.cvAnalysis.workExperienceNarrative")}
                       value={Math.max(0, report.subScores.s_cv - 6)}
                     />
                     <MetricBar
-                      label="Skills section authenticity"
+                      label={t("dossier.cvAnalysis.skillsAuthenticity")}
                       value={Math.min(100, report.subScores.s_cv + 8)}
                     />
                   </div>
                   <div className="mt-4 rounded bg-muted/40 p-3 font-mono text-xs leading-relaxed text-muted-foreground">
                     <span className="text-[10px] font-bold text-chart-2">
-                      PARSER OUTPUT
+                      {t("dossier.cvAnalysis.parserOutput")}
                     </span>
-                    <span className="text-[10px]"> → certalytic-nlp-classifier</span>
+                    <span className="text-[10px]">
+                      {" "}
+                      → {t("dossier.cvAnalysis.parserTarget")}
+                    </span>
                     <br />
                     {report.componentSummaries.s_cv ||
-                      "CV authorship analysis pending."}
+                      t("dossier.cvAnalysis.pending")}
                     {report.componentIndicators.s_cv.length > 0 && (
                       <>
                         <br />
@@ -138,33 +155,35 @@ export function CandidateDossierTabs({
                 </DossierPanel>
               </div>
               <div className="space-y-4">
-                <DossierPanel title="CV Metrics">
+                <DossierPanel title={t("dossier.cvAnalysis.metrics")}>
                   <InfoRow
-                    label="AI Text Probability"
+                    label={t("dossier.cvAnalysis.aiTextProbability")}
                     value={`${report.aiTextPercent}%`}
                     mono
                   />
                   <InfoRow
-                    label="CV Authorship Score"
+                    label={t("dossier.cvAnalysis.cvAuthorshipScore")}
                     value={report.subScores.s_cv}
                     mono
                   />
                   <InfoRow
-                    label="Formatting Origin"
+                    label={t("dossier.cvAnalysis.formattingOrigin")}
                     value={
-                      report.aiTextPercent > 40 ? "Template (AI)" : "Manual"
+                      report.aiTextPercent > 40
+                        ? t("dossier.cvAnalysis.formattingTemplate")
+                        : t("dossier.cvAnalysis.formattingManual")
                     }
                   />
                   <InfoRow
-                    label="Language Model Match"
+                    label={t("dossier.cvAnalysis.languageModelMatch")}
                     value={
                       report.aiTextPercent > 40
-                        ? "GPT-class / Claude"
-                        : "None"
+                        ? t("dossier.cvAnalysis.languageModelGpt")
+                        : t("dossier.cvAnalysis.languageModelNone")
                     }
                   />
                 </DossierPanel>
-                <DossierPanel title="Risk Vectors">
+                <DossierPanel title={t("dossier.cvAnalysis.riskVectors")}>
                   <ResponsiveContainer width="100%" height={130}>
                     <BarChart
                       data={report.riskVectors}
@@ -202,27 +221,27 @@ export function CandidateDossierTabs({
             </div>
           )}
 
-          {activeTab === "Platform Cross-Ref" && (
+          {activeTab === "platformCrossRef" && (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               <div className="space-y-4 lg:col-span-2">
-                <DossierPanel title="Platform Consistency Matrix">
+                <DossierPanel title={t("dossier.platformCrossRef.consistencyMatrix")}>
                   <div className="space-y-4">
                     <MetricBar
-                      label="LinkedIn ↔ CV employment match"
+                      label={t("dossier.platformCrossRef.linkedinCvMatch")}
                       value={report.platformMatrix.linkedin_cv_match.score}
                       explanation={
                         report.platformMatrix.linkedin_cv_match.explanation
                       }
                     />
                     <MetricBar
-                      label="GitHub activity ↔ claimed experience"
+                      label={t("dossier.platformCrossRef.githubExperienceMatch")}
                       value={report.platformMatrix.github_experience_match.score}
                       explanation={
                         report.platformMatrix.github_experience_match.explanation
                       }
                     />
                     <MetricBar
-                      label="Cross-platform name/date consistency"
+                      label={t("dossier.platformCrossRef.crossPlatformConsistency")}
                       value={
                         report.platformMatrix.cross_platform_consistency.score
                       }
@@ -240,18 +259,21 @@ export function CandidateDossierTabs({
                 </DossierPanel>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <DossierPanel
-                    title="LinkedIn Analysis"
+                    title={t("dossier.platformCrossRef.linkedinAnalysis")}
                     icon={<Rss size={14} className="text-primary" />}
                   >
                     {report.linkedin.provided ? (
                       <>
-                        <InfoRow label="Profile" value="Provided" />
                         <InfoRow
-                          label="CV Consistency"
+                          label={t("dossier.platformCrossRef.profile")}
+                          value={t("dossier.platformCrossRef.provided")}
+                        />
+                        <InfoRow
+                          label={t("dossier.platformCrossRef.cvConsistency")}
                           value={
                             report.platformConsistency !== null
                               ? `${report.platformConsistency}%`
-                              : "Not evaluated"
+                              : t("dossier.platformCrossRef.notEvaluated")
                           }
                           mono
                         />
@@ -268,7 +290,7 @@ export function CandidateDossierTabs({
                       </>
                     ) : (
                       <p className="py-2 text-xs text-muted-foreground">
-                        No LinkedIn profile provided for cross-ref.
+                        {t("dossier.platformCrossRef.noLinkedin")}
                       </p>
                     )}
                     <div className="mt-3">
@@ -276,22 +298,22 @@ export function CandidateDossierTabs({
                     </div>
                   </DossierPanel>
                   <DossierPanel
-                    title="GitHub Analysis"
+                    title={t("dossier.platformCrossRef.githubAnalysis")}
                     icon={<Code2 size={14} />}
                   >
                     {report.github.provided ? (
                       <>
                         <InfoRow
-                          label="Username"
-                          value={report.github.handle ?? "—"}
+                          label={t("dossier.platformCrossRef.username")}
+                          value={report.github.handle ?? "-"}
                           mono
                         />
                         <InfoRow
-                          label="Activity ↔ Experience"
+                          label={t("dossier.platformCrossRef.githubExperienceMatch")}
                           value={
                             report.subScores.s_cross !== null
                               ? `${report.subScores.s_cross}%`
-                              : "Not evaluated"
+                              : t("dossier.platformCrossRef.notEvaluated")
                           }
                           mono
                         />
@@ -308,7 +330,7 @@ export function CandidateDossierTabs({
                       </>
                     ) : (
                       <p className="py-2 text-xs text-muted-foreground">
-                        No GitHub username provided for cross-ref.
+                        {t("dossier.platformCrossRef.noGithub")}
                       </p>
                     )}
                     <div className="mt-3">
@@ -317,18 +339,18 @@ export function CandidateDossierTabs({
                   </DossierPanel>
                 </div>
               </div>
-              <DossierPanel title="Platform Summary">
+              <DossierPanel title={t("dossier.platformCrossRef.platformSummary")}>
                 <InfoRow
-                  label="Overall Consistency"
+                  label={t("dossier.platformCrossRef.overallConsistency")}
                   value={
                     report.platformConsistency !== null
                       ? `${report.platformConsistency}%`
-                      : "Not evaluated"
+                      : t("dossier.platformCrossRef.notEvaluated")
                   }
                   mono
                 />
                 <InfoRow
-                  label="Sources Cross-Checked"
+                  label={t("dossier.platformCrossRef.sourcesCrossChecked")}
                   value={
                     (report.linkedin.provided ? 1 : 0) +
                     (report.github.provided ? 1 : 0)
@@ -336,80 +358,90 @@ export function CandidateDossierTabs({
                   mono
                 />
                 <InfoRow
-                  label="LinkedIn"
-                  value={report.linkedin.provided ? "Checked" : "Not provided"}
+                  label={t("dossier.platformCrossRef.linkedin")}
+                  value={
+                    report.linkedin.provided
+                      ? t("dossier.platformCrossRef.checked")
+                      : t("dossier.platformCrossRef.notProvided")
+                  }
                 />
                 <InfoRow
-                  label="GitHub"
-                  value={report.github.provided ? "Checked" : "Not provided"}
+                  label={t("dossier.platformCrossRef.github")}
+                  value={
+                    report.github.provided
+                      ? t("dossier.platformCrossRef.checked")
+                      : t("dossier.platformCrossRef.notProvided")
+                  }
                 />
               </DossierPanel>
             </div>
           )}
 
-          {activeTab === "Behaviour Analysis" && (
+          {activeTab === "behaviourAnalysis" && (
             <SupplementaryAnalysisPanel
-              title="Candidate behaviour analysis"
+              title={t("dossier.behaviourAnalysis.title")}
               analysis={report.behaviourAnalysis}
-              indicatorLabel="Collaboration indicators"
+              indicatorLabel={t("dossier.behaviourAnalysis.indicatorLabel")}
             />
           )}
 
-          {activeTab === "Personality Analysis" && (
+          {activeTab === "personalityAnalysis" && (
             <SupplementaryAnalysisPanel
-              title="Candidate personality analysis"
+              title={t("dossier.personalityAnalysis.title")}
               analysis={report.personalityAnalysis}
-              indicatorLabel="Culture fit indicators"
+              indicatorLabel={t("dossier.personalityAnalysis.indicatorLabel")}
               showMotivation
             />
           )}
 
-          {activeTab === "Interview Analysis" && (
+          {activeTab === "interviewAnalysis" && (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               <div className="space-y-4 lg:col-span-2">
                 {report.rounds.length === 0 ? (
-                  <DossierPanel title="Interview Insights">
+                  <DossierPanel title={t("dossier.interviewAnalysis.insights")}>
                     <p className="py-6 text-center text-sm text-muted-foreground">
-                      No interview transcript recorded for this candidate.
+                      {t("dossier.interviewAnalysis.noTranscript")}
                     </p>
                   </DossierPanel>
                 ) : (
                   report.rounds.map((round) => (
                     <DossierPanel
                       key={round.roundNumber}
-                      title={`Round ${round.roundNumber} - What the analysis noticed`}
+                      title={t("dossier.interviewAnalysis.roundTitle", {
+                        number: round.roundNumber,
+                      })}
                       icon={<Mic size={14} className="text-primary" />}
                     >
                       <div className="mb-3 grid grid-cols-3 gap-3">
                         <div>
                           <p className="text-[10px] text-muted-foreground">
-                            Interview
+                            {t("dossier.interviewAnalysis.interview")}
                           </p>
                           <p className="font-mono text-sm font-bold">
-                            {round.sInt ?? "—"}
+                            {round.sInt ?? "-"}
                           </p>
                         </div>
                         <div>
                           <p className="text-[10px] text-muted-foreground">
-                            Identity
+                            {t("dossier.interviewAnalysis.identity")}
                           </p>
                           <p className="font-mono text-sm font-bold">
-                            {round.sId ?? "—"}
+                            {round.sId ?? "-"}
                           </p>
                         </div>
                         <div>
                           <p className="text-[10px] text-muted-foreground">
-                            Variance Δ
+                            {t("dossier.interviewAnalysis.varianceDelta")}
                           </p>
                           <p className="font-mono text-sm font-bold">
-                            {round.varianceDelta ?? "—"}
+                            {round.varianceDelta ?? "-"}
                           </p>
                         </div>
                       </div>
                       {round.wasTruncated && (
                         <span className="mb-2 inline-flex items-center gap-1 rounded bg-amber-500/12 px-2 py-0.5 text-[10px] font-bold text-amber-600">
                           <Scissors size={9} />
-                          TRUNCATED
+                          {t("dossier.interviewAnalysis.truncated")}
                         </span>
                       )}
                       <ul className="space-y-1.5">
@@ -426,7 +458,7 @@ export function CandidateDossierTabs({
                       {round.deepDivePrompts.length > 0 && (
                         <div className="mt-3 space-y-1.5 border-t border-border pt-3">
                           <p className="text-[10px] font-bold tracking-widest text-muted-foreground">
-                            SUGGESTED DEEP-DIVE PROMPTS
+                            {t("dossier.interviewAnalysis.deepDivePrompts")}
                           </p>
                           {round.deepDivePrompts.map((prompt, index) => (
                             <p
@@ -442,36 +474,40 @@ export function CandidateDossierTabs({
                   ))
                 )}
               </div>
-              <DossierPanel title="Interview Metrics">
+              <DossierPanel title={t("dossier.interviewAnalysis.metrics")}>
                 <InfoRow
-                  label="Rounds Recorded"
+                  label={t("dossier.interviewAnalysis.roundsRecorded")}
                   value={report.rounds.length}
                   mono
                 />
                 <InfoRow
-                  label="Truncated Rounds"
+                  label={t("dossier.interviewAnalysis.truncatedRounds")}
                   value={report.rounds.filter((r) => r.wasTruncated).length}
                   mono
                 />
                 <InfoRow
-                  label="Confidence Variance"
+                  label={t("dossier.interviewAnalysis.confidenceVariance")}
                   value={`${report.interviewVariance}%`}
                   mono
                 />
                 <InfoRow
-                  label="Prompt Injection Risk"
-                  value={report.interviewVariance > 40 ? "Elevated" : "Low"}
+                  label={t("dossier.interviewAnalysis.promptInjectionRisk")}
+                  value={
+                    report.interviewVariance > 40
+                      ? t("dossier.interviewAnalysis.riskElevated")
+                      : t("dossier.interviewAnalysis.riskLow")
+                  }
                 />
               </DossierPanel>
             </div>
           )}
 
-          {activeTab === "Signal Summary" && (
+          {activeTab === "signalSummary" && (
             <div className="space-y-4">
               <DecisionSupportDisclaimer className="max-w-xl" />
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <DossierPanel
-                  title="Certalytic Intelligence Summary"
+                  title={t("dossier.signalSummary.intelligenceSummary")}
                   icon={<Brain size={14} className="text-chart-2" />}
                 >
                   <div className="rounded bg-muted/40 p-3 font-mono text-xs leading-relaxed text-muted-foreground">
@@ -485,14 +521,14 @@ export function CandidateDossierTabs({
                   </div>
                 </DossierPanel>
                 <div className="space-y-4">
-                  <DossierPanel title="Signal Vector Scores">
+                  <DossierPanel title={t("dossier.signalSummary.signalVectorScores")}>
                     <div className="space-y-3">
                       {report.radar.map(({ subject, value }) => (
                         <MetricBar key={subject} label={subject} value={value} />
                       ))}
                     </div>
                   </DossierPanel>
-                  <DossierPanel title="Suggested Follow-ups">
+                  <DossierPanel title={t("dossier.signalSummary.suggestedFollowUps")}>
                     <div className="space-y-2">
                       {report.recommendedActions.map((action, index) => (
                         <div key={index} className="flex items-start gap-2">

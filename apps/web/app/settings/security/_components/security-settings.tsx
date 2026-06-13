@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -16,21 +17,39 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import { useTranslations } from "@/lib/i18n/client";
 
-const securitySchema = z
-  .object({
-    currentPassword: z.string().min(1, "Current password is required"),
-    newPassword: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string().min(1, "Confirm your new password"),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-type SecurityValues = z.infer<typeof securitySchema>;
+type SecurityValues = {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+};
 
 export function SecuritySettings() {
+  const t = useTranslations("settings");
+  const tCommon = useTranslations("common");
+
+  const securitySchema = useMemo(
+    () =>
+      z
+        .object({
+          currentPassword: z
+            .string()
+            .min(1, t("securityPage.validation.currentPasswordRequired")),
+          newPassword: z
+            .string()
+            .min(8, t("securityPage.validation.newPasswordMinLength")),
+          confirmPassword: z
+            .string()
+            .min(1, t("securityPage.validation.confirmPasswordRequired")),
+        })
+        .refine((data) => data.newPassword === data.confirmPassword, {
+          message: t("securityPage.validation.passwordsMismatch"),
+          path: ["confirmPassword"],
+        }),
+    [t],
+  );
+
   const form = useForm<SecurityValues>({
     resolver: zodResolver(securitySchema),
     defaultValues: {
@@ -50,20 +69,24 @@ export function SecuritySettings() {
     });
 
     if (result.error) {
-      toast.error(result.error.message ?? "Failed to update password.");
+      toast.error(
+        result.error.message ?? t("securityPage.toasts.updateFailed"),
+      );
       return;
     }
 
-    toast.success("Password updated.");
+    toast.success(t("securityPage.toasts.updateSuccess"));
     form.reset();
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-foreground">Security</h2>
+        <h2 className="text-lg font-semibold text-foreground">
+          {t("securityPage.title")}
+        </h2>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          Ensure your account uses a long, random password
+          {t("securityPage.description")}
         </p>
       </div>
 
@@ -75,14 +98,18 @@ export function SecuritySettings() {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="current-password">
-                  <Required>Current password</Required>
+                  <Required>
+                    {t("securityPage.fields.currentPassword")}
+                  </Required>
                 </FieldLabel>
                 <Input
                   {...field}
                   id="current-password"
                   type="password"
                   autoComplete="current-password"
-                  placeholder="Current password"
+                  placeholder={t(
+                    "securityPage.fields.currentPasswordPlaceholder",
+                  )}
                   required
                 />
                 {fieldState.invalid && (
@@ -97,14 +124,14 @@ export function SecuritySettings() {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="new-password">
-                  <Required>New password</Required>
+                  <Required>{t("securityPage.fields.newPassword")}</Required>
                 </FieldLabel>
                 <Input
                   {...field}
                   id="new-password"
                   type="password"
                   autoComplete="new-password"
-                  placeholder="At least 8 characters"
+                  placeholder={t("securityPage.fields.newPasswordPlaceholder")}
                   required
                 />
                 {fieldState.invalid && (
@@ -119,14 +146,18 @@ export function SecuritySettings() {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="confirm-password">
-                  <Required>Confirm password</Required>
+                  <Required>
+                    {t("securityPage.fields.confirmPassword")}
+                  </Required>
                 </FieldLabel>
                 <Input
                   {...field}
                   id="confirm-password"
                   type="password"
                   autoComplete="new-password"
-                  placeholder="Repeat new password"
+                  placeholder={t(
+                    "securityPage.fields.confirmPasswordPlaceholder",
+                  )}
                   required
                 />
                 {fieldState.invalid && (
@@ -138,7 +169,9 @@ export function SecuritySettings() {
         </FieldGroup>
 
         <Button type="submit" disabled={isSubmitting}>
-          <LoadingSwap isLoading={isSubmitting}>Save</LoadingSwap>
+          <LoadingSwap isLoading={isSubmitting}>
+            {tCommon("actions.save")}
+          </LoadingSwap>
         </Button>
       </form>
     </div>

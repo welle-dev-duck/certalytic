@@ -10,15 +10,11 @@ import {
   StatusBadge,
 } from "@/components/certalytic/status-badge";
 import { DecisionSupportDisclaimer } from "@/features/candidates/components/dossier/decision-support-disclaimer";
+import { useTranslations } from "@/lib/i18n/client";
 import { marketingMockReport } from "@/lib/marketing-mock-report";
 import { getScoreBackground, getScoreColor } from "@/lib/integrity";
 
-const componentLabels = {
-  s_cv: "CV authenticity",
-  s_int: "Interview behavioral",
-  s_cross: "Cross-source consistency",
-  s_id: "Identity confidence",
-} as const;
+const componentKeys = ["s_cv", "s_int", "s_cross", "s_id"] as const;
 
 function MetricRow({
   label,
@@ -49,16 +45,17 @@ function MetricRow({
 }
 
 export function MarketingScreeningPreview() {
+  const t = useTranslations("marketing");
   const report = marketingMockReport;
 
   return (
     <div className="overflow-hidden rounded-lg border border-border bg-card">
       <div className="border-b border-border bg-muted/20 px-5 py-4">
         <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
-          Sample integrity dossier
+          {t("screeningPreview.eyebrow")}
         </p>
         <p className="mt-1 text-sm text-muted-foreground">
-          Mocked candidate data — identical UI and PDF export to production.
+          {t("screeningPreview.subtitle")}
         </p>
       </div>
 
@@ -76,9 +73,9 @@ export function MarketingScreeningPreview() {
                   labelSize="lg"
                 />
                 <p className="mt-3 text-center text-[10px] font-bold tracking-widest text-muted-foreground">
-                  HIRING INTEGRITY
+                  {t("screeningPreview.scoreLabelLine1")}
                   <br />
-                  SCORE
+                  {t("screeningPreview.scoreLabelLine2")}
                 </p>
                 <div className="mt-3">
                   <IntegrityBadge level={report.level} />
@@ -99,7 +96,7 @@ export function MarketingScreeningPreview() {
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   <div className="rounded bg-muted p-2.5">
                     <p className="text-[10px] font-medium text-muted-foreground">
-                      Flags raised
+                      {t("screeningPreview.flagsRaised")}
                     </p>
                     <p className="mt-0.5 text-sm font-semibold">
                       {report.flags.length}
@@ -107,7 +104,7 @@ export function MarketingScreeningPreview() {
                   </div>
                   <div className="rounded bg-muted p-2.5">
                     <p className="text-[10px] font-medium text-muted-foreground">
-                      Interview rounds
+                      {t("screeningPreview.interviewRounds")}
                     </p>
                     <p className="mt-0.5 text-sm font-semibold">
                       {report.rounds.length}
@@ -120,7 +117,7 @@ export function MarketingScreeningPreview() {
 
           <div className="rounded-lg border border-border bg-background p-5">
             <p className="mb-2 text-[10px] font-bold tracking-widest text-muted-foreground">
-              SIGNAL PROFILE
+              {t("screeningPreview.signalProfile")}
             </p>
             <IntegrityRadarChart data={report.radar} height={220} />
           </div>
@@ -139,7 +136,7 @@ export function MarketingScreeningPreview() {
               className="text-sm font-semibold"
               style={{ color: getScoreColor(0) }}
             >
-              {report.flags.length} active flags detected
+              {t("screeningPreview.activeFlags", { count: report.flags.length })}
             </p>
           </div>
           <div className="space-y-2">
@@ -160,7 +157,9 @@ export function MarketingScreeningPreview() {
                     color: "var(--c-violet)",
                   }}
                 >
-                  {Math.round(flag.confidence * 100)}% conf.
+                  {t("screeningPreview.confidenceSuffix", {
+                    percent: Math.round(flag.confidence * 100),
+                  })}
                 </span>
               </div>
             ))}
@@ -170,45 +169,43 @@ export function MarketingScreeningPreview() {
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="rounded-lg border border-border bg-background p-5">
             <h4 className="text-sm font-semibold text-foreground">
-              Metric analysis
+              {t("screeningPreview.metricAnalysis")}
             </h4>
             <div className="mt-4 space-y-4">
-              {(Object.keys(componentLabels) as Array<keyof typeof componentLabels>).map(
-                (key) => {
-                  const value = report.subScores[key];
-                  if (value === null) return null;
+              {componentKeys.map((key) => {
+                const value = report.subScores[key];
+                if (value === null) return null;
 
-                  return (
-                    <MetricRow
-                      key={key}
-                      label={componentLabels[key]}
-                      value={value}
-                      summary={report.componentSummaries[key]}
-                    />
-                  );
-                },
-              )}
+                return (
+                  <MetricRow
+                    key={key}
+                    label={t(`screeningPreview.components.${key}`)}
+                    value={value}
+                    summary={report.componentSummaries[key]}
+                  />
+                );
+              })}
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="rounded-lg border border-border bg-background p-5">
               <h4 className="text-sm font-semibold text-foreground">
-                Behaviour & personality insights
+                {t("screeningPreview.behaviourInsights")}
               </h4>
               <p className="mt-1 text-[10px] text-muted-foreground">
-                Supplementary context only — excluded from the integrity score.
+                {t("screeningPreview.behaviourDisclaimer")}
               </p>
               <div className="mt-4 space-y-3 text-xs text-muted-foreground">
                 <p>
                   <span className="font-semibold text-foreground">
-                    Behaviour:
+                    {t("screeningPreview.behaviourLabel")}
                   </span>{" "}
                   {report.behaviourAnalysis.summary}
                 </p>
                 <p>
                   <span className="font-semibold text-foreground">
-                    Personality:
+                    {t("screeningPreview.personalityLabel")}
                   </span>{" "}
                   {report.personalityAnalysis.summary}
                 </p>
@@ -216,7 +213,7 @@ export function MarketingScreeningPreview() {
             </div>
             <div className="rounded-lg border border-border bg-background p-5">
               <h4 className="text-sm font-semibold text-foreground">
-                AI verdict
+                {t("screeningPreview.aiVerdict")}
               </h4>
               <p className="mt-2 text-sm font-semibold text-foreground">
                 {report.verdict.title}
@@ -227,7 +224,7 @@ export function MarketingScreeningPreview() {
             </div>
             <div className="rounded-lg border border-border bg-background p-5">
               <h4 className="text-sm font-semibold text-foreground">
-                Recommended follow-ups
+                {t("screeningPreview.recommendedFollowUps")}
               </h4>
               <ul className="mt-3 space-y-2 text-xs text-muted-foreground">
                 {report.recommendedActions.map((action) => (

@@ -3,6 +3,7 @@
 import { SettingsSection } from "@/components/settings/settings-section";
 import { formatOrganizationRole } from "@/features/organizations/schemas/organization-settings.schema";
 import type { OrganizationMember } from "@/features/organizations/types";
+import { useTranslations } from "@/lib/i18n/client";
 
 type OrganizationMembersListProps = {
   members: OrganizationMember[];
@@ -13,12 +14,18 @@ export function OrganizationMembersList({
   members,
   isLoading,
 }: OrganizationMembersListProps) {
+  const t = useTranslations("settings");
+
   return (
-    <SettingsSection label="TEAM MEMBERS">
+    <SettingsSection label={t("organizationPage.sections.teamMembers")}>
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading members…</p>
+        <p className="text-sm text-muted-foreground">
+          {t("organizationPage.membersList.loading")}
+        </p>
       ) : members.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No members yet.</p>
+        <p className="text-sm text-muted-foreground">
+          {t("organizationPage.membersList.empty")}
+        </p>
       ) : (
         <div className="space-y-3">
           {members.map((member) => (
@@ -35,7 +42,7 @@ export function OrganizationMembersList({
                 </p>
               </div>
               <span className="shrink-0 rounded bg-muted px-2 py-1 text-[10px] font-bold tracking-wide text-muted-foreground uppercase">
-                {formatOrganizationRole(member.role)}
+                {formatOrganizationRole(t, member.role)}
               </span>
             </div>
           ))}

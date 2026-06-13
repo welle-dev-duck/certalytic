@@ -71,6 +71,7 @@ export function useCreateRole() {
       api<RoleDetail>("/api/roles", { method: "POST", body }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: roleKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -97,6 +98,7 @@ export function useDeleteRole() {
       api(`/api/roles/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: roleKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }

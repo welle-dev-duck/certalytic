@@ -1,24 +1,30 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   EnterprisePlanCard,
   SubscriptionPlanCard,
 } from "@/features/billing/components/plan-cards";
+import { SUBSCRIPTION_PLANS } from "@/features/billing/plans";
+import { I18nProvider } from "@/lib/i18n/client";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    refresh: vi.fn(),
+  }),
+}));
+
+function renderWithI18n(ui: React.ReactNode) {
+  return render(<I18nProvider locale="en">{ui}</I18nProvider>);
+}
 
 describe("SubscriptionPlanCard", () => {
   it("renders plan label, price, and features", () => {
-    render(
+    const plan = SUBSCRIPTION_PLANS.find((entry) => entry.value === "starter")!;
+
+    renderWithI18n(
       <SubscriptionPlanCard
-        plan={{
-          value: "starter",
-          label: "Starter",
-          price: 159,
-          recommendation: "For small teams",
-          includesPlan: null,
-          features: ["20 screenings / month"],
-          incrementalFeatures: [],
-        }}
+        plan={plan}
         footer={<button type="button">Choose plan</button>}
         highlighted
         badge="Popular"
@@ -35,7 +41,7 @@ describe("SubscriptionPlanCard", () => {
 
 describe("EnterprisePlanCard", () => {
   it("renders enterprise features", () => {
-    render(
+    renderWithI18n(
       <EnterprisePlanCard
         footer={<a href="mailto:sales@example.com">Contact sales</a>}
       />,

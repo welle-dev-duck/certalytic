@@ -14,17 +14,20 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { authClient } from "@/lib/auth-client";
-import { routes } from "@/lib/routes";
 import {
   resetPasswordSchema,
   type ResetPasswordValues,
 } from "@/features/auth/schemas/reset-password-schema";
+import { authClient } from "@/lib/auth-client";
+import { useTranslations } from "@/lib/i18n/client";
+import { routes } from "@/lib/routes";
 
 export function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
+  const t = useTranslations("auth");
+  const tCommon = useTranslations("common");
 
   const form = useForm<ResetPasswordValues>({
     resolver: zodResolver(resetPasswordSchema),
@@ -35,7 +38,7 @@ export function ResetPasswordForm() {
 
   async function onSubmit(values: ResetPasswordValues) {
     if (!token) {
-      toast.error("Reset token is missing. Request a new reset link.");
+      toast.error(t("resetPassword.missingToken"));
       return;
     }
 
@@ -45,11 +48,11 @@ export function ResetPasswordForm() {
     });
 
     if (result.error) {
-      toast.error(result.error.message ?? "Failed to reset password.");
+      toast.error(result.error.message ?? tCommon("errors.generic"));
       return;
     }
 
-    toast.success("Password reset. You can sign in now.");
+    toast.success(t("resetPassword.success"));
     router.replace(routes.signIn());
   }
 
@@ -61,18 +64,20 @@ export function ResetPasswordForm() {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="reset-password">New password</FieldLabel>
+              <FieldLabel htmlFor="reset-password">
+                {t("resetPassword.password")}
+              </FieldLabel>
               <Input
                 {...field}
                 id="reset-password"
                 type="password"
                 autoComplete="new-password"
-                placeholder="Password"
+                placeholder={t("placeholders.password")}
                 autoFocus
               />
-              {fieldState.invalid && (
+              {fieldState.invalid ? (
                 <FieldError errors={[fieldState.error]} />
-              )}
+              ) : null}
             </Field>
           )}
         />
@@ -82,25 +87,27 @@ export function ResetPasswordForm() {
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor="reset-confirm-password">
-                Confirm password
+                {t("resetPassword.confirmPassword")}
               </FieldLabel>
               <Input
                 {...field}
                 id="reset-confirm-password"
                 type="password"
                 autoComplete="new-password"
-                placeholder="Confirm password"
+                placeholder={t("placeholders.confirmPassword")}
               />
-              {fieldState.invalid && (
+              {fieldState.invalid ? (
                 <FieldError errors={[fieldState.error]} />
-              )}
+              ) : null}
             </Field>
           )}
         />
       </FieldGroup>
 
       <Button type="submit" disabled={isSubmitting} className="h-12 w-full">
-        <LoadingSwap isLoading={isSubmitting}>Reset password</LoadingSwap>
+        <LoadingSwap isLoading={isSubmitting}>
+          {t("resetPassword.submit")}
+        </LoadingSwap>
       </Button>
     </form>
   );

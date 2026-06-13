@@ -1,19 +1,20 @@
 "use client";
 
 import { CheckCircle2, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { useTranslations } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 import { getScoreColor } from "@/lib/integrity";
 
 const completeStageColor = getScoreColor(80);
 
-const STAGES = [
-  "Extracting CV Data",
-  "Analyzing Transcript",
-  "Gathering Flags",
-  "Summing up Metrics",
-  "Calculating Hiring Integrity Score (HIS)",
+const STAGE_KEYS = [
+  "screening.processing.stages.extractingCv",
+  "screening.processing.stages.analyzingTranscript",
+  "screening.processing.stages.gatheringFlags",
+  "screening.processing.stages.summingMetrics",
+  "screening.processing.stages.calculatingScore",
 ] as const;
 
 type ScreeningProcessingStatusProps = {
@@ -23,6 +24,8 @@ type ScreeningProcessingStatusProps = {
 export function ScreeningProcessingStatus({
   startedAt,
 }: ScreeningProcessingStatusProps) {
+  const t = useTranslations("app");
+  const stages = useMemo(() => STAGE_KEYS.map((key) => t(key)), [t]);
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
@@ -40,7 +43,7 @@ export function ScreeningProcessingStatus({
 
   const stageDuration = 8_000;
   const currentIndex = Math.min(
-    STAGES.length - 1,
+    stages.length - 1,
     Math.floor(elapsed / stageDuration),
   );
 
@@ -56,21 +59,21 @@ export function ScreeningProcessingStatus({
           />
         </div>
         <p className="text-sm font-semibold text-foreground">
-          Screening in progress
+          {t("screening.processing.title")}
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
-          Your integrity report will appear here once analysis completes.
+          {t("screening.processing.subtitle")}
         </p>
       </div>
 
       <div className="mx-auto mt-8 max-w-lg space-y-2">
-        {STAGES.map((stage, index) => {
+        {stages.map((stage, index) => {
           const isComplete = index < currentIndex;
           const isCurrent = index === currentIndex;
 
           return (
             <div
-              key={stage}
+              key={STAGE_KEYS[index]}
               className={cn(
                 "flex items-center gap-3 rounded-md px-3 py-2 text-xs transition-colors",
                 isCurrent && "bg-primary/10",

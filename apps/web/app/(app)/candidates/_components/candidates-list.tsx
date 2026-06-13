@@ -12,11 +12,13 @@ import { useDebouncedSearch } from "@/features/candidates/hooks/use-debounced-se
 import { useCandidates } from "@/features/candidates/hooks/use-candidates";
 import { useBillingUsage } from "@/features/billing/hooks/use-billing";
 import { useCursorPagination, cursorPageRange } from "@/hooks/use-cursor-pagination";
+import { useTranslations } from "@/lib/i18n/client";
 import { routes } from "@/lib/routes";
 
 const STATUSES = ["pending", "processing", "complete", "failed"] as const;
 
 export function CandidatesList() {
+  const t = useTranslations("app");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
@@ -60,6 +62,11 @@ export function CandidatesList() {
     reset();
   }, [statusFilter, pageSize, reset]);
 
+  const screeningsLoadedKey =
+    candidates.length === 1
+      ? "candidates.page.screeningsLoadedSingular"
+      : "candidates.page.screeningsLoadedPlural";
+
   return (
     <div className="space-y-5 p-6">
       <ScreeningDialogs
@@ -73,11 +80,14 @@ export function CandidatesList() {
       />
 
       <div>
-        <h1 className="text-xl font-bold text-foreground">Candidates</h1>
+        <h1 className="text-xl font-bold text-foreground">
+          {t("candidates.page.title")}
+        </h1>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          {candidates.length} screening{candidates.length === 1 ? "" : "s"}{" "}
-          loaded
-          {usage ? ` · ${usage.available} token(s) available` : ""}
+          {t(screeningsLoadedKey, { count: candidates.length })}
+          {usage
+            ? t("candidates.page.tokensAvailable", { count: usage.available })
+            : ""}
         </p>
       </div>
 
@@ -87,7 +97,7 @@ export function CandidatesList() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, email, role…"
+            placeholder={t("candidates.searchPlaceholder")}
             className="w-48 bg-transparent text-sm text-foreground outline-none"
           />
         </div>
@@ -114,7 +124,7 @@ export function CandidatesList() {
                 border: `1px solid ${active ? "color-mix(in oklch, var(--primary) 35%, transparent)" : "var(--c-border)"}`,
               }}
             >
-              {status.toUpperCase()}
+              {t(`candidates.statusFilter.${status}`)}
             </button>
           );
         })}
@@ -123,11 +133,11 @@ export function CandidatesList() {
       <div className="rounded-lg border border-border bg-card">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <p className="text-sm font-semibold text-foreground">
-            Candidate Screenings
+            {t("candidates.screeningsTitle")}
           </p>
           <Button size="sm" onClick={() => setScreenOpen(true)}>
             <Plus size={13} />
-            New Candidate
+            {t("candidates.newCandidate")}
           </Button>
         </div>
 

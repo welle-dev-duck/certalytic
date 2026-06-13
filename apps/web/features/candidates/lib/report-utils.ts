@@ -1,5 +1,5 @@
 export function formatReportDate(value: string | null): string {
-  if (!value) return "—";
+  if (!value) return "-";
   return new Date(value).toLocaleString(undefined, {
     year: "numeric",
     month: "short",

@@ -27,19 +27,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useBillingUsage } from "@/features/billing/hooks/use-billing";
 import { authClient } from "@/lib/auth-client";
+import { useTranslations } from "@/lib/i18n/client";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
 
 const NAV_ITEMS = [
-  { label: "Dashboard", icon: LayoutDashboard, href: routes.dashboard(), match: "/dashboard" },
-  { label: "Roles", icon: Briefcase, href: routes.roles(), match: "/roles" },
-  { label: "Candidates", icon: Users, href: routes.candidates(), match: "/candidates" },
-  { label: "Billing", icon: CreditCard, href: routes.billing(), match: "/billing" },
-  { label: "Settings", icon: Settings, href: routes.settingsProfile(), match: "/settings" },
+  { navKey: "dashboard", icon: LayoutDashboard, href: routes.dashboard(), match: "/dashboard" },
+  { navKey: "roles", icon: Briefcase, href: routes.roles(), match: "/roles" },
+  { navKey: "candidates", icon: Users, href: routes.candidates(), match: "/candidates" },
+  { navKey: "billing", icon: CreditCard, href: routes.billing(), match: "/billing" },
+  { navKey: "settings", icon: Settings, href: routes.settingsProfile(), match: "/settings" },
 ] as const;
 
 export function AppSidebar() {
+  const t = useTranslations("app");
   const pathname = usePathname();
   const router = useRouter();
   const {
@@ -50,7 +52,7 @@ export function AppSidebar() {
   } = useAuth();
   const { data: usage } = useBillingUsage();
 
-  const planLabel = usage?.planLabel ?? "Free";
+  const planLabel = usage?.planLabel ?? t("sidebar.defaultPlan");
   const planQuota = usage?.planQuota ?? 0;
   const includedRemaining = usage?.includedRemaining ?? usage?.planTokens ?? 0;
   const refillTokens = usage?.refillTokens ?? 0;
@@ -74,7 +76,8 @@ export function AppSidebar() {
       .join("")
       .toUpperCase() ?? "?";
 
-  const activeTeamName = activeOrganization?.name ?? "Select organization";
+  const activeTeamName =
+    activeOrganization?.name ?? t("sidebar.selectOrganization");
   const otherOrgs = organizations.filter((o) => o.id !== activeOrganization?.id);
 
   async function handleSwitchOrg(organizationId: string) {
@@ -95,7 +98,7 @@ export function AppSidebar() {
           <ShieldCheck size={14} className="text-sidebar-primary" />
         </div>
         <p className="hidden text-sm leading-none font-bold tracking-tight text-sidebar-foreground md:block">
-          Certalytic
+          {t("sidebar.brand")}
         </p>
       </div>
 
@@ -115,7 +118,7 @@ export function AppSidebar() {
                   {activeTeamName}
                 </p>
                 <p className="mt-0.5 text-[10px] leading-none text-sidebar-foreground/60">
-                  {planLabel} Plan
+                  {t("sidebar.planSuffix", { plan: planLabel })}
                 </p>
               </div>
               <ChevronDown
@@ -163,7 +166,7 @@ export function AppSidebar() {
                   className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md border border-sidebar-border bg-sidebar-accent px-3 py-1.5 text-xs font-semibold text-sidebar-foreground transition-colors hover:bg-sidebar-accent/80"
                 >
                   <Building2 size={12} />
-                  Create organization
+                  {t("sidebar.createOrganization")}
                 </button>
               </CreateTeamModal>
             </div>
@@ -172,12 +175,13 @@ export function AppSidebar() {
       </div>
 
       <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-1 md:p-2">
-        {NAV_ITEMS.map(({ href, icon: Icon, label, match }) => {
+        {NAV_ITEMS.map(({ href, icon: Icon, navKey, match }) => {
+          const label = t(`sidebar.nav.${navKey}`);
           const active = pathname === match || pathname.startsWith(`${match}/`);
 
           return (
             <Link
-              key={label}
+              key={navKey}
               href={href}
               title={label}
               className={cn(
@@ -202,7 +206,7 @@ export function AppSidebar() {
                 <div className="flex items-center gap-1.5">
                   <Zap size={10} className="text-sidebar-primary" />
                   <span className="text-[10px] font-bold tracking-widest text-sidebar-foreground/60">
-                    INCLUDED
+                    {t("sidebar.tokens.included")}
                   </span>
                 </div>
                 <span className="font-mono text-[10px] font-semibold text-sidebar-foreground">
@@ -216,7 +220,7 @@ export function AppSidebar() {
             <div>
               <div className="mb-1.5 flex items-center justify-between">
                 <span className="text-[10px] font-bold tracking-widest text-sidebar-foreground/60">
-                  PACK REFILL
+                  {t("sidebar.tokens.packRefill")}
                 </span>
                 <span className="font-mono text-[10px] font-semibold text-sidebar-foreground">
                   {refillTokens}
@@ -236,7 +240,7 @@ export function AppSidebar() {
           <Link
             href={routes.settingsProfile()}
             className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-md px-1 py-1 transition-colors hover:bg-sidebar-accent md:justify-start"
-            title="Your personal settings"
+            title={t("sidebar.personalSettingsTitle")}
           >
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-sidebar-primary/25 bg-sidebar-primary/15 text-[10px] font-bold text-sidebar-primary">
               {userInitials}
@@ -246,13 +250,13 @@ export function AppSidebar() {
                 {user?.name}
               </p>
               <p className="mt-0.5 truncate text-[10px] leading-none text-sidebar-foreground/60">
-                Your settings
+                {t("sidebar.yourSettings")}
               </p>
             </div>
           </Link>
           <button
             type="button"
-            title="Sign out"
+            title={t("sidebar.signOut")}
             onClick={handleSignOut}
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent"
           >

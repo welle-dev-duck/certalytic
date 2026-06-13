@@ -5,16 +5,18 @@ import { Monitor, Moon, Sun } from "lucide-react";
 
 import type { Appearance } from "@/hooks/use-appearance";
 import { useAppearance } from "@/hooks/use-appearance";
+import { useTranslations } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
-const TABS: { value: Appearance; icon: LucideIcon; label: string }[] = [
-  { value: "light", icon: Sun, label: "Light" },
-  { value: "dark", icon: Moon, label: "Dark" },
-  { value: "system", icon: Monitor, label: "System" },
+const TAB_VALUES: { value: Appearance; icon: LucideIcon; labelKey: "light" | "dark" | "system" }[] = [
+  { value: "light", icon: Sun, labelKey: "light" },
+  { value: "dark", icon: Moon, labelKey: "dark" },
+  { value: "system", icon: Monitor, labelKey: "system" },
 ];
 
 export function AppearanceToggle() {
   const { appearance, updateAppearance, mounted } = useAppearance();
+  const t = useTranslations("settings");
 
   if (!mounted) {
     return (
@@ -24,7 +26,7 @@ export function AppearanceToggle() {
 
   return (
     <div className="inline-flex gap-1 rounded-lg bg-muted p-1">
-      {TABS.map(({ value, icon: Icon, label }) => (
+      {TAB_VALUES.map(({ value, icon: Icon, labelKey }) => (
         <button
           key={value}
           type="button"
@@ -37,7 +39,9 @@ export function AppearanceToggle() {
           )}
         >
           <Icon className="-ml-1 h-4 w-4" />
-          <span className="ml-1.5 text-sm">{label}</span>
+          <span className="ml-1.5 text-sm">
+            {t(`appearanceToggle.${labelKey}`)}
+          </span>
         </button>
       ))}
     </div>

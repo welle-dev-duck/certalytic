@@ -9,6 +9,7 @@ import { env } from '../../config/env';
 import { db } from '../../db/index';
 import type { Database } from '../../db/index';
 import { generateId } from '../../lib/id';
+import { resolveOrganizationSlug } from '../../lib/organization-slug';
 import {
   BillingService,
   buildStripeSubscriptionPlans,
@@ -85,6 +86,36 @@ export class Auth {
         organization({
           membershipLimit: 5,
           cancelPendingInvitationsOnReInvite: true,
+          organizationHooks: {
+            beforeCreateOrganization: async ({ organization: orgData }) => {
+              if (typeof orgData.name !== 'string') return;
+
+              const slug = await resolveOrganizationSlug(this.db, orgData.name);
+
+              return {
+                data: {
+                  ...orgData,
+                  slug,
+                },
+              };
+            },
+            beforeUpdateOrganization: async ({ organization: orgData, member }) => {
+              if (typeof orgData.name !== 'string') return;
+
+              const slug = await resolveOrganizationSlug(
+                this.db,
+                orgData.name,
+                member.organizationId,
+              );
+
+              return {
+                data: {
+                  ...orgData,
+                  slug,
+                },
+              };
+            },
+          },
           sendInvitationEmail: async ({
             email,
             organization: org,

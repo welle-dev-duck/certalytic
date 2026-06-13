@@ -2,7 +2,8 @@
 
 import { CheckCircle2 } from "lucide-react";
 
-import { SCREENING_STEPS } from "@/features/candidates/components/start-screening/types";
+import { getScreeningSteps } from "@/features/candidates/components/start-screening/types";
+import { useTranslations } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
 type StepIndicatorProps = {
@@ -11,9 +12,12 @@ type StepIndicatorProps = {
 };
 
 export function StepIndicator({ step, lockRole = false }: StepIndicatorProps) {
+  const t = useTranslations("app");
+  const screeningSteps = getScreeningSteps(t);
+
   return (
     <div className="flex items-center justify-between gap-2 px-1">
-      {SCREENING_STEPS.map((item, itemIndex) => {
+      {screeningSteps.map((item, itemIndex) => {
         const isComplete = lockRole
           ? item.id === 1 || step > item.id
           : step > item.id;
@@ -52,7 +56,7 @@ export function StepIndicator({ step, lockRole = false }: StepIndicatorProps) {
                 </p>
               </div>
             </div>
-            {itemIndex < SCREENING_STEPS.length - 1 ? (
+            {itemIndex < screeningSteps.length - 1 ? (
               <div
                 className={cn(
                   "h-px flex-1",

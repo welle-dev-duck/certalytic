@@ -249,7 +249,7 @@ function addInterviewAnalysis(
     }
     renderer.addParameter(
       'Variance delta',
-      round.varianceDelta !== null ? String(round.varianceDelta) : '—',
+      round.varianceDelta !== null ? String(round.varianceDelta) : '-',
     );
 
     if (round.wasTruncated) {

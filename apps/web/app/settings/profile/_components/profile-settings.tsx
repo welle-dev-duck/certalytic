@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "@/components/ui/link";
+import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -17,18 +18,28 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import { useTranslations } from "@/lib/i18n/client";
 import { routes } from "@/lib/routes";
 import { useAuth } from "@/providers/auth-provider";
 
-const profileSchema = z.object({
-  name: z.string().trim().min(1, "Name is required"),
-  email: z.string().email("Enter a valid email"),
-});
-
-type ProfileValues = z.infer<typeof profileSchema>;
+type ProfileValues = {
+  name: string;
+  email: string;
+};
 
 export function ProfileSettings() {
   const { user } = useAuth();
+  const t = useTranslations("settings");
+  const tCommon = useTranslations("common");
+
+  const profileSchema = useMemo(
+    () =>
+      z.object({
+        name: z.string().trim().min(1, t("profilePage.validation.nameRequired")),
+        email: z.string().email(t("profilePage.validation.emailInvalid")),
+      }),
+    [t],
+  );
 
   const form = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
@@ -48,19 +59,21 @@ export function ProfileSettings() {
     });
 
     if (result.error) {
-      toast.error(result.error.message ?? "Failed to update profile.");
+      toast.error(result.error.message ?? t("profilePage.toasts.updateFailed"));
       return;
     }
 
-    toast.success("Profile updated.");
+    toast.success(t("profilePage.toasts.updateSuccess"));
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-foreground">Profile</h2>
+        <h2 className="text-lg font-semibold text-foreground">
+          {t("profilePage.title")}
+        </h2>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          Update your name and email address
+          {t("profilePage.description")}
         </p>
       </div>
 
@@ -72,13 +85,13 @@ export function ProfileSettings() {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="profile-name">
-                  <Required>Name</Required>
+                  <Required>{t("profilePage.fields.name")}</Required>
                 </FieldLabel>
                 <Input
                   {...field}
                   id="profile-name"
                   autoComplete="name"
-                  placeholder="Max Mustermann"
+                  placeholder={t("profilePage.fields.namePlaceholder")}
                   required
                 />
                 {fieldState.invalid && (
@@ -93,14 +106,14 @@ export function ProfileSettings() {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="profile-email">
-                  <Required>Email address</Required>
+                  <Required>{t("profilePage.fields.email")}</Required>
                 </FieldLabel>
                 <Input
                   {...field}
                   id="profile-email"
                   type="email"
                   autoComplete="email"
-                  placeholder="max.mustermann@example.com"
+                  placeholder={t("profilePage.fields.emailPlaceholder")}
                   required
                 />
                 {fieldState.invalid && (
@@ -113,18 +126,20 @@ export function ProfileSettings() {
 
         {!emailVerified && (
           <p className="text-sm text-muted-foreground">
-            Your email address is unverified.{" "}
+            {t("profilePage.unverified")}{" "}
             <Link
               href={routes.verifyEmail()}
               className="font-medium text-foreground underline"
             >
-              Resend verification email
+              {t("profilePage.resendVerification")}
             </Link>
           </p>
         )}
 
         <Button type="submit" disabled={isSubmitting}>
-          <LoadingSwap isLoading={isSubmitting}>Save</LoadingSwap>
+          <LoadingSwap isLoading={isSubmitting}>
+            {tCommon("actions.save")}
+          </LoadingSwap>
         </Button>
       </form>
     </div>

@@ -12,9 +12,11 @@ import {
   useCandidate,
   useCandidateReport,
 } from "@/features/candidates/hooks/use-candidates";
+import { useTranslations } from "@/lib/i18n/client";
 import { useRealtime } from "@/providers/realtime-provider";
 
 export function CandidateDetail({ candidateId }: { candidateId: string }) {
+  const t = useTranslations("app");
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [rerunOpen, setRerunOpen] = useState(false);
 
@@ -36,7 +38,7 @@ export function CandidateDetail({ candidateId }: { candidateId: string }) {
   if (isLoading || !candidate) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center p-6 text-sm text-muted-foreground">
-        Loading candidate…
+        {t("candidates.detail.loading")}
       </div>
     );
   }

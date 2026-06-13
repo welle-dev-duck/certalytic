@@ -17,6 +17,7 @@ import { InterviewsStep } from "@/features/candidates/components/start-screening
 import { RoleStep } from "@/features/candidates/components/start-screening/role-step";
 import { StepIndicator } from "@/features/candidates/components/start-screening/step-indicator";
 import { useStartScreeningForm } from "@/features/candidates/hooks/use-start-screening-form";
+import { useTranslations } from "@/lib/i18n/client";
 
 type StartScreeningModalProps = {
   open: boolean;
@@ -31,6 +32,7 @@ export function StartScreeningModal({
   preselectedRoleId = null,
   lockRole = false,
 }: StartScreeningModalProps) {
+  const t = useTranslations("app");
   const screening = useStartScreeningForm({
     open,
     onOpenChange,
@@ -48,9 +50,11 @@ export function StartScreeningModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Screen candidate</DialogTitle>
+          <DialogTitle>{t("screening.modal.title")}</DialogTitle>
           <DialogDescription>
-            {screening.tokenAvailable} token(s) available
+            {t("screening.modal.tokensAvailable", {
+              count: screening.tokenAvailable,
+            })}
           </DialogDescription>
         </DialogHeader>
 
@@ -101,7 +105,9 @@ export function StartScreeningModal({
             onClick={screening.goBack}
             disabled={screening.processing}
           >
-            {screening.isFirstStep ? "Cancel" : "Back"}
+            {screening.isFirstStep
+              ? t("screening.modal.cancel")
+              : t("screening.modal.back")}
           </Button>
           {!screening.isLastStep ? (
             <Button
@@ -109,7 +115,7 @@ export function StartScreeningModal({
               onClick={() => screening.setStep((current) => current + 1)}
               disabled={!screening.canProceed()}
             >
-              Continue
+              {t("screening.modal.continue")}
             </Button>
           ) : (
             <Button
@@ -118,7 +124,7 @@ export function StartScreeningModal({
               disabled={screening.processing || !screening.canProceed()}
             >
               <LoadingSwap isLoading={screening.processing}>
-                Start screening
+                {t("screening.modal.start")}
               </LoadingSwap>
             </Button>
           )}

@@ -1,0 +1,61 @@
+{
+  "language": "Sprache",
+  "loading": "Laden…",
+  "metadata": {
+    "description": "EU-souveränes Hiring-Integritäts-Screening - CVs, Transkripte und öffentliche Profile abgleichen."
+  },
+  "actions": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "continue": "Weiter",
+    "back": "Zurück"
+  },
+  "errors": {
+    "generic": "Etwas ist schiefgelaufen."
+  },
+  "pagination": {
+    "showing": "Zeige {from}–{to}",
+    "noRows": "Keine Einträge",
+    "rows": "ZEILEN",
+    "previousPage": "Vorherige Seite",
+    "nextPage": "Nächste Seite"
+  },
+  "badges": {
+    "integrity": {
+      "high": "HOHE INTEGRITÄT",
+      "medium": "VERDÄCHTIG",
+      "low": "NIEDRIGE INTEGRITÄT"
+    },
+    "status": {
+      "complete": "ABGESCHLOSSEN",
+      "processing": "IN BEARBEITUNG",
+      "pending": "AUSSTEHEND",
+      "failed": "FEHLGESCHLAGEN"
+    },
+    "flags": {
+      "ai_text": "KI-TEXT",
+      "synthetic_profile": "SYNTHETISCH",
+      "interview_prompt": "LIVE-PROMPT",
+      "credential_gap": "QUALIFIKATION",
+      "platform_mismatch": "ABWEICHUNG",
+      "insufficient_signal": "QUERVERWEIS",
+      "response_latency": "LATENZ",
+      "signal": "SIGNAL"
+    }
+  },
+  "dropzone": {
+    "description": "Datei hierher ziehen oder klicken zum Auswählen",
+    "dropFile": "Datei hier ablegen",
+    "dropFileActive": "Datei zum Hochladen ablegen",
+    "filesSelected": "{count} Datei ausgewählt",
+    "filesSelectedPlural": "{count} Dateien ausgewählt",
+    "remove": "Entfernen"
+  },
+  "integrity": {
+    "distribution": {
+      "high": "Hoch (75+)",
+      "medium": "Mittel (50–74)",
+      "low": "Niedrig (<50)"
+    }
+  }
+}

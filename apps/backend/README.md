@@ -65,10 +65,10 @@ pnpm dev
 | Variable | Description |
 |----------|-------------|
 | `PORT` | HTTP port (default `3000`) |
-| `BASE_URL` | Public API URL — better-auth `baseURL` |
+| `BASE_URL` | Public API URL - better-auth `baseURL` |
 | `WEB_APP_URL` | Next.js origin for CORS / trusted origins |
 | `DATABASE_URL` | Postgres connection string |
-| `STRIPE_SECRET_KEY` | Optional — enables Stripe plugin |
+| `STRIPE_SECRET_KEY` | Optional - enables Stripe plugin |
 | `STRIPE_WEBHOOK_SECRET` | Required when Stripe plugin is enabled |
 
 ## Web app

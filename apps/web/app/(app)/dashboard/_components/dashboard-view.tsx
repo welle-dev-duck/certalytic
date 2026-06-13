@@ -2,13 +2,12 @@
 
 import {
   Activity,
+  Briefcase,
   Plus,
   Search,
   ShieldAlert,
-  ShieldCheck,
   Users,
 } from "lucide-react";
-import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import { CandidatesTable } from "@/features/candidates/components/candidates-table";
@@ -16,14 +15,24 @@ import { ScreeningDialogs } from "@/features/candidates/components/screening-dia
 import { useCandidateScreeningDialogs } from "@/features/candidates/hooks/use-candidate-screening-dialogs";
 import { useDebouncedSearch } from "@/features/candidates/hooks/use-debounced-search";
 import { useCandidates } from "@/features/candidates/hooks/use-candidates";
+import { useDashboardStats } from "@/features/dashboard/hooks/use-dashboard-stats";
 import {
-  getIntegrityLevel,
-  getNominalStatusStyle,
   getScoreBackground,
   getScoreColor,
 } from "@/lib/integrity";
+import {
+  getConfiguredSystemStatus,
+  getSystemStatusStyle,
+} from "@/lib/system-status";
+import { useTranslations } from "@/lib/i18n/client";
+
+const HIGH_RISK_COLOR = "#EF4444";
+const HIGH_RISK_BG = "rgba(239,68,68,0.1)";
+const MEDIUM_RISK_COLOR = "#F59E0B";
+const MEDIUM_RISK_BG = "rgba(245,158,11,0.1)";
 
 export function DashboardView() {
+  const t = useTranslations("app");
   const {
     screenOpen,
     setScreenOpen,
@@ -36,8 +45,10 @@ export function DashboardView() {
     selectedCandidate,
   } = useCandidateScreeningDialogs();
   const { search, setSearch, debouncedSearch } = useDebouncedSearch();
-  const nominalStatus = getNominalStatusStyle();
+  const systemStatus = getConfiguredSystemStatus();
+  const systemStatusStyle = getSystemStatusStyle(systemStatus);
 
+  const { data: stats, isLoading: statsLoading } = useDashboardStats();
   const { data, isLoading } = useCandidates({
     search: debouncedSearch || undefined,
     limit: 25,
@@ -45,63 +56,65 @@ export function DashboardView() {
 
   const candidates = data?.data ?? [];
 
-  const stats = useMemo(() => {
-    const scored = candidates.filter((c) => c.status === "complete");
-    const flagged = scored.filter(
-      (c) =>
-        c.integrityScore !== null && getIntegrityLevel(c.integrityScore) === "low",
-    );
-    const avg =
-      scored.length > 0
-        ? scored.reduce((sum, c) => sum + (c.integrityScore ?? 0), 0) /
-          scored.length
-        : null;
-
-    return {
-      total: candidates.length,
-      scored: scored.length,
-      flagged: flagged.length,
-      avgIntegrity: avg,
-    };
-  }, [candidates]);
-
-  const avgScore = stats.avgIntegrity ?? 0;
+  const avgScore = stats?.avgIntegrityScore ?? 0;
+  const avgDisplay =
+    stats?.avgIntegrityScore !== null && stats?.avgIntegrityScore !== undefined
+      ? `${stats.avgIntegrityScore}/100`
+      : "-/100";
 
   const statCards = [
     {
-      label: "Total Candidates",
-      value: stats.total,
-      sub: "Across all roles",
+      key: "totalRoles",
+      label: t("dashboard.stats.totalRoles"),
+      value: statsLoading ? "—" : (stats?.totalRoles ?? 0),
+      sub: t("dashboard.stats.activeRoles"),
+      icon: Briefcase,
+      color: "var(--primary)",
+      bg: "color-mix(in oklch, var(--primary) 10%, transparent)",
+    },
+    {
+      key: "totalCandidates",
+      label: t("dashboard.stats.totalCandidates"),
+      value: statsLoading ? "—" : (stats?.totalCandidates ?? 0),
+      sub: t("dashboard.stats.acrossAllRoles"),
       icon: Users,
       color: "var(--primary)",
       bg: "color-mix(in oklch, var(--primary) 10%, transparent)",
     },
     {
-      label: "High Risk Flagged",
-      value: stats.flagged,
-      sub:
-        stats.scored > 0
-          ? `${Math.round((stats.flagged / stats.scored) * 100)}% of scored`
-          : "No scored candidates",
+      key: "highRiskFlagged",
+      label: t("dashboard.stats.highRiskFlagged"),
+      value: statsLoading ? "—" : (stats?.highRiskFlagged ?? 0),
+      sub: t("dashboard.stats.highRiskSub"),
       icon: ShieldAlert,
-      color: getScoreColor(0),
-      bg: getScoreBackground(0),
+      color: HIGH_RISK_COLOR,
+      bg: HIGH_RISK_BG,
     },
     {
-      label: "Avg Integrity Score",
-      value: stats.avgIntegrity !== null ? Math.round(stats.avgIntegrity) : "-",
-      sub: "Completed screenings",
+      key: "mediumRiskFlagged",
+      label: t("dashboard.stats.mediumRiskFlagged"),
+      value: statsLoading ? "—" : (stats?.mediumRiskFlagged ?? 0),
+      sub: t("dashboard.stats.mediumRiskSub"),
+      icon: ShieldAlert,
+      color: MEDIUM_RISK_COLOR,
+      bg: MEDIUM_RISK_BG,
+    },
+    {
+      key: "avgIntegrityScore",
+      label: t("dashboard.stats.avgIntegrityScore"),
+      value: statsLoading ? "—/100" : avgDisplay,
+      sub: t("dashboard.stats.avgIntegritySub"),
       icon: Activity,
-      color: getScoreColor(avgScore),
-      bg: getScoreBackground(avgScore),
-    },
-    {
-      label: "Completed Screenings",
-      value: stats.scored,
-      sub: `of ${stats.total} total`,
-      icon: ShieldCheck,
-      color: getScoreColor(100),
-      bg: getScoreBackground(100),
+      color:
+        stats?.avgIntegrityScore !== null &&
+        stats?.avgIntegrityScore !== undefined
+          ? getScoreColor(avgScore)
+          : "var(--muted-foreground)",
+      bg:
+        stats?.avgIntegrityScore !== null &&
+        stats?.avgIntegrityScore !== undefined
+          ? getScoreBackground(avgScore)
+          : "color-mix(in oklch, var(--muted-foreground) 10%, transparent)",
     },
   ];
 
@@ -120,35 +133,35 @@ export function DashboardView() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-xl font-bold text-foreground">
-            Intelligence Overview
+            {t("dashboard.title")}
           </h1>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            Hiring integrity dashboard
+            {t("dashboard.subtitle")}
           </p>
         </div>
         <div
           className="flex shrink-0 items-center gap-2 self-start rounded px-3 py-1.5 text-xs font-semibold"
           style={{
-            background: nominalStatus.background,
-            color: nominalStatus.color,
-            border: nominalStatus.border,
+            background: systemStatusStyle.background,
+            color: systemStatusStyle.color,
+            border: systemStatusStyle.border,
           }}
         >
           <span
             className="h-1.5 w-1.5 rounded-full"
             style={{
-              background: nominalStatus.color,
-              boxShadow: nominalStatus.dotShadow,
+              background: systemStatusStyle.color,
+              boxShadow: systemStatusStyle.dotShadow,
             }}
           />
-          Systems Nominal
+          {t(`dashboard.systemStatus.${systemStatus}`)}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {statCards.map(({ label, value, sub, icon: Icon, color, bg }) => (
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        {statCards.map(({ key, label, value, sub, icon: Icon, color, bg }) => (
           <div
-            key={label}
+            key={key}
             className="rounded-lg border border-border bg-card p-4"
           >
             <div className="mb-3 flex items-start justify-between">
@@ -177,11 +190,11 @@ export function DashboardView() {
         <div className="space-y-3 border-b border-border px-4 py-3">
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-semibold text-foreground">
-              Recent Candidate Screenings
+              {t("dashboard.recentScreenings")}
             </p>
             <Button size="sm" onClick={() => setScreenOpen(true)}>
               <Plus size={13} />
-              New Candidate
+              {t("dashboard.newCandidate")}
             </Button>
           </div>
           <div className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-2">
@@ -189,7 +202,7 @@ export function DashboardView() {
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search by candidate name…"
+              placeholder={t("dashboard.searchPlaceholder")}
               className="w-full bg-transparent text-sm text-foreground outline-none"
             />
           </div>
@@ -201,8 +214,8 @@ export function DashboardView() {
           isLoading={isLoading}
           emptyMessage={
             search.trim() !== ""
-              ? "No candidates match your search."
-              : "No screenings yet."
+              ? t("dashboard.emptySearch")
+              : t("dashboard.emptyDefault")
           }
           onRerun={openRerun}
           onDelete={openDelete}

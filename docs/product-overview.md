@@ -2,13 +2,13 @@
 
 **Document type:** Product & engineering specification  
 **Stack:** Turborepo · Express · Next.js · better-auth · Drizzle · BullMQ · Mistral AI (La Plateforme, EU) · pdf-lib · Hetzner EU · Stripe  
-**Legacy implementation:** `php-migration/` — Laravel 13 · Inertia.js (React 19) · Fortify · Horizon · Cashier  
+**Legacy implementation:** `php-migration/` - Laravel 13 · Inertia.js (React 19) · Fortify · Horizon · Cashier  
 **Migration plans:** [docs/migration/](./migration/)  
-**Status:** Production MVP in Turborepo (`apps/backend`, `apps/web`) — integrity screening, supplementary insights, PDF dossiers, async role exports, billing, marketing site, and legal surfaces shipped. Legacy Laravel app retained in `php-migration/` for reference. Standalone audio transcription tool is **legacy-only** (not ported to Turborepo).
+**Status:** Production MVP in Turborepo (`apps/backend`, `apps/web`) - integrity screening, supplementary insights, PDF dossiers, async role exports, billing, marketing site, and legal surfaces shipped. Legacy Laravel app retained in `php-migration/` for reference. Standalone audio transcription tool is **legacy-only** (not ported to Turborepo).
 
 ## 1. Product vision
 
-Certalytic is a **decision-support integrity layer** for recruitment. It sits on top of existing ATS workflows — it does not replace them.
+Certalytic is a **decision-support integrity layer** for recruitment. It sits on top of existing ATS workflows - it does not replace them.
 
 After a candidate completes their interview loop, recruiters upload the CV and interview transcripts (single paste or up to three uploaded files merged automatically) plus optional LinkedIn/GitHub signals. Certalytic synthesizes these inputs into a single **Integrity Score** with evidence-based flags and follow-up prompts, plus supplementary **behaviour** and **personality** analyses for hiring-manager context.
 
@@ -41,13 +41,13 @@ Language avoids "pass/fail" or "cheating detected." Prefer: _integrity indicator
 | Pillar | Description |
 |---|---|
 | **CV intelligence** | Mistral OCR (`mistral-ocr-latest`) extracts PDF/DOCX CVs; `mistral-small-latest` evaluates timeline consistency, AI-text patterns, and role fit |
-| **Merged interview intelligence** | Single manual transcript paste or up to three uploaded files merged server-side — Mistral infers virtual interview segments, scores each sequentially, and detects stylistic shifts between technical and behavioural sections |
-| **Supplementary candidate insights** | **Behaviour analysis** (communication style, collaboration indicators, watchpoints) and **personality analysis** (work style, motivation signals, culture-fit indicators) — included in UI and PDF exports, **excluded from the Integrity Score** |
+| **Merged interview intelligence** | Single manual transcript paste or up to three uploaded files merged server-side - Mistral infers virtual interview segments, scores each sequentially, and detects stylistic shifts between technical and behavioural sections |
+| **Supplementary candidate insights** | **Behaviour analysis** (communication style, collaboration indicators, watchpoints) and **personality analysis** (work style, motivation signals, culture-fit indicators) - included in UI and PDF exports, **excluded from the Integrity Score** |
 | **Cross-source validation** | Starter+: manual LinkedIn paste/URL and GitHub URL; GitHub public API enrichment when username resolved; Growth+ tier flag for full cross-source scoring path |
 | **Role context** | Saved Role Profiles (all tiers); targeted scan assets on Scale+ (up to 3 OCR'd documents per role) |
 | **PDF exports** | Professional integrity dossiers via `pdf-lib` (`PdfDocumentBuilder`): per-candidate sync download; per-role batch dossier (async queue job, watermarked on Free tier, auto-download when ready) |
 | **Bulk upload** | CSV and multi-file import for interview-stage candidates (all tiers) |
-| **Audio transcription** | **Legacy only** (`php-migration/`): Mistral Voxtral diarized transcription, speaker rename, paginated library — not ported to Turborepo |
+| **Audio transcription** | **Legacy only** (`php-migration/`): Mistral Voxtral diarized transcription, speaker rename, paginated library - not ported to Turborepo |
 | **Team workspaces** | Multi-team model, invitations, seat-based plans, Stripe billing |
 | **Marketing site** | Public landing page (`/`) with hero, EU privacy, stats, **How it works** (3-step process with screenshot placeholders), product bento, demo preview, pricing (EUR), reviews, roadmap |
 | **Legal & compliance** | Privacy Policy, Terms, DPA, Cookie Policy, Imprint (`/legal/*`); registration requires Terms + Privacy + DPA consent |
@@ -55,10 +55,10 @@ Language avoids "pass/fail" or "cheating detected." Prefer: _integrity indicator
 ### Out of scope (current release)
 
 - Real-time audio/video proctoring during live interviews
-- Direct ATS integrations, public API, webhooks, SSO (roadmap — see §12)
+- Direct ATS integrations, public API, webhooks, SSO (roadmap - see §12)
 - Automatic LinkedIn profile fetch (URL/text passed to model; fetch stub logs and defers to manual paste)
 - Native Zoom / Teams / Meet import connectors (audio file upload supported today)
-- Fake or mock evaluation paths — all screenings use live Mistral inference
+- Fake or mock evaluation paths - all screenings use live Mistral inference
 
 ## 3. Architecture
 
@@ -67,15 +67,15 @@ Language avoids "pass/fail" or "cheating detected." Prefer: _integrity indicator
 | Component | Technology |
 |---|---|
 | Backend API | Express (`apps/backend`) |
-| Frontend | Next.js App Router (`apps/web`) — React 19, react-hook-form, zod, TanStack Query |
+| Frontend | Next.js App Router (`apps/web`) - React 19, react-hook-form, zod, TanStack Query |
 | Auth | better-auth (session cookies, org plugin, Stripe plugin) |
 | ORM | Drizzle + PostgreSQL |
 | Document OCR | `mistral-ocr-latest` |
 | Scoring & analysis | `mistral-small-latest` |
 | PDF generation | `pdf-lib` via `PdfDocumentBuilder` (`apps/backend/src/modules/exports/`) |
 | Object storage | Hetzner Object Storage (EU, S3-compatible) |
-| Queue | BullMQ (Redis) — `emails`, `screening` (candidate jobs + role PDF exports), `roles` (role document OCR), `billing-refunds` |
-| Realtime | WebSockets + Redis pub/sub — screening/export status pushes to browser |
+| Queue | BullMQ (Redis) - `emails`, `screening` (candidate jobs + role PDF exports), `roles` (role document OCR), `billing-refunds` |
+| Realtime | WebSockets + Redis pub/sub - screening/export status pushes to browser |
 | Database | PostgreSQL |
 | Compute | Hetzner Cloud + Coolify (EU) |
 | Billing | Stripe via `@better-auth/stripe` + checkout for screening packs |
@@ -115,7 +115,7 @@ Built by `PdfDocumentBuilder` in `apps/backend/src/modules/exports/`:
 1. **IMPORTANT** disclaimer banner (compact amber panel at the top)
 2. **Cover:** "Certalytic Integrity Dossier", role title, `Candidates Screened: N`, generated date
 3. **Role section:** average integrity score (rectangular score box), High/Medium/Low distribution bars, full job description
-4. **Per candidate:** new page each — integrity level, name + email, score box, signal summary (vector scores + progress bars with Higher/Lower-is-better hints), CV analysis metrics and risk vectors, flags as styled panels (no icons), supplementary behaviour/personality sections where present
+4. **Per candidate:** new page each - integrity level, name + email, score box, signal summary (vector scores + progress bars with Higher/Lower-is-better hints), CV analysis metrics and risk vectors, flags as styled panels (no icons), supplementary behaviour/personality sections where present
 5. **Closing attestation page:** stamp, verification URL, disclaimer
 
 Per-candidate dossiers use the same builder via `screening-report-pdf.exporter.ts` (sync download from candidate detail).
@@ -156,8 +156,8 @@ Not available in Turborepo. In `php-migration/`:
 
 | Parameter | Values |
 |---|---|
-| `limit` | 10, 25, 50, 100 (dev-only: 1 — remove before production) |
-| `cursor` | Optional — previous page's `nextCursor` (candidate/role `id`) |
+| `limit` | 10, 25, 50, 100 (dev-only: 1 - remove before production) |
+| `cursor` | Optional - previous page's `nextCursor` (candidate/role `id`) |
 
 Response shape: `{ data, nextCursor }`. Frontend table pagination is prev/next only (no page numbers).
 
@@ -199,12 +199,12 @@ Displayed on candidate detail tabs and included in single-candidate and role-bat
 
 ## 5. Role profiles
 
-Roles are **title + job description only** — no per-role interview round configuration.
+Roles are **title + job description only** - no per-role interview round configuration.
 
 | Tier | Roles |
 |---|---|
 | **All tiers** | Saved Role Profiles (shared org library, Roles tab, dashboard filtering) |
-| **Scale+** | Up to 3 targeted scan assets per role (take-home instructions, rubrics) — OCR'd once, cached, cross-referenced in merged transcript analysis |
+| **Scale+** | Up to 3 targeted scan assets per role (take-home instructions, rubrics) - OCR'd once, cached, cross-referenced in merged transcript analysis |
 
 ## 6. Plans & pricing (EUR)
 
@@ -217,9 +217,9 @@ All public and in-app pricing is displayed in **euros (€)**.
 | Plan | Price/mo | Seats | Screenings/mo | Key gates |
 |---|---|---|---|---|
 | Free | €0 | 1 | 3 | Summary score only, watermarked exports |
-| Starter | €159 | 1 | 20 | Full breakdown, manual LinkedIn/GitHub URLs, behaviour & personality insights — ~4 roles/mo |
-| Growth | €349 | 3 | 50 | Cross-source tier flag, 3 seats, priority email support — ~10 roles/mo |
-| Scale | €799 | 5 | 125 | Priority queue (BullMQ job priority), role scan assets, Slack support — ~25 roles/mo |
+| Starter | €159 | 1 | 20 | Full breakdown, manual LinkedIn/GitHub URLs, behaviour & personality insights - ~4 roles/mo |
+| Growth | €349 | 3 | 50 | Cross-source tier flag, 3 seats, priority email support - ~10 roles/mo |
+| Scale | €799 | 5 | 125 | Priority queue (BullMQ job priority), role scan assets, Slack support - ~25 roles/mo |
 | Enterprise | Custom | 6+ | Custom | Sales-led; ATS / API / SSO on roadmap |
 
 The in-app billing upgrade grid shows **Starter, Growth, Scale, and Enterprise** only (Free is omitted from upgrade cards). Growth and Scale cards list incremental features relative to the prior tier (see `apps/web/features/billing/plans.ts`).
@@ -249,20 +249,20 @@ Purchasable from Tools → Transcription via Stripe Checkout in legacy app. Cred
 | Capability | Free | Starter | Growth | Scale |
 |---|---|---|---|---|
 | CV + merged interview scoring | ✓ | ✓ | ✓ | ✓ |
-| Full integrity score breakdown | — | ✓ | ✓ | ✓ |
+| Full integrity score breakdown | - | ✓ | ✓ | ✓ |
 | Behaviour & personality analysis | ✓ | ✓ | ✓ | ✓ |
 | Saved Role Profiles | ✓ | ✓ | ✓ | ✓ |
-| Cross-source (LinkedIn/GitHub) | — | Manual URLs / paste | ✓ | ✓ |
-| Targeted scan assets | — | — | — | ✓ (max 3) |
-| Priority screening queue | — | — | — | ✓ |
+| Cross-source (LinkedIn/GitHub) | - | Manual URLs / paste | ✓ | ✓ |
+| Targeted scan assets | - | - | - | ✓ (max 3) |
+| Priority screening queue | - | - | - | ✓ |
 | Per-candidate PDF export | ✓* | ✓ | ✓ | ✓ |
 | Async role batch PDF export | ✓* | ✓ | ✓ | ✓ |
-| Screening packs | — | ✓ | ✓ | ✓ |
-| Speaker-labelled audio transcription | —** | —** | —** | —** |
+| Screening packs | - | ✓ | ✓ | ✓ |
+| Speaker-labelled audio transcription | -** | -** | -** | -** |
 | EU sovereign processing | ✓ | ✓ | ✓ | ✓ |
 
 \*Free tier exports are watermarked.  
-\*\*Legacy Laravel app only — transcription tool not ported to Turborepo.
+\*\*Legacy Laravel app only - transcription tool not ported to Turborepo.
 
 ## 7. Marketing site & public surfaces
 
@@ -276,7 +276,7 @@ Public route: `/` (marketing landing page).
 | How it works | 3-step process: create role → screen candidates (multi-step form screenshots) → export report |
 | Product bento | Four integrity signals + platform features including behaviour/personality analysis |
 | Demo | Full mocked screening result preview with supplementary insights |
-| Pricing | Starter, Growth (highlighted), Scale, Enterprise — EUR pricing; Free tier mentioned in copy |
+| Pricing | Starter, Growth (highlighted), Scale, Enterprise - EUR pricing; Free tier mentioned in copy |
 | Reviews | Testimonials with star ratings and avatar initials |
 | Roadmap | Quarterly planned features (synced with §12) |
 | CTA | Three free screenings |
@@ -287,38 +287,38 @@ Marketing stats and roadmap are configured in `apps/web/lib/marketing-data.ts` (
 
 - **EU-only path:** Hetzner datacenters (DE/FI) + Mistral La Plateforme (Paris, FR). No US cloud compute or CDN in the candidate data path.
 - **Ephemeral processing:** CV bytes sent to Mistral OCR per request; not retained on Mistral infrastructure.
-- **Audio retention:** Interview audio deleted from object storage after transcription completes (**legacy transcription tool only** — not ported to Turborepo).
+- **Audio retention:** Interview audio deleted from object storage after transcription completes (**legacy transcription tool only** - not ported to Turborepo).
 - **No training:** Candidate data is never used to train, fine-tune, or improve Mistral foundation models (contractual API tier + surfaced in UI DATA & PRIVACY panel).
 - **Sub-processors:** Hetzner Online GmbH (EU), Mistral AI (EU), Stripe (billing metadata only).
-- **Legal documents:** Privacy Policy, Terms of Service, Data Processing Agreement, Cookie Policy, Imprint — linked from footer and registration flow.
+- **Legal documents:** Privacy Policy, Terms of Service, Data Processing Agreement, Cookie Policy, Imprint - linked from footer and registration flow.
 - **Registration consent:** Users must accept Terms, Privacy Policy, and DPA at signup (`accept_terms`, `accept_privacy`, `accept_dpa`).
 
 Company and social links are configured via `CERTALYTIC_COMPANY_*` and `CERTALYTIC_SOCIAL_*` env vars, exposed via public config API (legacy: Inertia shared props).
 
 ## 9. Key database entities
 
-- `users` — authentication, active organization/team selection
-- `teams` / `organizations` — org workspace, plan, Stripe billing, `transcript_tokens` balance
-- `team_user` / `members` — membership, role (owner/member)
-- `team_invitations` — email invitations with accept flow
-- `roles` — title, description (all tiers with saved roles)
-- `role_documents` — scan assets (Scale+)
-- `role_exports` — async role PDF export jobs (status, path, error)
-- `candidates` — screening record, integrity score, score breakdown (integrity components + supplementary analyses + virtual `round_analyses`)
-- `interview_rounds` — merged transcript in round 1; supplementary rows for virtual segments 2+
-- `audio_transcriptions` — **legacy only** — standalone transcription jobs
-- `transcript_token_credits` — **legacy only** — idempotent Stripe checkout credit ledger
+- `users` - authentication, active organization/team selection
+- `teams` / `organizations` - org workspace, plan, Stripe billing, `transcript_tokens` balance
+- `team_user` / `members` - membership, role (owner/member)
+- `team_invitations` - email invitations with accept flow
+- `roles` - title, description (all tiers with saved roles)
+- `role_documents` - scan assets (Scale+)
+- `role_exports` - async role PDF export jobs (status, path, error)
+- `candidates` - screening record, integrity score, score breakdown (integrity components + supplementary analyses + virtual `round_analyses`)
+- `interview_rounds` - merged transcript in round 1; supplementary rows for virtual segments 2+
+- `audio_transcriptions` - **legacy only** - standalone transcription jobs
+- `transcript_token_credits` - **legacy only** - idempotent Stripe checkout credit ledger
 
 ## 10. Environment
 
 ### Backend (`apps/backend`)
 
 ```env
-# Mistral (required — no fake evaluator fallback)
+# Mistral (required - no fake evaluator fallback)
 MISTRAL_API_KEY=
 MISTRAL_CHAT_MODEL=mistral-small-latest
 MISTRAL_OCR_MODEL=mistral-ocr-latest
-# MISTRAL_TRANSCRIPTION_MODEL — legacy only (transcription not ported)
+# MISTRAL_TRANSCRIPTION_MODEL - legacy only (transcription not ported)
 
 # Redis / queues + WebSocket realtime (pub/sub)
 REDIS_URL=
@@ -332,7 +332,7 @@ STRIPE_PRICE_SCALE=
 STRIPE_PRICE_PACK_QUICK=
 STRIPE_PRICE_PACK_SURGE=
 STRIPE_PRICE_PACK_BOOST=
-# STRIPE_PRICE_TRANSCRIPT_FIVE_PACK — legacy only
+# STRIPE_PRICE_TRANSCRIPT_FIVE_PACK - legacy only
 
 # Company / legal (public config API)
 CERTALYTIC_COMPANY_EMAIL=hello@certalytic.com

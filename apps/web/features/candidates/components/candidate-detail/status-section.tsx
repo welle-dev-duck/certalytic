@@ -8,6 +8,7 @@ import type {
   CandidateDetail,
   CandidateReport,
 } from "@/features/candidates/types";
+import { useTranslations } from "@/lib/i18n/client";
 import type { Flag } from "@/lib/integrity";
 
 type CandidateDetailStatusSectionProps = {
@@ -23,16 +24,22 @@ export function CandidateDetailStatusSection({
   isComplete,
   isOngoing,
 }: CandidateDetailStatusSectionProps) {
+  const t = useTranslations("app");
+
   if (isComplete) {
     if (!report || report.flags.length === 0) return null;
+
+    const flagsKey =
+      report.flags.length === 1
+        ? "candidates.detail.activeFlagsSingular"
+        : "candidates.detail.activeFlagsPlural";
 
     return (
       <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
         <div className="mb-3 flex items-center gap-2">
           <AlertCircle size={14} className="text-destructive" />
           <p className="text-sm font-semibold text-destructive">
-            {report.flags.length} Active Flag
-            {report.flags.length > 1 ? "s" : ""} Detected
+            {t(flagsKey, { count: report.flags.length })}
           </p>
         </div>
         <div className="space-y-2">
@@ -58,10 +65,11 @@ export function CandidateDetailStatusSection({
       <div className="rounded-lg border border-border bg-card p-8 text-center">
         <AlertTriangle size={20} className="mx-auto mb-2 text-destructive" />
         <p className="text-sm font-semibold text-destructive">
-          Screening failed
+          {t("candidates.detail.screeningFailed")}
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
-          {candidate.errorMessage ?? "The screening could not be completed."}
+          {candidate.errorMessage ??
+            t("candidates.detail.screeningFailedFallback")}
         </p>
       </div>
     );

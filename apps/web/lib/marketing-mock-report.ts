@@ -101,7 +101,7 @@ export const marketingMockReport: CandidateReport = {
   },
   verdict: {
     level: "medium",
-    title: "Elevated integrity risk — follow-up recommended",
+    title: "Elevated integrity risk - follow-up recommended",
     body: "Signal density is mixed. Cross-source alignment and interview depth gaps suggest targeted follow-up before advancing.",
   },
   recommendedActions: [

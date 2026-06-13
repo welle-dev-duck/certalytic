@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { apiUrl } from "@/lib/api-client";
+import { useTranslations } from "@/lib/i18n/client";
 import { routes } from "@/lib/routes";
 
 type CandidateRowActionsProps = {
@@ -26,6 +27,7 @@ export function CandidateRowActions({
   onRerun,
   onDelete,
 }: CandidateRowActionsProps) {
+  const t = useTranslations("app");
   const router = useRouter();
   const canExport = status === "complete";
 
@@ -40,7 +42,7 @@ export function CandidateRowActions({
           onClick={(event) => event.stopPropagation()}
         >
           <MoreHorizontal size={16} />
-          <span className="sr-only">Open menu</span>
+          <span className="sr-only">{t("candidates.rowActions.openMenu")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -52,7 +54,7 @@ export function CandidateRowActions({
           onSelect={() => router.push(routes.candidate(candidateId))}
         >
           <Eye />
-          View
+          {t("candidates.rowActions.view")}
         </DropdownMenuItem>
         {canExport ? (
           <DropdownMenuItem asChild>
@@ -61,20 +63,20 @@ export function CandidateRowActions({
               className="flex cursor-pointer items-center gap-2"
             >
               <Download />
-              Export PDF
+              {t("candidates.rowActions.exportPdf")}
             </a>
           </DropdownMenuItem>
         ) : null}
         <DropdownMenuItem className="cursor-pointer" onSelect={onRerun}>
           <RefreshCw />
-          Re-run
+          {t("candidates.rowActions.rerun")}
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer text-destructive focus:text-destructive"
           onSelect={onDelete}
         >
           <Trash2 />
-          Delete
+          {t("candidates.rowActions.delete")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

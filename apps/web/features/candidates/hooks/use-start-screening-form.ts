@@ -9,7 +9,7 @@ import {
   canProceedStep,
 } from "@/features/candidates/components/start-screening/form-utils";
 import {
-  SCREENING_STEPS,
+  SCREENING_STEP_COUNT,
   buildInitialFormState,
   type ScreeningFormState,
 } from "@/features/candidates/components/start-screening/types";
@@ -24,6 +24,7 @@ import {
 } from "@/features/candidates/lib/screening-schema";
 import { useRoles } from "@/features/roles/hooks/use-roles";
 import { ApiError } from "@/lib/api-client";
+import { useTranslations } from "@/lib/i18n/client";
 import { handleMutationError, mapValidationErrors } from "@/lib/mutation-errors";
 import { routes } from "@/lib/routes";
 
@@ -41,6 +42,7 @@ export function useStartScreeningForm({
   lockRole = false,
 }: UseStartScreeningFormOptions) {
   const router = useRouter();
+  const t = useTranslations("app");
   const createCandidate = useCreateCandidate();
   const { data: usage } = useBillingUsage();
   const { data: rolesData } = useRoles({ limit: 100 }, { enabled: open });
@@ -58,8 +60,8 @@ export function useStartScreeningForm({
   );
 
   const screeningSchema = useMemo(
-    () => createScreeningSchema(SCREENING_LIMITS),
-    [],
+    () => createScreeningSchema(t, SCREENING_LIMITS),
+    [t],
   );
 
   const selectedRole = roles.find((role) => role.id === form.roleId);
@@ -75,7 +77,7 @@ export function useStartScreeningForm({
     setStep(lockRole ? 2 : 1);
     setErrors({});
     setForm(buildInitialFormState(roles, preselectedRoleId, lockRole));
-    // Reset only when the dialog opens — roles is memoized from query data.
+    // Reset only when the dialog opens - roles is memoized from query data.
     // eslint-disable-next-line react-hooks/exhaustive-deps -- roles read at open time
   }, [open, preselectedRoleId, lockRole]);
 
@@ -109,7 +111,7 @@ export function useStartScreeningForm({
     if (!parsed.success) {
       const fieldErrors = formatZodErrors(parsed.error);
       setErrors(fieldErrors);
-      toast.error(firstZodError(parsed.error));
+      toast.error(firstZodError(parsed.error, t));
       return;
     }
 
@@ -120,7 +122,7 @@ export function useStartScreeningForm({
 
     createCandidate.mutate(payload, {
       onSuccess: (result) => {
-        toast.success("Screening started.");
+        toast.success(t("screening.toast.started"));
         onOpenChange(false);
         router.push(routes.candidate(result.id));
       },
@@ -130,7 +132,7 @@ export function useStartScreeningForm({
         }
 
         handleMutationError(error, {
-          fallbackMessage: "Failed to start screening.",
+          fallbackMessage: t("screening.toast.failed"),
         });
       },
     });
@@ -145,7 +147,7 @@ export function useStartScreeningForm({
   }
 
   const isFirstStep = step === 1 || (lockRole && step === 2);
-  const isLastStep = step >= SCREENING_STEPS.length;
+  const isLastStep = step >= SCREENING_STEP_COUNT;
   const processing = createCandidate.isPending;
   const tokenAvailable = usage?.available ?? 0;
 

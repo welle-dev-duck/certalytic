@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
 type FileDropzoneProps = {
@@ -49,10 +50,12 @@ export function FileDropzone({
   files = EMPTY_FILES,
   onFileChange,
   onFilesChange,
-  description = "Drag and drop a file here, or click to browse",
+  description,
   className,
   "aria-invalid": ariaInvalid = false,
 }: FileDropzoneProps) {
+  const t = useTranslations("common");
+  const resolvedDescription = description ?? t("dropzone.description");
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -177,7 +180,11 @@ export function FileDropzone({
             <div className="space-y-1">
               <p className="text-sm font-medium text-foreground">
                 {multiple
-                  ? `${activeFileCount} file${activeFileCount === 1 ? "" : "s"} selected`
+                  ? activeFileCount === 1
+                    ? t("dropzone.filesSelected", { count: activeFileCount })
+                    : t("dropzone.filesSelectedPlural", {
+                        count: activeFileCount,
+                      })
                   : activeFile?.name}
               </p>
               {!multiple && activeFile ? (
@@ -203,7 +210,7 @@ export function FileDropzone({
               disabled={disabled}
             >
               <X className="mr-1 h-3.5 w-3.5" />
-              Remove
+              {t("dropzone.remove")}
             </Button>
           </>
         ) : (
@@ -213,9 +220,13 @@ export function FileDropzone({
             </div>
             <div className="space-y-1">
               <p className="text-sm font-medium text-foreground">
-                {isDragging ? "Drop file to upload" : "Drop file here"}
+                {isDragging
+                  ? t("dropzone.dropFileActive")
+                  : t("dropzone.dropFile")}
               </p>
-              <p className="text-xs text-muted-foreground">{description}</p>
+              <p className="text-xs text-muted-foreground">
+                {resolvedDescription}
+              </p>
             </div>
           </>
         )}

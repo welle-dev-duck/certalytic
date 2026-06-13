@@ -6,7 +6,7 @@ import type {
 } from '@mistralai/mistralai/models/components';
 import { env } from '../../config/env';
 
-/** The Mistral SDK appends `/v1` — avoid double-prefixing when env includes it. */
+/** The Mistral SDK appends `/v1` - avoid double-prefixing when env includes it. */
 export function normalizeMistralServerUrl(baseUrl: string): string {
   return baseUrl.replace(/\/v1\/?$/, '');
 }

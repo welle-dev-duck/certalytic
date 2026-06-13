@@ -22,6 +22,7 @@ import {
 } from "@/features/candidates/lib/candidate-table-utils";
 import type { CandidateListItem } from "@/features/candidates/types";
 import { getIntegrityLevel, getScoreColor } from "@/lib/integrity";
+import { useTranslations } from "@/lib/i18n/client";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
@@ -41,18 +42,42 @@ type CandidatesTableProps = {
   onPageSizeChange?: (size: number) => void;
 };
 
-const HEADERS: Record<CandidatesTableVariant, string[]> = {
+const HEADER_KEYS: Record<
+  CandidatesTableVariant,
+  (
+    | "candidates.table.headers.candidate"
+    | "candidates.table.headers.role"
+    | "candidates.table.headers.status"
+    | "candidates.table.headers.score"
+    | "candidates.table.headers.integrity"
+    | "candidates.table.headers.rounds"
+    | "candidates.table.headers.screened"
+    | "candidates.table.headers.createdAt"
+  )[]
+> = {
   full: [
-    "Candidate",
-    "Role",
-    "Status",
-    "Score",
-    "Integrity",
-    "Rounds",
-    "Screened",
+    "candidates.table.headers.candidate",
+    "candidates.table.headers.role",
+    "candidates.table.headers.status",
+    "candidates.table.headers.score",
+    "candidates.table.headers.integrity",
+    "candidates.table.headers.rounds",
+    "candidates.table.headers.screened",
   ],
-  compact: ["Candidate", "Role", "Status", "Score", "Created At"],
-  role: ["Candidate", "Status", "Rounds", "Score", "Screened"],
+  compact: [
+    "candidates.table.headers.candidate",
+    "candidates.table.headers.role",
+    "candidates.table.headers.status",
+    "candidates.table.headers.score",
+    "candidates.table.headers.createdAt",
+  ],
+  role: [
+    "candidates.table.headers.candidate",
+    "candidates.table.headers.status",
+    "candidates.table.headers.rounds",
+    "candidates.table.headers.score",
+    "candidates.table.headers.screened",
+  ],
 };
 
 function headerAlign(variant: CandidatesTableVariant, index: number): string {
@@ -67,7 +92,7 @@ export function CandidatesTable({
   candidates,
   variant = "full",
   isLoading = false,
-  emptyMessage = "No candidates match the current filters.",
+  emptyMessage,
   onRerun,
   onDelete,
   pagination,
@@ -76,14 +101,17 @@ export function CandidatesTable({
   onPrevPage,
   onPageSizeChange,
 }: CandidatesTableProps) {
+  const t = useTranslations("app");
   const router = useRouter();
-  const headers = HEADERS[variant];
+  const headers = HEADER_KEYS[variant].map((key) => t(key));
+  const resolvedEmptyMessage =
+    emptyMessage ?? t("candidates.table.emptyDefault");
   const colSpan = headers.length + 2;
 
   if (isLoading) {
     return (
       <div className="px-4 py-12 text-center text-sm text-muted-foreground">
-        Loading candidates…
+        {t("candidates.table.loading")}
       </div>
     );
   }
@@ -111,8 +139,8 @@ export function CandidatesTable({
                   {header}
                 </th>
               ))}
-              <th className="w-10 px-2 py-3" aria-label="Actions" />
-              <th className="w-10 px-2 py-3" aria-label="View" />
+              <th className="w-10 px-2 py-3" aria-label={t("candidates.table.aria.actions")} />
+              <th className="w-10 px-2 py-3" aria-label={t("candidates.table.aria.view")} />
             </tr>
           </thead>
           <tbody>
@@ -122,7 +150,7 @@ export function CandidatesTable({
                   colSpan={colSpan}
                   className="px-4 py-12 text-center text-sm text-muted-foreground"
                 >
-                  {emptyMessage}
+                  {resolvedEmptyMessage}
                 </td>
               </tr>
             ) : null}

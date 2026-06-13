@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useDeleteCandidate } from "@/features/candidates/hooks/use-candidates";
+import { useTranslations } from "@/lib/i18n/client";
 import { routes } from "@/lib/routes";
 
 type CandidateRef = {
@@ -33,6 +34,7 @@ export function DeleteCandidateDialog({
   candidate,
   onDeleted,
 }: DeleteCandidateDialogProps) {
+  const t = useTranslations("app");
   const router = useRouter();
   const deleteCandidate = useDeleteCandidate();
 
@@ -41,13 +43,15 @@ export function DeleteCandidateDialog({
 
     try {
       await deleteCandidate.mutateAsync(candidate.id);
-      toast.success("Candidate deleted.");
+      toast.success(t("candidates.deleteDialog.toast.success"));
       onOpenChange(false);
       onDeleted?.();
       router.push(routes.candidates());
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to delete candidate.",
+        error instanceof Error
+          ? error.message
+          : t("candidates.deleteDialog.toast.failed"),
       );
     }
   }
@@ -56,20 +60,11 @@ export function DeleteCandidateDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Delete candidate?</DialogTitle>
+          <DialogTitle>{t("candidates.deleteDialog.title")}</DialogTitle>
           <DialogDescription>
-            {candidate ? (
-              <>
-                This will permanently delete{" "}
-                <span className="font-semibold text-foreground">
-                  {candidate.name}
-                </span>
-                , including interview transcripts and integrity scores. This
-                action cannot be undone.
-              </>
-            ) : (
-              "This action cannot be undone."
-            )}
+            {candidate
+              ? t("candidates.deleteDialog.description", { name: candidate.name })
+              : t("candidates.deleteDialog.descriptionFallback")}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2">
@@ -78,7 +73,7 @@ export function DeleteCandidateDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            {t("candidates.deleteDialog.cancel")}
           </Button>
           <Button
             type="button"
@@ -86,7 +81,7 @@ export function DeleteCandidateDialog({
             onClick={() => void confirmDelete()}
             disabled={candidate === null || deleteCandidate.isPending}
           >
-            Delete candidate
+            {t("candidates.deleteDialog.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>

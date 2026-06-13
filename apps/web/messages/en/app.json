@@ -1,0 +1,565 @@
+{
+  "sidebar": {
+    "brand": "Certalytic",
+    "nav": {
+      "dashboard": "Dashboard",
+      "roles": "Roles",
+      "candidates": "Candidates",
+      "billing": "Billing",
+      "settings": "Settings"
+    },
+    "selectOrganization": "Select organization",
+    "planSuffix": "{plan} Plan",
+    "createOrganization": "Create organization",
+    "tokens": {
+      "included": "INCLUDED",
+      "packRefill": "PACK REFILL"
+    },
+    "personalSettingsTitle": "Your personal settings",
+    "yourSettings": "Your settings",
+    "signOut": "Sign out",
+    "defaultPlan": "Free"
+  },
+  "org": {
+    "createTeam": {
+      "title": "Create organization",
+      "description": "Create a new organization workspace. It will become your active organization.",
+      "nameLabel": "Organization name",
+      "namePlaceholder": "Acme Hiring",
+      "submit": "Create organization",
+      "cancel": "Cancel",
+      "toast": {
+        "limitReached": "Organization limit reached.",
+        "created": "Organization created.",
+        "failed": "Failed to create organization."
+      },
+      "validation": {
+        "nameRequired": "Organization name is required"
+      }
+    },
+    "noOrganization": {
+      "title": "Create your team",
+      "description": "Certalytic organizes screenings by team. Create one to save roles, screen candidates, and manage billing.",
+      "createTeam": "Create team"
+    }
+  },
+  "dashboard": {
+    "title": "Intelligence Overview",
+    "subtitle": "Hiring integrity dashboard",
+    "systemStatus": {
+      "nominal": "Systems Nominal",
+      "maintenance": "System Maintenance",
+      "outage": "System Outage"
+    },
+    "stats": {
+      "totalRoles": "Total Roles",
+      "activeRoles": "Active job roles",
+      "totalCandidates": "Total Candidates",
+      "acrossAllRoles": "Across all roles",
+      "highRiskFlagged": "High Risks Flagged",
+      "highRiskSub": "Integrity score below 50",
+      "mediumRiskFlagged": "Medium Risks Flagged",
+      "mediumRiskSub": "Integrity score 50–74",
+      "avgIntegrityScore": "Avg Integrity Score",
+      "avgIntegritySub": "Across completed screenings"
+    },
+    "recentScreenings": "Recent Candidate Screenings",
+    "newCandidate": "New Candidate",
+    "searchPlaceholder": "Search by candidate name…",
+    "emptySearch": "No candidates match your search.",
+    "emptyDefault": "No screenings yet."
+  },
+  "candidates": {
+    "page": {
+      "title": "Candidates",
+      "screeningsLoadedSingular": "{count} screening loaded",
+      "screeningsLoadedPlural": "{count} screenings loaded",
+      "tokensAvailable": "· {count} token(s) available",
+      "loading": "Loading…"
+    },
+    "searchPlaceholder": "Search by name, email, role…",
+    "statusFilter": {
+      "all": "ALL",
+      "pending": "PENDING",
+      "processing": "PROCESSING",
+      "complete": "COMPLETE",
+      "failed": "FAILED"
+    },
+    "screeningsTitle": "Candidate Screenings",
+    "newCandidate": "New Candidate",
+    "table": {
+      "loading": "Loading candidates…",
+      "emptyDefault": "No candidates match the current filters.",
+      "headers": {
+        "candidate": "Candidate",
+        "role": "Role",
+        "status": "Status",
+        "score": "Score",
+        "integrity": "Integrity",
+        "rounds": "Rounds",
+        "screened": "Screened",
+        "createdAt": "Created At"
+      },
+      "aria": {
+        "actions": "Actions",
+        "view": "View"
+      }
+    },
+    "rowActions": {
+      "openMenu": "Open menu",
+      "view": "View",
+      "exportPdf": "Export PDF",
+      "rerun": "Re-run",
+      "delete": "Delete"
+    },
+    "deleteDialog": {
+      "title": "Delete candidate?",
+      "description": "This will permanently delete {name}, including interview transcripts and integrity scores. This action cannot be undone.",
+      "descriptionFallback": "This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete candidate",
+      "toast": {
+        "success": "Candidate deleted.",
+        "failed": "Failed to delete candidate."
+      }
+    },
+    "rerunDialog": {
+      "title": "Re-run screening?",
+      "description": "This will re-analyze {name} using the stored CV and merged interview transcripts. The current integrity score will be replaced. This consumes 1 token.",
+      "descriptionFallback": "Re-running replaces the current analysis and consumes 1 token.",
+      "cancel": "Cancel",
+      "confirm": "Re-run screening",
+      "confirming": "Re-queuing…",
+      "toast": {
+        "success": "Screening re-queued.",
+        "failed": "Failed to re-run screening."
+      }
+    },
+    "detail": {
+      "loading": "Loading candidate…",
+      "backToCandidates": "Back to Candidates",
+      "exportPdf": "Export PDF",
+      "rerun": "Re-run",
+      "delete": "Delete",
+      "hiringIntegrityScore": "HIRING INTEGRITY SCORE",
+      "signalProfile": "SIGNAL PROFILE",
+      "availableWhenComplete": "Available when screening completes",
+      "status": "Status",
+      "scanCreatedAt": "Scan Created At",
+      "flagsRaised": "Flags Raised",
+      "flagsCountSingular": "{count} flag",
+      "flagsCountPlural": "{count} flags",
+      "interviewRounds": "Interview Rounds",
+      "activeFlagsSingular": "{count} Active Flag Detected",
+      "activeFlagsPlural": "{count} Active Flags Detected",
+      "screeningFailed": "Screening failed",
+      "screeningFailedFallback": "The screening could not be completed."
+    },
+    "empty": {
+      "search": "No candidates match your search.",
+      "roleSearch": "No candidates match your search.",
+      "roleDefault": "No candidates screened for this role yet."
+    }
+  },
+  "screening": {
+    "modal": {
+      "title": "Screen candidate",
+      "tokensAvailable": "{count} token(s) available",
+      "cancel": "Cancel",
+      "back": "Back",
+      "continue": "Continue",
+      "start": "Start screening"
+    },
+    "steps": {
+      "role": {
+        "title": "Role",
+        "description": "Choose the position"
+      },
+      "candidate": {
+        "title": "Candidate",
+        "description": "Details & CV"
+      },
+      "crossRef": {
+        "title": "Cross-ref",
+        "description": "LinkedIn & GitHub"
+      },
+      "interviews": {
+        "title": "Interviews",
+        "description": "Merged transcripts"
+      }
+    },
+    "roleStep": {
+      "description": "Select a saved role to contextualize the integrity score.",
+      "empty": "Create a role profile before screening candidates.",
+      "goToRoles": "Go to Roles",
+      "candidatesSingular": "{count} candidate",
+      "candidatesPlural": "{count} candidates"
+    },
+    "candidateStep": {
+      "name": "Name",
+      "email": "Email",
+      "applyingFor": "Applying for",
+      "noRoleSelected": "No role selected",
+      "changeRole": "Change role",
+      "cvLabel": "CV / Résumé",
+      "uploadTab": "Upload",
+      "pasteTab": "Paste text",
+      "uploadHint": "PDF, Word (.docx), or Markdown. Max {maxMb} MB.",
+      "dropzoneDescription": "or click to browse",
+      "cvPlaceholder": "Paste the candidate CV content here (min. 50 characters)…",
+      "characterCount": "{current} / {max} characters · {words} / {maxWords} words max"
+    },
+    "crossRefStep": {
+      "description": "Optional cross-reference signals strengthen the integrity score by comparing the CV against public profiles.",
+      "linkedinLabel": "LinkedIn profile",
+      "linkedinHint": "Paste the candidate's LinkedIn profile content here.",
+      "linkedinPlaceholder": "Paste headline, experience, education, and skills from the LinkedIn profile…",
+      "githubLabel": "GitHub profile",
+      "githubPlaceholder": "https://github.com/username",
+      "planRequired": "Cross-reference screening requires a Starter plan or higher. You can skip this step and continue with CV and interview analysis only."
+    },
+    "interviewsStep": {
+      "description": "Add interview transcripts as pasted text or uploaded files. Multiple files are merged into one dossier for analysis.",
+      "pasteTab": "Paste text",
+      "uploadTab": "Upload file",
+      "transcriptLabel": "Interview transcript",
+      "transcriptPlaceholder": "Paste transcript from Zoom, Teams, or other sources…",
+      "characterCount": "{current} / {max} characters · {words} / {maxWords} words max",
+      "filesLabel": "Transcript files",
+      "filesHint": "Upload up to {max} Zoom .vtt captions or Teams .docx exports.",
+      "dropzoneDescription": "or click to browse (up to 3 files)",
+      "notesLabel": "Internal notes",
+      "notesPlaceholder": "Private recruiter observations…"
+    },
+    "processing": {
+      "title": "Screening in progress",
+      "subtitle": "Your integrity report will appear here once analysis completes.",
+      "stages": {
+        "extractingCv": "Extracting CV Data",
+        "analyzingTranscript": "Analyzing Transcript",
+        "gatheringFlags": "Gathering Flags",
+        "summingMetrics": "Summing up Metrics",
+        "calculatingScore": "Calculating Hiring Integrity Score (HIS)"
+      }
+    },
+    "toast": {
+      "started": "Screening started.",
+      "failed": "Failed to start screening."
+    },
+    "validation": {
+      "nameRequired": "Candidate name is required.",
+      "nameMaxLength": "Name must not exceed {max} characters.",
+      "emailInvalid": "Enter a valid email address.",
+      "emailMaxLength": "Email must not exceed {max} characters.",
+      "roleRequired": "Select a role.",
+      "cvFileRequired": "Upload a CV file or switch to manual text input.",
+      "cvFileMaxSize": "CV file must not exceed {maxMb} MB.",
+      "cvTextMinLength": "Paste at least 50 characters of CV content.",
+      "cvTextMaxLength": "CV text must not exceed {max} characters.",
+      "cvTextMaxWords": "CV text exceeds the maximum of {max} words.",
+      "linkedinMaxLength": "LinkedIn content must not exceed {max} characters.",
+      "githubMaxLength": "GitHub URL must not exceed {max} characters.",
+      "githubInvalid": "Enter a valid GitHub profile URL (e.g. https://github.com/username).",
+      "notesMaxLength": "Internal notes must not exceed {max} characters.",
+      "transcriptRequired": "Paste an interview transcript.",
+      "transcriptMinLength": "Transcript must be at least 10 characters.",
+      "transcriptMaxLength": "Transcript must not exceed {max} characters.",
+      "transcriptMaxWords": "Transcript exceeds the maximum of {max} words.",
+      "transcriptFilesRequired": "Upload at least one Zoom .vtt or Teams .docx transcript file.",
+      "transcriptFilesMax": "You can upload up to {max} transcript files.",
+      "transcriptFileInvalid": "Upload a Zoom .vtt caption file or a Teams .docx export.",
+      "failed": "Validation failed."
+    }
+  },
+  "dossier": {
+    "tabs": {
+      "cvAnalysis": "CV Analysis",
+      "platformCrossRef": "Platform Cross-Ref",
+      "behaviourAnalysis": "Behaviour Analysis",
+      "personalityAnalysis": "Personality Analysis",
+      "interviewAnalysis": "Interview Analysis",
+      "signalSummary": "Signal Summary"
+    },
+    "cvAnalysis": {
+      "aiTextDetection": "AI Text Detection Analysis",
+      "overallAiProbability": "Overall AI-generated text probability",
+      "executiveSummaryAuthenticity": "Executive summary authenticity",
+      "workExperienceNarrative": "Work experience narrative",
+      "skillsAuthenticity": "Skills section authenticity",
+      "parserOutput": "PARSER OUTPUT",
+      "parserTarget": "certalytic-nlp-classifier",
+      "pending": "CV authorship analysis pending.",
+      "metrics": "CV Metrics",
+      "aiTextProbability": "AI Text Probability",
+      "cvAuthorshipScore": "CV Authorship Score",
+      "formattingOrigin": "Formatting Origin",
+      "formattingTemplate": "Template (AI)",
+      "formattingManual": "Manual",
+      "languageModelMatch": "Language Model Match",
+      "languageModelGpt": "GPT-class / Claude",
+      "languageModelNone": "None",
+      "riskVectors": "Risk Vectors"
+    },
+    "platformCrossRef": {
+      "consistencyMatrix": "Platform Consistency Matrix",
+      "linkedinCvMatch": "LinkedIn ↔ CV employment match",
+      "githubExperienceMatch": "GitHub activity ↔ claimed experience",
+      "crossPlatformConsistency": "Cross-platform name/date consistency",
+      "linkedinAnalysis": "LinkedIn Analysis",
+      "githubAnalysis": "GitHub Analysis",
+      "profile": "Profile",
+      "provided": "Provided",
+      "cvConsistency": "CV Consistency",
+      "notEvaluated": "Not evaluated",
+      "noLinkedin": "No LinkedIn profile provided for cross-ref.",
+      "noGithub": "No GitHub username provided for cross-ref.",
+      "username": "Username",
+      "platformSummary": "Platform Summary",
+      "overallConsistency": "Overall Consistency",
+      "sourcesCrossChecked": "Sources Cross-Checked",
+      "linkedin": "LinkedIn",
+      "github": "GitHub",
+      "checked": "Checked",
+      "notProvided": "Not provided"
+    },
+    "behaviourAnalysis": {
+      "title": "Candidate behaviour analysis",
+      "indicatorLabel": "Collaboration indicators"
+    },
+    "personalityAnalysis": {
+      "title": "Candidate personality analysis",
+      "indicatorLabel": "Culture fit indicators"
+    },
+    "supplementary": {
+      "disclaimer": "Supplementary hiring context only. Not included in the hiring integrity score.",
+      "observedTraits": "Observed traits",
+      "motivationSignals": "Motivation signals",
+      "watchpoints": "Watchpoints"
+    },
+    "interviewAnalysis": {
+      "insights": "Interview Insights",
+      "noTranscript": "No interview transcript recorded for this candidate.",
+      "roundTitle": "Round {number} - What the analysis noticed",
+      "interview": "Interview",
+      "identity": "Identity",
+      "varianceDelta": "Variance Δ",
+      "truncated": "TRUNCATED",
+      "deepDivePrompts": "SUGGESTED DEEP-DIVE PROMPTS",
+      "metrics": "Interview Metrics",
+      "roundsRecorded": "Rounds Recorded",
+      "truncatedRounds": "Truncated Rounds",
+      "confidenceVariance": "Confidence Variance",
+      "promptInjectionRisk": "Prompt Injection Risk",
+      "riskElevated": "Elevated",
+      "riskLow": "Low"
+    },
+    "signalSummary": {
+      "intelligenceSummary": "Certalytic Intelligence Summary",
+      "signalVectorScores": "Signal Vector Scores",
+      "suggestedFollowUps": "Suggested Follow-ups"
+    },
+    "disclaimer": {
+      "message": "This score represents a probability heuristic, not an absolute verdict. Use it to guide your human follow-up questions."
+    }
+  },
+  "roles": {
+    "list": {
+      "title": "Roles",
+      "subtitle": "Saved role profiles for repeatable screening context",
+      "newRole": "New role",
+      "searchPlaceholder": "Search roles…",
+      "loading": "Loading roles…",
+      "empty": "No roles yet. Create your first role to get started.",
+      "headers": {
+        "role": "Role",
+        "candidates": "Candidates",
+        "avgIntegrity": "Avg Integrity",
+        "created": "Created"
+      },
+      "aria": {
+        "actions": "Actions",
+        "view": "View"
+      },
+      "edit": "Edit",
+      "delete": "Delete",
+      "toast": {
+        "deleted": "Role deleted.",
+        "deleteFailed": "Failed to delete role."
+      }
+    },
+    "deleteDialog": {
+      "title": "Delete role?",
+      "description": "This will permanently delete \"{title}\". Candidates linked to this role will keep their data but lose the role association.",
+      "descriptionFallback": "This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete role",
+      "confirming": "Deleting…"
+    },
+    "detail": {
+      "loading": "Loading role…",
+      "backToRoles": "Back to Roles",
+      "edit": "Edit",
+      "delete": "Delete",
+      "created": "Created {date}",
+      "screeningsSingular": "{count} screening",
+      "screeningsPlural": "{count} screenings",
+      "avgIntegrity": "AVG INTEGRITY",
+      "noScores": "No scores",
+      "acrossScoredSingular": "across {count} scored candidate",
+      "acrossScoredPlural": "across {count} scored candidates",
+      "jobDescription": "JOB DESCRIPTION",
+      "noDescription": "No description provided.",
+      "showMore": "Show more",
+      "showLess": "Show less",
+      "candidates": "Candidates",
+      "newCandidate": "New Candidate",
+      "searchPlaceholder": "Search by name or email…",
+      "deleteConfirm": "Delete \"{title}\"? Candidates keep their snapshot title and description."
+    },
+    "distribution": {
+      "high": "High (75+)",
+      "medium": "Medium (50–74)",
+      "low": "Low (<50)"
+    },
+    "form": {
+      "createTitle": "Create role",
+      "editTitle": "Edit role",
+      "description": "Define the role title and job description used to contextualize technical interview integrity scoring.",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Senior Backend Engineer",
+      "titleMax": "{current} / {max} characters max",
+      "descriptionLabel": "Job description",
+      "descriptionPlaceholder": "Requirements, seniority expectations, and role context for AI scoring.",
+      "descriptionMax": "{current} / {max} characters max",
+      "cancel": "Cancel",
+      "create": "Create role",
+      "save": "Save changes",
+      "validation": {
+        "titleRequired": "Title is required",
+        "descriptionRequired": "Job description is required"
+      },
+      "toast": {
+        "created": "Role created.",
+        "updated": "Role updated."
+      }
+    },
+    "export": {
+      "generating": "Generating PDF…",
+      "exportPdf": "Export PDF",
+      "failed": "Export failed.",
+      "failedWithMessage": "Export failed: {message}"
+    }
+  },
+  "billing": {
+    "title": "Billing",
+    "subtitle": "Screening token usage, plans, and add-on packs",
+    "sections": {
+      "tokenUsage": "TOKEN USAGE",
+      "plans": "PLANS",
+      "tokenPacks": "TOKEN PACKS"
+    },
+    "usage": {
+      "includedTokens": "Included tokens this period",
+      "usedOfQuota": "{used} / {quota}",
+      "summary": "{includedLeft} included left · {available} available now",
+      "packBalance": "· +{count} pack balance"
+    },
+    "currentPlan": "Your current plan:",
+    "plans": {
+      "free": {
+        "label": "Free",
+        "features": {
+          "screenings": "3 screenings / month",
+          "savedRoles": "Saved roles",
+          "watermarkedExports": "Watermarked PDF exports"
+        }
+      },
+      "starter": {
+        "label": "Starter",
+        "recommendation": "Choose this if you expect to manage around 4 roles / month",
+        "features": {
+          "screenings": "20 screenings / month",
+          "integrityBreakdown": "Full integrity breakdown",
+          "crossReference": "Cross-Reference checks",
+          "refillableTokens": "Refillable screening tokens",
+          "exports": "Export Integrity Dossiers in 2 languages",
+          "emailSupport": "Email Support"
+        }
+      },
+      "growth": {
+        "label": "Growth",
+        "recommendation": "Choose this if you expect to manage around 10 roles / month",
+        "includesPlan": "Starter",
+        "includesPrefix": "Everything in {plan}, plus:",
+        "features": {
+          "screenings": "50 screenings / month",
+          "seats": "3 seats",
+          "priorityEmail": "Priority Email Support"
+        }
+      },
+      "scale": {
+        "label": "Scale",
+        "recommendation": "Choose this if you expect to manage around 25 roles / month",
+        "includesPlan": "Growth",
+        "includesPrefix": "Everything in {plan}, plus:",
+        "features": {
+          "screenings": "125 screenings / month",
+          "seats": "5 seats",
+          "priorityQueue": "Priority Queue (faster Candidate evaluation)",
+          "premiumSupport": "Premium Support (Slack Access)"
+        }
+      },
+      "enterprise": {
+        "label": "Enterprise",
+        "price": "Custom",
+        "recommendation": "Choose this if you have custom needs.",
+        "features": {
+          "unlimited": "Unlimited seats & tokens",
+          "atsIntegrations": "ATS system integrations (Greenhouse, Lever, Workday)",
+          "sso": "Single sign-on (SSO) & SAML",
+          "dedicatedSupport": "Priority support with dedicated success manager",
+          "onboarding": "Custom onboarding",
+          "apiAccess": "API access"
+        },
+        "contactUs": "Contact us"
+      },
+      "perMonth": "/mo",
+      "badgeCurrent": "CURRENT",
+      "manageSubscription": "Manage subscription",
+      "upgrade": "Upgrade",
+      "redirecting": "Redirecting…"
+    },
+    "packs": {
+      "quickRefill": "Quick Refill",
+      "pipelineSurge": "Pipeline Surge",
+      "highVolumeBoost": "High-Volume Boost",
+      "summary": "{tokens} screenings · €{perToken}/screening",
+      "purchase": "Purchase",
+      "upgradeRequired": "Upgrade to a paid plan to purchase token packs"
+    },
+    "toast": {
+      "checkoutFailed": "Checkout failed.",
+      "portalFailed": "Could not open portal."
+    }
+  },
+  "invitation": {
+    "title": "Organization invitation",
+    "loading": "Loading invitation…",
+    "invited": "You've been invited to join {organization} as {role}.",
+    "invalid": "This invitation is invalid or has expired.",
+    "emailMismatch": "Signed in as {signedInEmail}. This invitation was sent to {invitationEmail}.",
+    "accept": "Accept",
+    "decline": "Decline",
+    "defaultOrganization": "an organization",
+    "toast": {
+      "notFound": "Invitation not found.",
+      "acceptFailed": "Failed to accept invitation.",
+      "accepted": "Invitation accepted.",
+      "rejectFailed": "Failed to reject invitation.",
+      "declined": "Invitation declined."
+    }
+  },
+  "realtime": {
+    "roleExportFailed": "Role export failed."
+  }
+}

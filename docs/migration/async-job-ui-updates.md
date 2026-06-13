@@ -6,7 +6,7 @@ How the legacy Laravel app surfaces screening progress, and what the Turborepo s
 
 ---
 
-## Legacy reference (PHP — polling)
+## Legacy reference (PHP - polling)
 
 The Laravel app did **not** use WebSockets. It used Inertia partial reloads:
 
@@ -14,7 +14,7 @@ The Laravel app did **not** use WebSockets. It used Inertia partial reloads:
 |---|---|---|
 | Candidate show | `router.reload({ only: ['candidate', 'report'] })` | 4s |
 | Role PDF export | `router.reload({ only: ['latestExport'] })` | 3s |
-| Candidates list | None | — |
+| Candidates list | None | - |
 
 Workers updated `candidates.status` / `role_exports.status` in PostgreSQL; each poll was a full HTTP round-trip.
 
@@ -40,7 +40,7 @@ BullMQ worker                    Redis pub/sub              Express WS server   
 
 ### Why Redis pub/sub
 
-Workers run in the same Node process as the API today (`index.ts`), but publishing through Redis keeps workers decoupled from whichever HTTP/WS process holds open connections — same Redis instance BullMQ already uses.
+Workers run in the same Node process as the API today (`index.ts`), but publishing through Redis keeps workers decoupled from whichever HTTP/WS process holds open connections - same Redis instance BullMQ already uses.
 
 ### Event types
 
@@ -160,7 +160,7 @@ On `role_export.updated` with `status === 'complete'`, invalidate export query a
 
 ### Candidates list (enhancement)
 
-Subscribe to `org:{organizationId}` and invalidate `['candidates']` when any `candidate.updated` fires — better than legacy, which did not update the list live.
+Subscribe to `org:{organizationId}` and invalidate `['candidates']` when any `candidate.updated` fires - better than legacy, which did not update the list live.
 
 ### Fallback
 
@@ -172,9 +172,9 @@ If the socket disconnects, use a **slow poll** (`refetchInterval: 10000`) only w
 
 | Mechanism | Direction | Purpose |
 |---|---|---|
-| **Stripe webhooks** | Stripe → backend | Billing, subscriptions, pack credits — unchanged |
+| **Stripe webhooks** | Stripe → backend | Billing, subscriptions, pack credits - unchanged |
 | **WebSockets** | Backend → browser | Screening + role export job status |
-| **Public API webhooks** (roadmap) | Certalytic → customer systems | Future external integrations — not migration MVP |
+| **Public API webhooks** (roadmap) | Certalytic → customer systems | Future external integrations - not migration MVP |
 
 ---
 

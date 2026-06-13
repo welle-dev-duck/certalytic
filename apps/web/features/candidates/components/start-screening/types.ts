@@ -1,4 +1,5 @@
 import type { RoleListItem } from "@/features/roles/types";
+import type { Translator } from "@/lib/i18n/translate";
 
 export type ScreeningFormState = {
   name: string;
@@ -15,12 +16,32 @@ export type ScreeningFormState = {
   interviewerNotes: string;
 };
 
-export const SCREENING_STEPS = [
-  { id: 1, title: "Role", description: "Choose the position" },
-  { id: 2, title: "Candidate", description: "Details & CV" },
-  { id: 3, title: "Cross-ref", description: "LinkedIn & GitHub" },
-  { id: 4, title: "Interviews", description: "Merged transcripts" },
-] as const;
+export const SCREENING_STEP_COUNT = 4;
+
+export function getScreeningSteps(t: Translator) {
+  return [
+    {
+      id: 1,
+      title: t("screening.steps.role.title"),
+      description: t("screening.steps.role.description"),
+    },
+    {
+      id: 2,
+      title: t("screening.steps.candidate.title"),
+      description: t("screening.steps.candidate.description"),
+    },
+    {
+      id: 3,
+      title: t("screening.steps.crossRef.title"),
+      description: t("screening.steps.crossRef.description"),
+    },
+    {
+      id: 4,
+      title: t("screening.steps.interviews.title"),
+      description: t("screening.steps.interviews.description"),
+    },
+  ] as const;
+}
 
 export function buildInitialFormState(
   roles: RoleListItem[],

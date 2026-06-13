@@ -1,4 +1,7 @@
+"use client";
+
 import type { SupplementaryAnalysis } from "@/features/candidates/types";
+import { useTranslations } from "@/lib/i18n/client";
 
 function Panel({
   title,
@@ -26,13 +29,14 @@ export function SupplementaryAnalysisPanel({
   indicatorLabel: string;
   showMotivation?: boolean;
 }) {
+  const t = useTranslations("app");
+
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <div className="space-y-4 lg:col-span-2">
         <Panel title={title}>
           <p className="mb-4 rounded border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs text-muted-foreground">
-            Supplementary hiring context only. Not included in the hiring
-            integrity score.
+            {t("dossier.supplementary.disclaimer")}
           </p>
           <p className="text-sm leading-relaxed text-foreground">
             {analysis.summary}
@@ -47,7 +51,7 @@ export function SupplementaryAnalysisPanel({
             {analysis.traits.length > 0 && (
               <div className="rounded border border-border bg-muted/20 p-3">
                 <p className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
-                  Observed traits
+                  {t("dossier.supplementary.observedTraits")}
                 </p>
                 <ul className="mt-2 space-y-1.5 text-sm text-foreground">
                   {analysis.traits.map((trait) => (
@@ -75,7 +79,7 @@ export function SupplementaryAnalysisPanel({
           </Panel>
         )}
         {showMotivation && analysis.motivationSignals.length > 0 && (
-          <Panel title="Motivation signals">
+          <Panel title={t("dossier.supplementary.motivationSignals")}>
             <ul className="space-y-2 text-xs text-foreground">
               {analysis.motivationSignals.map((signal) => (
                 <li
@@ -89,7 +93,7 @@ export function SupplementaryAnalysisPanel({
           </Panel>
         )}
         {analysis.concerns.length > 0 && (
-          <Panel title="Watchpoints">
+          <Panel title={t("dossier.supplementary.watchpoints")}>
             <ul className="space-y-2 text-xs text-foreground">
               {analysis.concerns.map((concern) => (
                 <li

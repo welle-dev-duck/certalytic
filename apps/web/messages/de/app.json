@@ -1,0 +1,565 @@
+{
+  "sidebar": {
+    "brand": "Certalytic",
+    "nav": {
+      "dashboard": "Dashboard",
+      "roles": "Rollen",
+      "candidates": "Kandidaten",
+      "billing": "Abrechnung",
+      "settings": "Einstellungen"
+    },
+    "selectOrganization": "Organisation auswählen",
+    "planSuffix": "{plan}-Tarif",
+    "createOrganization": "Organisation erstellen",
+    "tokens": {
+      "included": "INKLUSIVE",
+      "packRefill": "PAKET-AUFFÜLLUNG"
+    },
+    "personalSettingsTitle": "Ihre persönlichen Einstellungen",
+    "yourSettings": "Ihre Einstellungen",
+    "signOut": "Abmelden",
+    "defaultPlan": "Kostenlos"
+  },
+  "org": {
+    "createTeam": {
+      "title": "Organisation erstellen",
+      "description": "Erstellen Sie einen neuen Organisations-Workspace. Er wird Ihre aktive Organisation.",
+      "nameLabel": "Name der Organisation",
+      "namePlaceholder": "Acme Hiring",
+      "submit": "Organisation erstellen",
+      "cancel": "Abbrechen",
+      "toast": {
+        "limitReached": "Organisationslimit erreicht.",
+        "created": "Organisation erstellt.",
+        "failed": "Organisation konnte nicht erstellt werden."
+      },
+      "validation": {
+        "nameRequired": "Name der Organisation ist erforderlich"
+      }
+    },
+    "noOrganization": {
+      "title": "Team erstellen",
+      "description": "Certalytic organisiert Screenings nach Teams. Erstellen Sie eines, um Rollen zu speichern, Kandidaten zu screenen und die Abrechnung zu verwalten.",
+      "createTeam": "Team erstellen"
+    }
+  },
+  "dashboard": {
+    "title": "Intelligence-Übersicht",
+    "subtitle": "Dashboard zur Einstellungsintegrität",
+    "systemStatus": {
+      "nominal": "Systeme nominal",
+      "maintenance": "Systemwartung",
+      "outage": "Systemausfall"
+    },
+    "stats": {
+      "totalRoles": "Rollen gesamt",
+      "activeRoles": "Aktive Stellen",
+      "totalCandidates": "Kandidaten gesamt",
+      "acrossAllRoles": "Über alle Rollen",
+      "highRiskFlagged": "Hohe Risiken markiert",
+      "highRiskSub": "Integritätswert unter 50",
+      "mediumRiskFlagged": "Mittlere Risiken markiert",
+      "mediumRiskSub": "Integritätswert 50–74",
+      "avgIntegrityScore": "Ø Integritätswert",
+      "avgIntegritySub": "Über abgeschlossene Screenings"
+    },
+    "recentScreenings": "Aktuelle Kandidaten-Screenings",
+    "newCandidate": "Neuer Kandidat",
+    "searchPlaceholder": "Nach Kandidatenname suchen…",
+    "emptySearch": "Keine Kandidaten entsprechen Ihrer Suche.",
+    "emptyDefault": "Noch keine Screenings."
+  },
+  "candidates": {
+    "page": {
+      "title": "Kandidaten",
+      "screeningsLoadedSingular": "{count} Screening geladen",
+      "screeningsLoadedPlural": "{count} Screenings geladen",
+      "tokensAvailable": "· {count} Token verfügbar",
+      "loading": "Wird geladen…"
+    },
+    "searchPlaceholder": "Nach Name, E-Mail, Rolle suchen…",
+    "statusFilter": {
+      "all": "ALLE",
+      "pending": "AUSSTEHEND",
+      "processing": "IN BEARBEITUNG",
+      "complete": "ABGESCHLOSSEN",
+      "failed": "FEHLGESCHLAGEN"
+    },
+    "screeningsTitle": "Kandidaten-Screenings",
+    "newCandidate": "Neuer Kandidat",
+    "table": {
+      "loading": "Kandidaten werden geladen…",
+      "emptyDefault": "Keine Kandidaten entsprechen den aktuellen Filtern.",
+      "headers": {
+        "candidate": "Kandidat",
+        "role": "Rolle",
+        "status": "Status",
+        "score": "Wert",
+        "integrity": "Integrität",
+        "rounds": "Runden",
+        "screened": "Gescreent",
+        "createdAt": "Erstellt am"
+      },
+      "aria": {
+        "actions": "Aktionen",
+        "view": "Ansehen"
+      }
+    },
+    "rowActions": {
+      "openMenu": "Menü öffnen",
+      "view": "Ansehen",
+      "exportPdf": "PDF exportieren",
+      "rerun": "Erneut ausführen",
+      "delete": "Löschen"
+    },
+    "deleteDialog": {
+      "title": "Kandidat löschen?",
+      "description": "Dies löscht {name} dauerhaft, einschließlich Interview-Transkripten und Integritätswerten. Diese Aktion kann nicht rückgängig gemacht werden.",
+      "descriptionFallback": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "cancel": "Abbrechen",
+      "confirm": "Kandidat löschen",
+      "toast": {
+        "success": "Kandidat gelöscht.",
+        "failed": "Kandidat konnte nicht gelöscht werden."
+      }
+    },
+    "rerunDialog": {
+      "title": "Screening erneut ausführen?",
+      "description": "Dies analysiert {name} erneut anhand des gespeicherten Lebenslaufs und der zusammengeführten Interview-Transkripte. Der aktuelle Integritätswert wird ersetzt. Dies verbraucht 1 Token.",
+      "descriptionFallback": "Eine erneute Ausführung ersetzt die aktuelle Analyse und verbraucht 1 Token.",
+      "cancel": "Abbrechen",
+      "confirm": "Screening erneut ausführen",
+      "confirming": "Wird erneut eingereiht…",
+      "toast": {
+        "success": "Screening erneut eingereiht.",
+        "failed": "Screening konnte nicht erneut ausgeführt werden."
+      }
+    },
+    "detail": {
+      "loading": "Kandidat wird geladen…",
+      "backToCandidates": "Zurück zu Kandidaten",
+      "exportPdf": "PDF exportieren",
+      "rerun": "Erneut ausführen",
+      "delete": "Löschen",
+      "hiringIntegrityScore": "EINSTELLUNGS-INTEGRITÄTSWERT",
+      "signalProfile": "SIGNALPROFIL",
+      "availableWhenComplete": "Verfügbar nach Abschluss des Screenings",
+      "status": "Status",
+      "scanCreatedAt": "Scan erstellt am",
+      "flagsRaised": "Markierungen",
+      "flagsCountSingular": "{count} Markierung",
+      "flagsCountPlural": "{count} Markierungen",
+      "interviewRounds": "Interview-Runden",
+      "activeFlagsSingular": "{count} aktive Markierung erkannt",
+      "activeFlagsPlural": "{count} aktive Markierungen erkannt",
+      "screeningFailed": "Screening fehlgeschlagen",
+      "screeningFailedFallback": "Das Screening konnte nicht abgeschlossen werden."
+    },
+    "empty": {
+      "search": "Keine Kandidaten entsprechen Ihrer Suche.",
+      "roleSearch": "Keine Kandidaten entsprechen Ihrer Suche.",
+      "roleDefault": "Für diese Rolle wurden noch keine Kandidaten gescreent."
+    }
+  },
+  "screening": {
+    "modal": {
+      "title": "Kandidat screenen",
+      "tokensAvailable": "{count} Token verfügbar",
+      "cancel": "Abbrechen",
+      "back": "Zurück",
+      "continue": "Weiter",
+      "start": "Screening starten"
+    },
+    "steps": {
+      "role": {
+        "title": "Rolle",
+        "description": "Position auswählen"
+      },
+      "candidate": {
+        "title": "Kandidat",
+        "description": "Details & Lebenslauf"
+      },
+      "crossRef": {
+        "title": "Querverweis",
+        "description": "LinkedIn & GitHub"
+      },
+      "interviews": {
+        "title": "Interviews",
+        "description": "Zusammengeführte Transkripte"
+      }
+    },
+    "roleStep": {
+      "description": "Wählen Sie eine gespeicherte Rolle, um den Integritätswert einzuordnen.",
+      "empty": "Erstellen Sie ein Rollenprofil, bevor Sie Kandidaten screenen.",
+      "goToRoles": "Zu Rollen",
+      "candidatesSingular": "{count} Kandidat",
+      "candidatesPlural": "{count} Kandidaten"
+    },
+    "candidateStep": {
+      "name": "Name",
+      "email": "E-Mail",
+      "applyingFor": "Bewerbung für",
+      "noRoleSelected": "Keine Rolle ausgewählt",
+      "changeRole": "Rolle ändern",
+      "cvLabel": "Lebenslauf / CV",
+      "uploadTab": "Hochladen",
+      "pasteTab": "Text einfügen",
+      "uploadHint": "PDF, Word (.docx) oder Markdown. Max. {maxMb} MB.",
+      "dropzoneDescription": "oder zum Durchsuchen klicken",
+      "cvPlaceholder": "Lebenslauf-Inhalt hier einfügen (mind. 50 Zeichen)…",
+      "characterCount": "{current} / {max} Zeichen · {words} / {maxWords} Wörter max."
+    },
+    "crossRefStep": {
+      "description": "Optionale Querverweis-Signale stärken den Integritätswert durch den Abgleich des Lebenslaufs mit öffentlichen Profilen.",
+      "linkedinLabel": "LinkedIn-Profil",
+      "linkedinHint": "Fügen Sie hier den Inhalt des LinkedIn-Profils des Kandidaten ein.",
+      "linkedinPlaceholder": "Überschrift, Erfahrung, Ausbildung und Fähigkeiten aus dem LinkedIn-Profil einfügen…",
+      "githubLabel": "GitHub-Profil",
+      "githubPlaceholder": "https://github.com/username",
+      "planRequired": "Querverweis-Screening erfordert mindestens den Starter-Tarif. Sie können diesen Schritt überspringen und nur mit Lebenslauf- und Interviewanalyse fortfahren."
+    },
+    "interviewsStep": {
+      "description": "Interview-Transkripte als eingefügten Text oder hochgeladene Dateien hinzufügen. Mehrere Dateien werden zu einem Dossier für die Analyse zusammengeführt.",
+      "pasteTab": "Text einfügen",
+      "uploadTab": "Datei hochladen",
+      "transcriptLabel": "Interview-Transkript",
+      "transcriptPlaceholder": "Transkript aus Zoom, Teams oder anderen Quellen einfügen…",
+      "characterCount": "{current} / {max} Zeichen · {words} / {maxWords} Wörter max.",
+      "filesLabel": "Transkript-Dateien",
+      "filesHint": "Laden Sie bis zu {max} Zoom-.vtt-Untertitel oder Teams-.docx-Exporte hoch.",
+      "dropzoneDescription": "oder zum Durchsuchen klicken (bis zu 3 Dateien)",
+      "notesLabel": "Interne Notizen",
+      "notesPlaceholder": "Private Recruiter-Beobachtungen…"
+    },
+    "processing": {
+      "title": "Screening läuft",
+      "subtitle": "Ihr Integritätsbericht erscheint hier, sobald die Analyse abgeschlossen ist.",
+      "stages": {
+        "extractingCv": "Lebenslauf-Daten extrahieren",
+        "analyzingTranscript": "Transkript analysieren",
+        "gatheringFlags": "Markierungen sammeln",
+        "summingMetrics": "Metriken zusammenfassen",
+        "calculatingScore": "Hiring-Integritätswert (HIS) berechnen"
+      }
+    },
+    "toast": {
+      "started": "Screening gestartet.",
+      "failed": "Screening konnte nicht gestartet werden."
+    },
+    "validation": {
+      "nameRequired": "Kandidatenname ist erforderlich.",
+      "nameMaxLength": "Name darf {max} Zeichen nicht überschreiten.",
+      "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein.",
+      "emailMaxLength": "E-Mail darf {max} Zeichen nicht überschreiten.",
+      "roleRequired": "Wählen Sie eine Rolle.",
+      "cvFileRequired": "Laden Sie eine Lebenslauf-Datei hoch oder wechseln Sie zur manuellen Texteingabe.",
+      "cvFileMaxSize": "Lebenslauf-Datei darf {maxMb} MB nicht überschreiten.",
+      "cvTextMinLength": "Fügen Sie mindestens 50 Zeichen Lebenslauf-Inhalt ein.",
+      "cvTextMaxLength": "Lebenslauf-Text darf {max} Zeichen nicht überschreiten.",
+      "cvTextMaxWords": "Lebenslauf-Text überschreitet das Maximum von {max} Wörtern.",
+      "linkedinMaxLength": "LinkedIn-Inhalt darf {max} Zeichen nicht überschreiten.",
+      "githubMaxLength": "GitHub-URL darf {max} Zeichen nicht überschreiten.",
+      "githubInvalid": "Geben Sie eine gültige GitHub-Profil-URL ein (z. B. https://github.com/username).",
+      "notesMaxLength": "Interne Notizen dürfen {max} Zeichen nicht überschreiten.",
+      "transcriptRequired": "Fügen Sie ein Interview-Transkript ein.",
+      "transcriptMinLength": "Transkript muss mindestens 10 Zeichen lang sein.",
+      "transcriptMaxLength": "Transkript darf {max} Zeichen nicht überschreiten.",
+      "transcriptMaxWords": "Transkript überschreitet das Maximum von {max} Wörtern.",
+      "transcriptFilesRequired": "Laden Sie mindestens eine Zoom-.vtt- oder Teams-.docx-Transkriptdatei hoch.",
+      "transcriptFilesMax": "Sie können bis zu {max} Transkript-Dateien hochladen.",
+      "transcriptFileInvalid": "Laden Sie eine Zoom-.vtt-Untertiteldatei oder einen Teams-.docx-Export hoch.",
+      "failed": "Validierung fehlgeschlagen."
+    }
+  },
+  "dossier": {
+    "tabs": {
+      "cvAnalysis": "Lebenslauf-Analyse",
+      "platformCrossRef": "Plattform-Querverweis",
+      "behaviourAnalysis": "Verhaltensanalyse",
+      "personalityAnalysis": "Persönlichkeitsanalyse",
+      "interviewAnalysis": "Interview-Analyse",
+      "signalSummary": "Signal-Zusammenfassung"
+    },
+    "cvAnalysis": {
+      "aiTextDetection": "KI-Texterkennungsanalyse",
+      "overallAiProbability": "Gesamtwahrscheinlichkeit KI-generierter Texte",
+      "executiveSummaryAuthenticity": "Authentizität der Zusammenfassung",
+      "workExperienceNarrative": "Berufserfahrungsnarrativ",
+      "skillsAuthenticity": "Authentizität des Fähigkeiten-Abschnitts",
+      "parserOutput": "PARSER-AUSGABE",
+      "parserTarget": "certalytic-nlp-classifier",
+      "pending": "Lebenslauf-Autorenschaftsanalyse ausstehend.",
+      "metrics": "Lebenslauf-Metriken",
+      "aiTextProbability": "KI-Text-Wahrscheinlichkeit",
+      "cvAuthorshipScore": "Lebenslauf-Autorenschaftswert",
+      "formattingOrigin": "Formatierungsherkunft",
+      "formattingTemplate": "Vorlage (KI)",
+      "formattingManual": "Manuell",
+      "languageModelMatch": "Sprachmodell-Übereinstimmung",
+      "languageModelGpt": "GPT-Klasse / Claude",
+      "languageModelNone": "Keine",
+      "riskVectors": "Risikovektoren"
+    },
+    "platformCrossRef": {
+      "consistencyMatrix": "Plattform-Konsistenzmatrix",
+      "linkedinCvMatch": "LinkedIn ↔ Lebenslauf Beschäftigungsabgleich",
+      "githubExperienceMatch": "GitHub-Aktivität ↔ angegebene Erfahrung",
+      "crossPlatformConsistency": "Namens-/Datums-Konsistenz plattformübergreifend",
+      "linkedinAnalysis": "LinkedIn-Analyse",
+      "githubAnalysis": "GitHub-Analyse",
+      "profile": "Profil",
+      "provided": "Bereitgestellt",
+      "cvConsistency": "Lebenslauf-Konsistenz",
+      "notEvaluated": "Nicht bewertet",
+      "noLinkedin": "Kein LinkedIn-Profil für Querverweis bereitgestellt.",
+      "noGithub": "Kein GitHub-Benutzername für Querverweis bereitgestellt.",
+      "username": "Benutzername",
+      "platformSummary": "Plattform-Zusammenfassung",
+      "overallConsistency": "Gesamtkonsistenz",
+      "sourcesCrossChecked": "Querverglichene Quellen",
+      "linkedin": "LinkedIn",
+      "github": "GitHub",
+      "checked": "Geprüft",
+      "notProvided": "Nicht bereitgestellt"
+    },
+    "behaviourAnalysis": {
+      "title": "Verhaltensanalyse des Kandidaten",
+      "indicatorLabel": "Kollaborationsindikatoren"
+    },
+    "personalityAnalysis": {
+      "title": "Persönlichkeitsanalyse des Kandidaten",
+      "indicatorLabel": "Kulturpassungsindikatoren"
+    },
+    "supplementary": {
+      "disclaimer": "Nur ergänzender Einstellungskontext. Nicht im Einstellungs-Integritätswert enthalten.",
+      "observedTraits": "Beobachtete Merkmale",
+      "motivationSignals": "Motivationssignale",
+      "watchpoints": "Beobachtungspunkte"
+    },
+    "interviewAnalysis": {
+      "insights": "Interview-Erkenntnisse",
+      "noTranscript": "Für diesen Kandidaten wurde kein Interview-Transkript erfasst.",
+      "roundTitle": "Runde {number} – Was die Analyse festgestellt hat",
+      "interview": "Interview",
+      "identity": "Identität",
+      "varianceDelta": "Varianz Δ",
+      "truncated": "GEKÜRZT",
+      "deepDivePrompts": "VORGESCHLAGENE VERTIEFUNGSFRAGEN",
+      "metrics": "Interview-Metriken",
+      "roundsRecorded": "Erfasste Runden",
+      "truncatedRounds": "Gekürzte Runden",
+      "confidenceVariance": "Konfidenz-Varianz",
+      "promptInjectionRisk": "Prompt-Injection-Risiko",
+      "riskElevated": "Erhöht",
+      "riskLow": "Niedrig"
+    },
+    "signalSummary": {
+      "intelligenceSummary": "Certalytic Intelligence-Zusammenfassung",
+      "signalVectorScores": "Signalvektor-Werte",
+      "suggestedFollowUps": "Empfohlene Nachverfolgungen"
+    },
+    "disclaimer": {
+      "message": "Dieser Wert stellt eine Wahrscheinlichkeitsheuristik dar, kein absolutes Urteil. Nutzen Sie ihn, um Ihre menschlichen Nachfragen zu leiten."
+    }
+  },
+  "roles": {
+    "list": {
+      "title": "Rollen",
+      "subtitle": "Gespeicherte Rollenprofile für wiederholbaren Screening-Kontext",
+      "newRole": "Neue Rolle",
+      "searchPlaceholder": "Rollen suchen…",
+      "loading": "Rollen werden geladen…",
+      "empty": "Noch keine Rollen. Erstellen Sie Ihre erste Rolle, um zu beginnen.",
+      "headers": {
+        "role": "Rolle",
+        "candidates": "Kandidaten",
+        "avgIntegrity": "Ø Integrität",
+        "created": "Erstellt"
+      },
+      "aria": {
+        "actions": "Aktionen",
+        "view": "Ansehen"
+      },
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "toast": {
+        "deleted": "Rolle gelöscht.",
+        "deleteFailed": "Rolle konnte nicht gelöscht werden."
+      }
+    },
+    "deleteDialog": {
+      "title": "Rolle löschen?",
+      "description": "Dies löscht „{title}“ dauerhaft. Mit dieser Rolle verknüpfte Kandidaten behalten ihre Daten, verlieren aber die Rollenzuordnung.",
+      "descriptionFallback": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "cancel": "Abbrechen",
+      "confirm": "Rolle löschen",
+      "confirming": "Wird gelöscht…"
+    },
+    "detail": {
+      "loading": "Rolle wird geladen…",
+      "backToRoles": "Zurück zu Rollen",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "created": "Erstellt {date}",
+      "screeningsSingular": "{count} Screening",
+      "screeningsPlural": "{count} Screenings",
+      "avgIntegrity": "Ø INTEGRITÄT",
+      "noScores": "Keine Werte",
+      "acrossScoredSingular": "über {count} bewerteten Kandidaten",
+      "acrossScoredPlural": "über {count} bewertete Kandidaten",
+      "jobDescription": "STELLENBESCHREIBUNG",
+      "noDescription": "Keine Beschreibung angegeben.",
+      "showMore": "Mehr anzeigen",
+      "showLess": "Weniger anzeigen",
+      "candidates": "Kandidaten",
+      "newCandidate": "Neuer Kandidat",
+      "searchPlaceholder": "Nach Name oder E-Mail suchen…",
+      "deleteConfirm": "„{title}“ löschen? Kandidaten behalten Titel und Beschreibung aus dem Snapshot."
+    },
+    "distribution": {
+      "high": "Hoch (75+)",
+      "medium": "Mittel (50–74)",
+      "low": "Niedrig (<50)"
+    },
+    "form": {
+      "createTitle": "Rolle erstellen",
+      "editTitle": "Rolle bearbeiten",
+      "description": "Definieren Sie Rollentitel und Stellenbeschreibung zur Einordnung der technischen Interview-Integritätsbewertung.",
+      "titleLabel": "Titel",
+      "titlePlaceholder": "Senior Backend Engineer",
+      "titleMax": "{current} / {max} Zeichen max.",
+      "descriptionLabel": "Stellenbeschreibung",
+      "descriptionPlaceholder": "Anforderungen, Senioritätserwartungen und Rollenkontext für die KI-Bewertung.",
+      "descriptionMax": "{current} / {max} Zeichen max.",
+      "cancel": "Abbrechen",
+      "create": "Rolle erstellen",
+      "save": "Änderungen speichern",
+      "validation": {
+        "titleRequired": "Titel ist erforderlich",
+        "descriptionRequired": "Stellenbeschreibung ist erforderlich"
+      },
+      "toast": {
+        "created": "Rolle erstellt.",
+        "updated": "Rolle aktualisiert."
+      }
+    },
+    "export": {
+      "generating": "PDF wird erstellt…",
+      "exportPdf": "PDF exportieren",
+      "failed": "Export fehlgeschlagen.",
+      "failedWithMessage": "Export fehlgeschlagen: {message}"
+    }
+  },
+  "billing": {
+    "title": "Abrechnung",
+    "subtitle": "Screening-Token-Nutzung, Tarife und Zusatzpakete",
+    "sections": {
+      "tokenUsage": "TOKEN-NUTZUNG",
+      "plans": "TARIFE",
+      "tokenPacks": "TOKEN-PAKETE"
+    },
+    "usage": {
+      "includedTokens": "Inklusive Token in diesem Zeitraum",
+      "usedOfQuota": "{used} / {quota}",
+      "summary": "{includedLeft} inklusive übrig · {available} jetzt verfügbar",
+      "packBalance": "· +{count} Paketguthaben"
+    },
+    "currentPlan": "Ihr aktueller Tarif:",
+    "plans": {
+      "free": {
+        "label": "Kostenlos",
+        "features": {
+          "screenings": "3 Screenings / Monat",
+          "savedRoles": "Gespeicherte Rollen",
+          "watermarkedExports": "PDF-Exporte mit Wasserzeichen"
+        }
+      },
+      "starter": {
+        "label": "Starter",
+        "recommendation": "Wählen Sie dies, wenn Sie etwa 4 Rollen / Monat verwalten",
+        "features": {
+          "screenings": "20 Screenings / Monat",
+          "integrityBreakdown": "Vollständige Integritätsaufschlüsselung",
+          "crossReference": "Querverweis-Prüfungen",
+          "refillableTokens": "Auffüllbare Screening-Token",
+          "exports": "Integritäts-Dossiers in 2 Sprachen exportieren",
+          "emailSupport": "E-Mail-Support"
+        }
+      },
+      "growth": {
+        "label": "Growth",
+        "recommendation": "Wählen Sie dies, wenn Sie etwa 10 Rollen / Monat verwalten",
+        "includesPlan": "Starter",
+        "includesPrefix": "Alles in {plan}, plus:",
+        "features": {
+          "screenings": "50 Screenings / Monat",
+          "seats": "3 Plätze",
+          "priorityEmail": "Priorisierter E-Mail-Support"
+        }
+      },
+      "scale": {
+        "label": "Scale",
+        "recommendation": "Wählen Sie dies, wenn Sie etwa 25 Rollen / Monat verwalten",
+        "includesPlan": "Growth",
+        "includesPrefix": "Alles in {plan}, plus:",
+        "features": {
+          "screenings": "125 Screenings / Monat",
+          "seats": "5 Plätze",
+          "priorityQueue": "Priorisierte Warteschlange (schnellere Kandidatenbewertung)",
+          "premiumSupport": "Premium-Support (Slack-Zugang)"
+        }
+      },
+      "enterprise": {
+        "label": "Enterprise",
+        "price": "Individuell",
+        "recommendation": "Wählen Sie dies bei individuellen Anforderungen.",
+        "features": {
+          "unlimited": "Unbegrenzte Plätze & Token",
+          "atsIntegrations": "ATS-Systemintegrationen (Greenhouse, Lever, Workday)",
+          "sso": "Single Sign-on (SSO) & SAML",
+          "dedicatedSupport": "Priorisierter Support mit dediziertem Success Manager",
+          "onboarding": "Individuelles Onboarding",
+          "apiAccess": "API-Zugang"
+        },
+        "contactUs": "Kontakt aufnehmen"
+      },
+      "perMonth": "/Monat",
+      "badgeCurrent": "AKTUELL",
+      "manageSubscription": "Abonnement verwalten",
+      "upgrade": "Upgrade",
+      "redirecting": "Weiterleitung…"
+    },
+    "packs": {
+      "quickRefill": "Schnelle Auffüllung",
+      "pipelineSurge": "Pipeline-Schub",
+      "highVolumeBoost": "Hochvolumen-Boost",
+      "summary": "{tokens} Screenings · €{perToken}/Screening",
+      "purchase": "Kaufen",
+      "upgradeRequired": "Upgrade auf einen kostenpflichtigen Tarif, um Token-Pakete zu kaufen"
+    },
+    "toast": {
+      "checkoutFailed": "Checkout fehlgeschlagen.",
+      "portalFailed": "Portal konnte nicht geöffnet werden."
+    }
+  },
+  "invitation": {
+    "title": "Organisationseinladung",
+    "loading": "Einladung wird geladen…",
+    "invited": "Sie wurden eingeladen, {organization} als {role} beizutreten.",
+    "invalid": "Diese Einladung ist ungültig oder abgelaufen.",
+    "emailMismatch": "Angemeldet als {signedInEmail}. Diese Einladung wurde an {invitationEmail} gesendet.",
+    "accept": "Annehmen",
+    "decline": "Ablehnen",
+    "defaultOrganization": "eine Organisation",
+    "toast": {
+      "notFound": "Einladung nicht gefunden.",
+      "acceptFailed": "Einladung konnte nicht angenommen werden.",
+      "accepted": "Einladung angenommen.",
+      "rejectFailed": "Einladung konnte nicht abgelehnt werden.",
+      "declined": "Einladung abgelehnt."
+    }
+  },
+  "realtime": {
+    "roleExportFailed": "Rollenexport fehlgeschlagen."
+  }
+}

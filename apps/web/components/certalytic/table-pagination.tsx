@@ -2,6 +2,8 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+import { useTranslations } from "@/lib/i18n/client";
+
 // TODO: remove option 1 before prod
 export const PAGE_SIZES = [1, 10, 25, 50, 100] as const;
 
@@ -30,6 +32,7 @@ export function TablePagination({
   onPrevPage,
   onPageSizeChange,
 }: TablePaginationProps) {
+  const t = useTranslations("common");
   const showNav = hasPrevPage || meta.hasNextPage;
 
   return (
@@ -37,12 +40,12 @@ export function TablePagination({
       <div className="flex items-center gap-3">
         <p className="text-xs text-muted-foreground">
           {meta.from !== null && meta.to !== null
-            ? `Showing ${meta.from}–${meta.to}`
-            : "No rows"}
+            ? t("pagination.showing", { from: meta.from, to: meta.to })
+            : t("pagination.noRows")}
         </p>
         <div className="flex items-center gap-1.5">
           <span className="text-[10px] font-bold tracking-widest text-muted-foreground">
-            ROWS
+            {t("pagination.rows")}
           </span>
           <select
             value={meta.limit}
@@ -66,7 +69,7 @@ export function TablePagination({
             type="button"
             onClick={onPrevPage}
             disabled={!hasPrevPage}
-            aria-label="Previous page"
+            aria-label={t("pagination.previousPage")}
             className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition-colors disabled:opacity-30"
           >
             <ChevronLeft size={14} />
@@ -75,7 +78,7 @@ export function TablePagination({
             type="button"
             onClick={onNextPage}
             disabled={!meta.hasNextPage}
-            aria-label="Next page"
+            aria-label={t("pagination.nextPage")}
             className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition-colors disabled:opacity-30"
           >
             <ChevronRight size={14} />

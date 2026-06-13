@@ -12,12 +12,12 @@ Standards for `apps/backend`. Match existing code before introducing new pattern
 
 ## Non-negotiables
 
-1. **Explicit return types** on every function, method, and arrow handler — including `async`, middleware, factories, and test helpers.
-2. **Manual constructor DI** — no DI container, no service locators.
-3. **Zod at boundaries** — env, request validation, JSON responses, queue job payloads.
-4. **Modules own domain logic** — `src/queues/` owns BullMQ infrastructure only.
+1. **Explicit return types** on every function, method, and arrow handler - including `async`, middleware, factories, and test helpers.
+2. **Manual constructor DI** - no DI container, no service locators.
+3. **Zod at boundaries** - env, request validation, JSON responses, queue job payloads.
+4. **Modules own domain logic** - `src/queues/` owns BullMQ infrastructure only.
 5. **Never read `process.env` outside `src/config/env.ts`** (except test setup files).
-6. **Never boot `src/index.ts` in tests** — use `createApp()` or `createTestApp()`.
+6. **Never boot `src/index.ts` in tests** - use `createApp()` or `createTestApp()`.
 
 ---
 
@@ -25,7 +25,7 @@ Standards for `apps/backend`. Match existing code before introducing new pattern
 
 ```
 apps/backend/src/
-  app.ts              # createApp(deps) — HTTP wiring, no listen()
+  app.ts              # createApp(deps) - HTTP wiring, no listen()
   index.ts            # Bootstrap: Redis, queues, workers, listen()
   config/env.ts       # Zod-validated env
   db/                 # Drizzle client + schema/
@@ -54,7 +54,7 @@ apps/backend/test/e2e/   # E2E tests (*.e2e.test.ts)
 **Split bootstrap from HTTP wiring.**
 
 ```ts
-// index.ts — infrastructure + lifecycle
+// index.ts - infrastructure + lifecycle
 const queues = new Queues(redisConnection);
 const emailsProducer = new EmailsProducer(queues.emails);
 const emailsWorkers = new EmailsWorkers(redisConnection, emailsService);
@@ -62,7 +62,7 @@ const app = createApp({ emailsProducer, queues });
 ```
 
 ```ts
-// app.ts — HTTP only; workers NEVER start here
+// app.ts - HTTP only; workers NEVER start here
 export type CreateAppDependencies = {
   emailsProducer: EmailsProducer;
   queues: Queues;
@@ -115,7 +115,7 @@ modules/users/
 
 Wire in `app.ts`: `Service → Controller → Router → app.use('/api/users', ...)`.
 
-### Auth module (better-auth — no controller)
+### Auth module (better-auth - no controller)
 
 ```
 modules/auth/
@@ -127,7 +127,7 @@ modules/auth/
 
 Mount **before body parsers**: `app.all('/api/auth/*splat', authRouter.handler)`.
 
-Email callbacks **enqueue only** — never send inline:
+Email callbacks **enqueue only** - never send inline:
 
 ```ts
 sendVerificationEmail: async ({ user, url }): Promise<void> => {
@@ -149,17 +149,17 @@ modules/emails/
   dtos/                # one file per job type + union
 ```
 
-Queue infra lives in `src/queues/` — modules never define `new Queue()` directly except via injected `Queue`.
+Queue infra lives in `src/queues/` - modules never define `new Queue()` directly except via injected `Queue`.
 
 ---
 
 ## Naming
 
-### Files — kebab-case + dot role
+### Files - kebab-case + dot role
 
 `users.service.ts`, `emails.producer.ts`, `error-handler.ts`, `require-admin.ts`
 
-### Classes — PascalCase
+### Classes - PascalCase
 
 `UsersService`, `EmailsWorkers`, `AuthRouter`
 
@@ -183,7 +183,7 @@ Queue infra lives in `src/queues/` — modules never define `new Queue()` direct
 
 ## Typing (strict)
 
-### Explicit return types — always
+### Explicit return types - always
 
 ```ts
 // ✅
@@ -206,7 +206,7 @@ export type Database = typeof db; // src/db/index.ts
 constructor(private readonly db: Database) {}
 ```
 
-### Auth session — derive, don't hand-write
+### Auth session - derive, don't hand-write
 
 ```ts
 export type AuthInstance = Auth['instance'];
@@ -229,11 +229,11 @@ export type SessionResponseDto = z.infer<typeof sessionResponseSchema>;
 
 ### Imports
 
-`verbatimModuleSyntax: true` — use `import type` for type-only imports.
+`verbatimModuleSyntax: true` - use `import type` for type-only imports.
 
 ### IDs
 
-UUIDv7 via `generateId()` from `src/lib/id.ts` — used in better-auth config and tests.
+UUIDv7 via `generateId()` from `src/lib/id.ts` - used in better-auth config and tests.
 
 ---
 
@@ -251,7 +251,7 @@ UUIDv7 via `generateId()` from `src/lib/id.ts` — used in better-auth config an
 
 ### Responses
 
-Always use `sendJson(res, schema, data, statusCode?)` — never raw `res.json()` for API routes.
+Always use `sendJson(res, schema, data, statusCode?)` - never raw `res.json()` for API routes.
 
 ### Errors
 
@@ -271,7 +271,7 @@ router.post('/x', validate({ body: createSchema }), controller.create);
 
 ### Auth guards
 
-`requireAdmin` — checks `req.session?.user` and `role === 'admin'`.
+`requireAdmin` - checks `req.session?.user` and `role === 'admin'`.
 
 ---
 
@@ -283,25 +283,25 @@ router.post('/x', validate({ body: createSchema }), controller.create);
 | Producer / worker / service / dtos | `src/modules/{feature}/` |
 
 ```ts
-// Producer — adds discriminant `type`
+// Producer - adds discriminant `type`
 async enqueueVerification(data: Omit<VerificationEmailJob, 'type'>): Promise<void> {
   await this.queue.add('verification', { type: 'verification', ...data });
 }
 
-// Worker — parse with Zod, delegate to service
+// Worker - parse with Zod, delegate to service
 const payload = emailJobSchema.parse(job.data);
 await this.emailsService.process(payload);
 ```
 
 - Register new queues in `Queues` class (`all()`, `close()`).
-- Start workers in `index.ts` only — not in tests/e2e by default.
+- Start workers in `index.ts` only - not in tests/e2e by default.
 
 ---
 
 ## Config & env
 
 ```ts
-// src/config/env.ts — sole process.env access in app code
+// src/config/env.ts - sole process.env access in app code
 export const env = envSchema.parse(process.env);
 ```
 

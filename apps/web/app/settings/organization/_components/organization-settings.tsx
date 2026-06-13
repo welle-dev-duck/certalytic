@@ -8,10 +8,12 @@ import {
   useOrganizationInvitations,
   useOrganizationMembers,
 } from "@/features/organizations/hooks/use-organization-directory";
+import { useTranslations } from "@/lib/i18n/client";
 import { useAuth } from "@/providers/auth-provider";
 
 export function OrganizationSettings() {
   const { activeOrganization, refetchOrganizations } = useAuth();
+  const t = useTranslations("settings");
   const orgId = activeOrganization?.id;
 
   const { data: members = [], isLoading: membersLoading } =
@@ -22,7 +24,7 @@ export function OrganizationSettings() {
   if (!activeOrganization || !orgId) {
     return (
       <p className="text-sm text-muted-foreground">
-        Select or create an organization to manage its settings.
+        {t("organizationPage.noOrganization")}
       </p>
     );
   }
@@ -30,16 +32,17 @@ export function OrganizationSettings() {
   return (
     <div className="space-y-10">
       <div>
-        <h2 className="text-lg font-semibold text-foreground">Organization</h2>
+        <h2 className="text-lg font-semibold text-foreground">
+          {t("organizationPage.title")}
+        </h2>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          {activeOrganization.name} — workspace name, members, and invitations
+          {t("organizationPage.description", { name: activeOrganization.name })}
         </p>
       </div>
 
       <OrganizationProfileForm
         organizationId={orgId}
         name={activeOrganization.name}
-        slug={activeOrganization.slug}
         onUpdated={refetchOrganizations}
       />
 

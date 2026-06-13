@@ -7,8 +7,11 @@ import {
 
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { SystemMessageBanner } from "@/components/system-message-banner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
+import { I18nProvider } from "@/lib/i18n/client";
+import { getLocale } from "@/lib/i18n/server";
 import { AuthProvider } from "@/providers/auth-provider";
 import { QueryProvider } from "@/providers/query-provider";
 import { RealtimeProvider } from "@/providers/realtime-provider";
@@ -32,20 +35,30 @@ const firaCode = Fira_Code({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Certalytic",
-  description:
-    "EU-sovereign hiring integrity screening — cross-check CVs, transcripts, and public profiles.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const { getNamespaceMessages } = await import("@/lib/i18n/messages");
+  const { createTranslator } = await import("@/lib/i18n/translate");
+  const t = createTranslator(getNamespaceMessages(locale, "common"));
 
-export default function RootLayout({
+  return {
+    title: "Certalytic",
+    description: t("metadata.description"),
+  };
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const systemMessageBannerText =
+    process.env.SYSTEM_MESSAGE_BANNER_TEXT?.trim() ?? "";
+
   return (
     <html
-      lang="en"
+      lang={locale}
       suppressHydrationWarning
       className={cn(
         hankenGrotesk.variable,
@@ -54,14 +67,24 @@ export default function RootLayout({
         "h-full",
       )}
     >
-      <body className="h-full font-sans antialiased">
+      <body
+        className={cn(
+          "h-full font-sans antialiased",
+          systemMessageBannerText && "pt-11",
+        )}
+      >
+        {systemMessageBannerText ? (
+          <SystemMessageBanner text={systemMessageBannerText} />
+        ) : null}
         <ThemeProvider>
           <QueryProvider>
-            <TooltipProvider>
-              <AuthProvider>
-                <RealtimeProvider>{children}</RealtimeProvider>
-              </AuthProvider>
-            </TooltipProvider>
+            <I18nProvider locale={locale}>
+              <TooltipProvider>
+                <AuthProvider>
+                  <RealtimeProvider>{children}</RealtimeProvider>
+                </AuthProvider>
+              </TooltipProvider>
+            </I18nProvider>
           </QueryProvider>
         </ThemeProvider>
         <Toaster richColors position="bottom-right" />

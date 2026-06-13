@@ -4,25 +4,25 @@ import Link from "@/components/ui/link";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "@/lib/i18n/client";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
-const NAV_ITEMS = [
-  { label: "Profile", href: routes.settingsProfile() },
-  { label: "Security", href: routes.settingsSecurity() },
-  { label: "Appearance", href: routes.settingsAppearance() },
-  { label: "Organization", href: routes.settingsOrganization() },
-] as const;
-
 export function SettingsNav() {
   const pathname = usePathname();
+  const t = useTranslations("settings");
+
+  const navItems = [
+    { label: t("nav.profile"), href: routes.settingsProfile() },
+    { label: t("nav.security"), href: routes.settingsSecurity() },
+    { label: t("nav.appearance"), href: routes.settingsAppearance() },
+    { label: t("nav.language"), href: routes.settingsLanguage() },
+    { label: t("nav.organization"), href: routes.settingsOrganization() },
+  ] as const;
 
   return (
-    <nav
-      className="flex flex-col space-y-1"
-      aria-label="Settings"
-    >
-      {NAV_ITEMS.map(({ label, href }) => {
+    <nav className="flex flex-col space-y-1" aria-label={t("layout.title")}>
+      {navItems.map(({ label, href }) => {
         const active =
           pathname === href || pathname.startsWith(`${href}/`);
 

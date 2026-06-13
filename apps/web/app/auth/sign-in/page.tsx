@@ -1,13 +1,16 @@
 import { Suspense } from "react";
 
 import { AuthPageHeading, SignInForm } from "@/features/auth/components";
+import { getTranslations } from "@/lib/i18n/server";
 
 export default async function SignIn() {
+  const t = await getTranslations("auth");
+
   return (
     <>
       <AuthPageHeading
-        title="Log in to your account"
-        description="Enter your email and password below to log in"
+        title={t("signIn.title")}
+        description={t("signIn.description")}
       />
 
       <Suspense fallback={null}>

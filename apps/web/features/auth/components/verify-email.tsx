@@ -5,22 +5,24 @@ import { useSearchParams } from "next/navigation";
 import Link from "@/components/ui/link";
 import { AuthPageHeading } from "@/features/auth/components/auth-page-heading";
 import { EmailVerificationPanel } from "@/features/auth/components/email-verification-panel";
+import { useTranslations } from "@/lib/i18n/client";
 import { routes } from "@/lib/routes";
 
 export function VerifyEmail() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email")?.trim() ?? "";
+  const t = useTranslations("auth");
 
   if (!email) {
     return (
       <>
         <AuthPageHeading
-          title="Email verification"
-          description="Open this page from sign-up or sign-in after registering. We need your email address to send a verification link."
+          title={t("verifyEmail.missingTitle")}
+          description={t("verifyEmail.missingDescription")}
         />
         <p className="text-sm text-muted-foreground">
           <Link href={routes.signIn()} className="font-medium hover:underline">
-            Return to sign in
+            {t("verifyEmail.returnToSignIn")}
           </Link>
         </p>
       </>
@@ -30,12 +32,12 @@ export function VerifyEmail() {
   return (
     <>
       <AuthPageHeading
-        title="Check your inbox"
+        title={t("verifyEmail.title")}
         description={
           <>
-            To activate your account, please check your email at{" "}
-            <span className="font-medium text-foreground">{email}</span> and
-            click the link to verify your email address.
+            {t("verifyEmail.descriptionPrefix")}{" "}
+            <span className="font-medium text-foreground">{email}</span>{" "}
+            {t("verifyEmail.descriptionSuffix")}
           </>
         }
       />

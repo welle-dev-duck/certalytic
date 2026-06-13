@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserPlus } from "lucide-react";
+import { useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -17,9 +18,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { useInviteOrganizationMember } from "@/features/organizations/hooks/use-organization-directory";
 import {
-  inviteSchema,
+  createInviteSchema,
   type InviteValues,
 } from "@/features/organizations/schemas/organization-settings.schema";
+import { useTranslations } from "@/lib/i18n/client";
 
 type OrganizationInviteFormProps = {
   organizationId: string;
@@ -28,7 +30,10 @@ type OrganizationInviteFormProps = {
 export function OrganizationInviteForm({
   organizationId,
 }: OrganizationInviteFormProps) {
+  const t = useTranslations("settings");
   const inviteMember = useInviteOrganizationMember(organizationId);
+
+  const inviteSchema = useMemo(() => createInviteSchema(t), [t]);
 
   const form = useForm<InviteValues>({
     resolver: zodResolver(inviteSchema),
@@ -43,17 +48,19 @@ export function OrganizationInviteForm({
   async function onInvite(values: InviteValues) {
     try {
       await inviteMember.mutateAsync(values);
-      toast.success("Invitation sent.");
+      toast.success(t("organizationPage.toasts.inviteSent"));
       form.reset({ email: "", role: values.role });
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to send invitation.",
+        error instanceof Error
+          ? error.message
+          : t("organizationPage.toasts.inviteFailed"),
       );
     }
   }
 
   return (
-    <SettingsSection label="INVITE MEMBER">
+    <SettingsSection label={t("organizationPage.sections.inviteMember")}>
       <form onSubmit={form.handleSubmit(onInvite)}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <Controller
@@ -65,13 +72,13 @@ export function OrganizationInviteForm({
                 className="min-w-0 flex-1"
               >
                 <FieldLabel htmlFor="invite-email">
-                  <Required>Email</Required>
+                  <Required>{t("organizationPage.inviteForm.email")}</Required>
                 </FieldLabel>
                 <Input
                   {...field}
                   id="invite-email"
                   type="email"
-                  placeholder="colleague@company.com"
+                  placeholder={t("organizationPage.inviteForm.emailPlaceholder")}
                   required
                 />
                 {fieldState.invalid ? (
@@ -89,15 +96,19 @@ export function OrganizationInviteForm({
                 className="w-full sm:w-40"
               >
                 <FieldLabel htmlFor="invite-role">
-                  <Required>Role</Required>
+                  <Required>{t("organizationPage.inviteForm.role")}</Required>
                 </FieldLabel>
                 <select
                   {...field}
                   id="invite-role"
                   className="h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
                 >
-                  <option value="member">Member</option>
-                  <option value="admin">Admin</option>
+                  <option value="member">
+                    {t("organizationPage.roles.member")}
+                  </option>
+                  <option value="admin">
+                    {t("organizationPage.roles.admin")}
+                  </option>
                 </select>
                 {fieldState.invalid ? (
                   <FieldError errors={[fieldState.error]} />
@@ -113,7 +124,7 @@ export function OrganizationInviteForm({
             <LoadingSwap isLoading={isSubmitting}>
               <span className="flex items-center gap-1.5">
                 <UserPlus size={14} />
-                Send invitation
+                {t("organizationPage.inviteForm.sendInvitation")}
               </span>
             </LoadingSwap>
           </Button>

@@ -1,0 +1,272 @@
+{
+  "header": {
+    "features": "Features",
+    "process": "Process",
+    "demo": "Demo",
+    "pricing": "Pricing",
+    "openMenu": "Open menu",
+    "logIn": "Log in",
+    "startFree": "Start free",
+    "dashboard": "Dashboard"
+  },
+  "hero": {
+    "eyebrow": "The checkpoint before the offer letter",
+    "titlePrefix": "Prevent the",
+    "titleHighlight": "€100,000 mistake",
+    "titleSuffix": "of hiring a proxy candidate.",
+    "description": "Certalytic is the final integrity dossier for senior technical hires-cross-checking CVs, merged interview transcripts, and public profiles on EU-sovereign infrastructure. Two minutes of review. Zero automated hire or reject decisions.",
+    "ctaPrimary": "Screen a candidate",
+    "ctaSecondary": "Talk to sales",
+    "imageAlt": "Recruiter reviewing a candidate integrity dossier before making a hire decision"
+  },
+  "privacy": {
+    "eyebrow": "The only GDPR-sovereign interview intelligence layer",
+    "titlePrefix": "Your candidates' data never leaves",
+    "titleHighlight": "EU jurisdiction.",
+    "description": "In Europe, candidate audio and CVs cannot route through US cloud LLMs. Certalytic processes exclusively on EU soil - the compliance moat that disqualifies American competitors from your senior hiring pipeline.",
+    "privacyPolicy": "Privacy Policy",
+    "dpa": "DPA",
+    "imprint": "Imprint",
+    "trustPoints": {
+      "euBased": "Certalytic is EU-based and GDPR-compliant",
+      "euStorage": "EU-only storage & inference path",
+      "decisionSupport": "Decision support - not automated hiring",
+      "euInfrastructure": "Candidate data is kept and processed within EU based infrastructure",
+      "audioDeletion": "Transcription audio is deleted after transcription completes"
+    }
+  },
+  "sections": {
+    "product": {
+      "title": "Build the integrity dossier before you send the offer.",
+      "description": "Upload the CV and merged interview transcripts - the deliberate final step after your technical loop. Certalytic returns four weighted integrity signals, cited flags, and follow-up prompts your hiring manager can act on."
+    },
+    "demo": {
+      "title": "Sample integrity dossier",
+      "description": "Exactly what your Head of Talent or CTO receives before signing off - integrity score, signal profile, flags, and recommended follow-ups. Exportable as a watermarked PDF."
+    },
+    "pricing": {
+      "title": "Pricing that pays for itself on the first prevented mistake",
+      "description": "Scale to agency volume or mandate team-wide checkpoints - a fraction of one mis-hire.",
+      "freePlanBanner": "{tokens} free integrity dossiers per month on the Free plan, no credit card required.",
+      "freePlanLink": "Create a free account",
+      "getStarted": "Get started",
+      "contactSales": "Contact sales"
+    },
+    "audience": {
+      "title": "Built for high-stakes technical hiring - not volume recruiting.",
+      "cto": "CTOs & engineering leaders hiring senior ICs and staff engineers where one bad hire costs months of runway and compounding technical debt.",
+      "agency": "Technical recruiting agencies placing €100k+ roles who need a defensible integrity checkpoint before presenting candidates to clients.",
+      "talentHead": "Heads of Talent who mandate a two-minute final screening policy across interviewers - quality control, not data entry.",
+      "cardTitle": "An insurance policy at the finish line",
+      "cardP1": "Certalytic sits at the end of your interview loop - after the technical rounds, before the offer letter. Recruiters deliberately assemble the candidate's integrity dossier from CV and transcript sources. That manual step is the checkpoint, not the bottleneck.",
+      "cardP2": "We package recruiter expertise into a repeatable, EU-sovereign workflow. Probabilistic signals cite evidence; your team stays in control of every advance or rejection."
+    },
+    "cta": {
+      "title": "Start with three free integrity dossiers.",
+      "description": "No credit card. Upload a CV and merged transcript, export your first dossier in minutes.",
+      "button": "Create free account"
+    }
+  },
+  "process": {
+    "eyebrow": "How it works",
+    "title": "Three steps from role to dossier",
+    "description": "Certalytic fits at the end of your interview loop. Create the role, screen each finalist, export the evidence-backed report before anyone signs an offer letter.",
+    "steps": {
+      "1": {
+        "title": "Create a role",
+        "description": "Define the position once-title, job description, and optional context documents. Every candidate screened against this role inherits the same baseline.",
+        "screenshots": {
+          "createRole": "Role creation form"
+        }
+      },
+      "2": {
+        "title": "Screen candidates",
+        "description": "Run each applicant through the guided multi-step form: candidate details & CV, cross-reference links, then merged interview transcripts.",
+        "screenshots": {
+          "candidateDetails": "Step 1 · Candidate & CV",
+          "crossRef": "Step 2 · LinkedIn & GitHub",
+          "transcripts": "Step 3 · Interview transcripts"
+        }
+      },
+      "3": {
+        "title": "Export the report",
+        "description": "Review the integrity dossier in-app, then export a watermarked PDF for your hiring committee-or batch-export every candidate on a role.",
+        "screenshots": {
+          "exportReport": "Integrity dossier & PDF export"
+        }
+      }
+    }
+  },
+  "featuresBento": {
+    "signalsEyebrow": "Four integrity signals",
+    "signalsTitle": "Four signals. One dossier. One decision checkpoint.",
+    "signalsDescription": "Recruiters upload the CV and merged transcripts to build the integrity dossier. Each dimension produces a sub-score, indicators, and cited flags before the offer letter goes out.",
+    "signals": {
+      "cv": {
+        "title": "CV authenticity",
+        "description": "Timeline coherence, employment gaps, and inflated seniority claims against the uploaded CV."
+      },
+      "interview": {
+        "title": "Interview behavioral",
+        "description": "Transcript depth, response latency, rehearsed phrasing, and consistency across interview rounds."
+      },
+      "crossSource": {
+        "title": "Cross-source consistency",
+        "description": "LinkedIn, GitHub, and pasted profile content compared against CV and interview claims."
+      },
+      "identity": {
+        "title": "Identity confidence",
+        "description": "Name, email, and handle alignment across documents and public sources."
+      }
+    },
+    "features": {
+      "compositeScore": {
+        "title": "Composite integrity score",
+        "description": "Weighted sub-scores roll up into one explainable hiring integrity index with cited flags."
+      },
+      "speakerTranscripts": {
+        "title": "Speaker-labelled transcripts",
+        "description": "Upload Zoom or Teams audio - every line tagged by speaker for diarized review."
+      },
+      "roleProfiles": {
+        "title": "Reusable role profiles",
+        "description": "Save job descriptions once; every screening inherits the same role context."
+      },
+      "teamWorkspaces": {
+        "title": "Team workspaces",
+        "description": "Shared pipelines for in-house TA squads and agencies with seat-based access."
+      },
+      "signalSummary": {
+        "title": "Signal summary & follow-ups",
+        "description": "AI-generated summaries, anomaly flags, and suggested deep-dive questions for interviewers."
+      },
+      "behaviourAnalysis": {
+        "title": "Candidate behaviour analysis",
+        "description": "Communication style, collaboration indicators, and behavioural watchpoints from interview transcripts."
+      },
+      "personalityAnalysis": {
+        "title": "Candidate personality analysis",
+        "description": "Work style, motivation signals, and culture-fit indicators for hiring-manager context."
+      }
+    }
+  },
+  "screeningPreview": {
+    "eyebrow": "Sample integrity dossier",
+    "subtitle": "Mocked candidate data - identical UI and PDF export to production.",
+    "scoreLabelLine1": "HIRING INTEGRITY",
+    "scoreLabelLine2": "SCORE",
+    "flagsRaised": "Flags raised",
+    "interviewRounds": "Interview rounds",
+    "signalProfile": "SIGNAL PROFILE",
+    "activeFlags": "{count} active flags detected",
+    "confidenceSuffix": "{percent}% conf.",
+    "metricAnalysis": "Metric analysis",
+    "behaviourInsights": "Behaviour & personality insights",
+    "behaviourDisclaimer": "Supplementary context only - excluded from the integrity score.",
+    "behaviourLabel": "Behaviour:",
+    "personalityLabel": "Personality:",
+    "aiVerdict": "AI verdict",
+    "recommendedFollowUps": "Recommended follow-ups",
+    "components": {
+      "s_cv": "CV authenticity",
+      "s_int": "Interview behavioral",
+      "s_cross": "Cross-source consistency",
+      "s_id": "Identity confidence"
+    }
+  },
+  "stats": {
+    "eyebrow": "By the numbers",
+    "title": "The cost of one bad senior hire dwarfs the price of screening",
+    "items": {
+      "candidatesScreened": {
+        "label": "Candidates screened",
+        "detail": "Integrity reports generated across technical hiring loops"
+      },
+      "teams": {
+        "label": "Teams hiring with Certalytic",
+        "detail": "Recruiters improving selection quality in {countries} countries"
+      },
+      "audioHours": {
+        "label": "Hours of interview audio processed",
+        "detail": "Speaker-labelled transcripts ready for integrity analysis"
+      },
+      "savedMillions": {
+        "label": "Estimated cost of bad senior hires avoided",
+        "detail": "One proxy hire can cost €100k+ in runway, comp, and technical debt"
+      }
+    }
+  },
+  "reviews": {
+    "title": "Trusted by teams protecting €100k+ hiring decisions",
+    "description": "In-house TA, agencies, and embedded recruiters share how integrity signals changed their technical screening process.",
+    "starRatingAria": "{rating} out of 5 stars",
+    "items": {
+      "1": {
+        "quote": "We caught rehearsed technical answers before the onsite. The integrity breakdown gave us concrete follow-up questions instead of gut feel.",
+        "name": "Elena V.",
+        "role": "Head of Talent",
+        "org": "Series B fintech"
+      },
+      "2": {
+        "quote": "Cross-referencing CV claims against LinkedIn paste saved us a bad senior hire. The platform mismatch flag was spot on.",
+        "name": "Marcus T.",
+        "role": "Lead Recruiter",
+        "org": "EU product studio"
+      },
+      "3": {
+        "quote": "Our team runs 40+ technical screens a month. Certalytic keeps the signal consistent without adding another ATS integration project.",
+        "name": "Sofia K.",
+        "role": "VP People",
+        "org": "Remote-first scale-up"
+      }
+    }
+  },
+  "roadmap": {
+    "title": "Roadmap",
+    "description": "What we're building next - approximate delivery quarters based on current engineering priorities.",
+    "items": {
+      "ats": {
+        "title": "ATS integrations",
+        "description": "Push integrity reports into Greenhouse, Lever, and Workday without manual copy-paste."
+      },
+      "sso": {
+        "title": "Enterprise SSO",
+        "description": "SAML and OIDC single sign-on with seat provisioning for agency and in-house TA teams."
+      },
+      "batch": {
+        "title": "Batch screening",
+        "description": "Upload a cohort of candidates against one role profile and compare integrity signals side by side."
+      },
+      "api": {
+        "title": "Public API & webhooks",
+        "description": "Programmatic screening triggers and signed webhook delivery for custom hiring stacks."
+      }
+    }
+  },
+  "footer": {
+    "tagline": "The EU-sovereign integrity dossier for senior technical hires. Prevent costly proxy candidates before the offer letter-with probabilistic signals, never automated gates.",
+    "contact": "Contact",
+    "legal": "Legal",
+    "copyright": "© {year} {company}. All rights reserved.",
+    "social": {
+      "linkedin": "LinkedIn",
+      "github": "GitHub",
+      "x": "X"
+    },
+    "legalLinks": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "dpa": "Data Processing Agreement",
+      "cookies": "Cookie Policy",
+      "imprint": "Imprint"
+    }
+  },
+  "dataPrivacy": {
+    "label": "DATA & PRIVACY",
+    "sovereignTitle": "EU Sovereign Processing",
+    "sovereignDescription": "All candidate data is processed exclusively within EU jurisdiction - Hetzner EU datacenters (Germany/Finland) and Mistral AI La Plateforme (Paris, France). No US cloud compute or CDN in the data path.",
+    "modelTraining": "Model Training",
+    "modelTrainingDescription": "Candidate data is never used to train, fine-tune, or improve Mistral foundation models.",
+    "guaranteed": "Guaranteed"
+  }
+}

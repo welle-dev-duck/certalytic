@@ -4,11 +4,11 @@ Migrate domain logic from `php-migration/` into `apps/backend` while preserving 
 
 **Reference implementation:** `php-migration/app/`, `php-migration/routes/web.php`, `php-migration/database/migrations/`
 
-**Target patterns:** `.cursor/certalytic-backend/SKILL.md` — modules, manual DI, Drizzle, BullMQ, explicit return types.
+**Target patterns:** `.cursor/certalytic-backend/SKILL.md` - modules, manual DI, Drizzle, BullMQ, explicit return types.
 
 ### Intentional removals (do not port from Laravel)
 
-The Turborepo app **drops the entire Tools / Transcription product surface** from the legacy PHP app. This is not deferred — it is excluded from scope.
+The Turborepo app **drops the entire Tools / Transcription product surface** from the legacy PHP app. This is not deferred - it is excluded from scope.
 
 | Legacy area | Action |
 |---|---|
@@ -16,12 +16,12 @@ The Turborepo app **drops the entire Tools / Transcription product surface** fro
 | `TranscriptionController`, `ToolsController` | **Not ported** |
 | `TranscribeAudioJob`, `transcriptions` queue | **Not ported** |
 | `audio_transcriptions` table / model | **Not ported** |
-| `transcript_tokens` on team/org | **Not ported** — replaced by `billing` (screening tokens only) |
+| `transcript_tokens` on team/org | **Not ported** - replaced by `billing` (screening tokens only) |
 | `TranscriptTokenCredit`, transcript pack Stripe prices | **Not ported** |
 | Mistral Voxtral / audio transcription env vars | **Not ported** |
-| `interview_rounds` audio columns (in-flow transcription) | **Not ported** — text transcript paste/upload only |
+| `interview_rounds` audio columns (in-flow transcription) | **Not ported** - text transcript paste/upload only |
 
-**Still in scope:** Interview **text** transcripts (paste or file upload merged into screening) — that is core screening input, not the standalone transcription tool.
+**Still in scope:** Interview **text** transcripts (paste or file upload merged into screening) - that is core screening input, not the standalone transcription tool.
 
 **Screening quota:** Store in a dedicated `billing` table (one row per organization), not on the organization record and not split across legacy token types.
 
@@ -54,8 +54,8 @@ The Turborepo app **drops the entire Tools / Transcription product surface** fro
 
 ### Not yet ported / remaining gaps
 
-- Public marketing config API (stats/roadmap env vars) — frontend uses static `marketing-data.ts` today
-- Full visual parity sign-off vs Laravel UI (frontend concern — see frontend plan)
+- Public marketing config API (stats/roadmap env vars) - frontend uses static `marketing-data.ts` today
+- Full visual parity sign-off vs Laravel UI (frontend concern - see frontend plan)
 - Enterprise sales-led flows beyond standard Stripe checkout
 - Roadmap items in product-overview §11 (ATS, SSO, batch screening, public API)
 
@@ -65,23 +65,23 @@ The Turborepo app **drops the entire Tools / Transcription product surface** fro
 
 | Laravel | Express target |
 |---|---|
-| Fortify + session | better-auth (`modules/auth/`) — **done** |
+| Fortify + session | better-auth (`modules/auth/`) - **done** |
 | `Membership` + invitations | Organization plugin +  (invites → emails queue) |
 | Cashier on `Team` | `@better-auth/stripe` + extend `BillingService` for screening packs |
-| Horizon (`default`, `screenings-priority`) | BullMQ `screening` queue + optional job `priority` on Scale+ — **done** |
-| `ProcessCandidateScreeningJob` | `modules/screening/screening.worker.ts` — **done** |
-| `ImportCandidatesJob` | `modules/candidates/import.worker.ts` — **done** |
-| `ProcessRoleDocumentJob` | `modules/roles/document.worker.ts` — **done** |
-| `GenerateRoleExportPdfJob` | `modules/roles/export.worker.ts` + `PdfDocumentBuilder` — **done** |
-| ~~`TranscribeAudioJob`~~ | **Removed** — transcription tool not ported |
-| `teams.transcript_tokens` / screening counters on team | `billing` table — `plan_tokens`, `refill_tokens` per `organization_id` |
+| Horizon (`default`, `screenings-priority`) | BullMQ `screening` queue + optional job `priority` on Scale+ - **done** |
+| `ProcessCandidateScreeningJob` | `modules/screening/screening.worker.ts` - **done** |
+| `ImportCandidatesJob` | `modules/candidates/import.worker.ts` - **done** |
+| `ProcessRoleDocumentJob` | `modules/roles/document.worker.ts` - **done** |
+| `GenerateRoleExportPdfJob` | `modules/roles/export.worker.ts` + `PdfDocumentBuilder` - **done** |
+| ~~`TranscribeAudioJob`~~ | **Removed** - transcription tool not ported |
+| `teams.transcript_tokens` / screening counters on team | `billing` table - `plan_tokens`, `refill_tokens` per `organization_id` |
 | Eloquent models | Drizzle schemas in shared `db/schema/` |
 | Form requests / policies | Zod DTOs + service-layer authorization |
 | S3 via Flysystem | `@aws-sdk/client-s3` in `src/storage/` |
-| DomPDF | `pdf-lib` via `PdfDocumentBuilder` — **done** |
+| DomPDF | `pdf-lib` via `PdfDocumentBuilder` - **done** |
 | Mistral HTTP | `modules/mistral/` client (port `MistralClient` behavior @mistralai/mistralai pnpm package) |
 | Inertia shared props | REST/JSON endpoints consumed by React Query on frontend |
-| Laravel `paginate($perPage)` (offset pages) | **Cursor pagination** on UUIDv7 `id` — see §4 |
+| Laravel `paginate($perPage)` (offset pages) | **Cursor pagination** on UUIDv7 `id` - see §4 |
 | `config/certalytic.php` | `src/config/product.ts` + env vars |
 
 ---
@@ -90,19 +90,19 @@ The Turborepo app **drops the entire Tools / Transcription product surface** fro
 
 ### Approach
 
-1. **Schema parity first** — Drizzle migrations mirroring Laravel tables (names/types aligned where possible).
+1. **Schema parity first** - Drizzle migrations mirroring Laravel tables (names/types aligned where possible).
 2. **One-time data migration script** not needed, fresh db because the project is in development only
-3. **Greenfield dev** — fresh migrations + seed fixtures from `php-migration/tests/fixtures/` scenarios.
+3. **Greenfield dev** - fresh migrations + seed fixtures from `php-migration/tests/fixtures/` scenarios.
 
 ### Tables to add (order matters for FKs)
 
 ```
-billing                 # screening quota — see schema below
+billing                 # screening quota - see schema below
 roles
 role_documents
 role_exports
 candidates
-interview_rounds        # text transcripts only — no audio_* columns
+interview_rounds        # text transcripts only - no audio_* columns
 ```
 
 **`billing` table (screening tokens):**
@@ -110,7 +110,7 @@ interview_rounds        # text transcripts only — no audio_* columns
 | Column | Type | Notes |
 |---|---|---|
 | `id` | UUIDv7 PK | |
-| `organization_id` | UUID FK → organization | Unique — one row per org |
+| `organization_id` | UUID FK → organization | Unique - one row per org |
 | `plan_tokens` | integer | Monthly plan allowance (reset on billing cycle) |
 | `refill_tokens` | integer | One-off pack credits (screening packs) |
 
@@ -179,7 +179,7 @@ Consistent envelope for both resources (Zod response DTO):
 
 ### Query logic (Drizzle)
 
-Default sort: **`id DESC`** (newest first — parity with Laravel `latest()`).
+Default sort: **`id DESC`** (newest first - parity with Laravel `latest()`).
 
 ```sql
 -- first page
@@ -202,16 +202,16 @@ Fetch `limit + 1` rows; if more than `limit` exist, `hasNextPage = true` and tri
 
 | Piece | Location |
 |---|---|
-| Query parsing | `src/lib/pagination.ts` — `parsePaginationQuery(req)` |
-| Paginated execute | `src/lib/pagination.ts` — `paginateByCursor({ db, query, limit, cursor })` |
-| Zod schemas | `src/dtos/pagination.dto.ts` — request + response wrappers |
+| Query parsing | `src/lib/pagination.ts` - `parsePaginationQuery(req)` |
+| Paginated execute | `src/lib/pagination.ts` - `paginateByCursor({ db, query, limit, cursor })` |
+| Zod schemas | `src/dtos/pagination.dto.ts` - request + response wrappers |
 | Service usage | `roles.service.list()`, `candidates.service.list()` return paginated envelope |
 
 ### Client contract (for frontend)
 
 - First fetch: `limit` only.
 - “Load more” / next page: pass `cursor: pagination.nextCursor` from the previous response with the same `limit` and filters.
-- React Query: `useInfiniteQuery` with `getNextPageParam: (last) => last.pagination.nextCursor`, or manual cursor state — see [frontend-migration-plan.md](./frontend-migration-plan.md).
+- React Query: `useInfiniteQuery` with `getNextPageParam: (last) => last.pagination.nextCursor`, or manual cursor state - see [frontend-migration-plan.md](./frontend-migration-plan.md).
 
 ### Tests
 
@@ -222,12 +222,12 @@ Fetch `limit + 1` rows; if more than `limit` exist, `hasNextPage = true` and tri
 
 ## 5. Phased implementation
 
-### Phase 0 — Foundation (complete)
+### Phase 0 - Foundation (complete)
 
 - [x] Express app, auth, emails queue, billing skeleton, tests, e2e harness
-- [ ] Document env parity — extend `config/env.ts` with Mistral, S3, product limits (mirror `.env.example` in php-migration)
+- [ ] Document env parity - extend `config/env.ts` with Mistral, S3, product limits (mirror `.env.example` in php-migration)
 
-### Phase 1 — Organizations & authorization
+### Phase 1 - Organizations & authorization
 
 **Goal:** Org-scoped routes work; invitations; role checks (owner and admin vs member).
 
@@ -235,17 +235,17 @@ important: we always scope by active organization (stored on the session current
 
 ---
 
-### Phase 2 — Roles & documents
+### Phase 2 - Roles & documents
 
 **Goal:** CRUD roles; upload scan documents (Scale+); enqueue OCR job.
 
 | Task | Laravel reference | Target |
 |---|---|---|
 | Role CRUD | `RoleController`, `Role` | `modules/roles/roles.service.ts` |
-| Roles list pagination | `RoleController@index` offset pages | `GET /api/roles?limit=&cursor=` — cursor pagination (§4) |
+| Roles list pagination | `RoleController@index` offset pages | `GET /api/roles?limit=&cursor=` - cursor pagination (§4) |
 | Document upload | `RoleDocumentController`, S3 | `modules/roles/documents.service.ts` + storage |
 | OCR job | `ProcessRoleDocumentJob` | `roles` queue worker → Mistral OCR |
-| Plan gating | `EnsureSubscribed`, plan features | `modules/billing/plans.ts` — feature flags per plan |
+| Plan gating | `EnsureSubscribed`, plan features | `modules/billing/plans.ts` - feature flags per plan |
 
 **Queues:** Add `roles` queue (or reuse `default` with job names).
 
@@ -263,9 +263,9 @@ GET /api/roles?limit=&cursor=&search=
 ---
 
 
-### Phase 3 — Candidates & screening pipeline
+### Phase 3 - Candidates & screening pipeline
 
-**Goal:** Core product — create candidate, upload CV/transcripts, async Mistral evaluation, integrity score.
+**Goal:** Core product - create candidate, upload CV/transcripts, async Mistral evaluation, integrity score.
 
 | Task | Laravel reference | Target |
 |---|---|---|
@@ -274,7 +274,7 @@ GET /api/roles?limit=&cursor=&search=
 | Interview rounds | `InterviewRound`, merge logic | `candidates/interview-rounds.service.ts` |
 | Screening job | `ProcessCandidateScreeningJob`, `CandidateScreeningService` | `modules/screening/` |
 | Mistral client | `App\Services\Mistral\MistralClient` | `modules/mistral/mistral.client.ts` |
-| Score formula | `IntegrityScoreCalculator` | `screening/integrity-score.ts` — **must match weights in product-overview** |
+| Score formula | `IntegrityScoreCalculator` | `screening/integrity-score.ts` - **must match weights in product-overview** |
 | Priority queue | `screenings-priority` | Separate BullMQ queue; priority flag on job |
 | Rate limits | middleware in Laravel | `middleware/rate-limit.ts` per team/plan |
 | Bulk import | `ImportCandidatesJob` | CSV parse + batch enqueue |
@@ -285,7 +285,7 @@ GET /api/roles?limit=&cursor=&search=
 2. OCR CV if PDF/image
 3. Parse/merge transcripts (round 1 merge + virtual segments)
 4. Mistral chat calls (CV authenticity, interview signal, cross-source, identity)
-5. Supplementary analyses (behaviour, personality) — excluded from score
+5. Supplementary analyses (behaviour, personality) - excluded from score
 6. Persist `score_breakdown` JSON; status → `completed` / `failed`
 7. Debit one screening token from `billing` (`plan_tokens` then `refill_tokens`)
 
@@ -305,7 +305,7 @@ GET    /api/candidates/:id/report -> org is decided by the users active org
 
 ---
 
-### Phase 4 — Exports & PDF
+### Phase 4 - Exports & PDF
 
 **Goal:** Per-candidate and batch role PDF exports; watermarks.
 
@@ -313,18 +313,18 @@ GET    /api/candidates/:id/report -> org is decided by the users active org
 |---|---|---|
 | Single export | `CandidateExportController` | Sync or short queue job |
 | Batch export | `GenerateRoleExportPdfJob` | `roles` queue |
-| PDF layout | Blade/DomPDF templates | React-PDF components or HTML→PDF — **replicate layout from Laravel views** |
+| PDF layout | Blade/DomPDF templates | React-PDF components or HTML→PDF - **replicate layout from Laravel views** |
 | Watermark | plan-based | `modules/billing/plans.ts` |
 
 ---
 
-### Phase 5 — Billing & screening tokens
+### Phase 5 - Billing & screening tokens
 
 **Goal:** Subscriptions, screening packs, `billing` table CRUD, webhooks, enforce quota before enqueue.
 
 | Task | Laravel reference | Target |
 |---|---|---|
-| `billing` schema | `teams` screening counters, `TranscriptTokenCredit` (screening only) | `db/schema/billing.schema.ts` — `plan_tokens`, `refill_tokens` |
+| `billing` schema | `teams` screening counters, `TranscriptTokenCredit` (screening only) | `db/schema/billing.schema.ts` - `plan_tokens`, `refill_tokens` |
 | Subscription plans | Cashier | better-auth stripe (partial) |
 | Plan token reset | monthly allowance on team | Cron/webhook: reset `plan_tokens` from plan tier on cycle |
 | Screening pack checkout | custom checkout | Extend `BillingService` → credit `refill_tokens` |
@@ -334,21 +334,21 @@ GET    /api/candidates/:id/report -> org is decided by the users active org
 
 **Do not port:** `STRIPE_PRICE_TRANSCRIPT_FIVE_PACK`, transcript token checkout, `TranscribeAudioJob`, or any transcription billing.
 
-**Env:** `STRIPE_PRICE_STARTER`, `GROWTH`, `SCALE`, `PACK_QUICK`, `PACK_SURGE`, `PACK_BOOST` — no transcript pack price.
+**Env:** `STRIPE_PRICE_STARTER`, `GROWTH`, `SCALE`, `PACK_QUICK`, `PACK_SURGE`, `PACK_BOOST` - no transcript pack price.
 
 ---
 
-### Phase 6 — Dashboard, settings, admin
+### Phase 6 - Dashboard, settings, admin
 
 | Task | Laravel reference | Target |
 |---|---|---|
-| Dashboard aggregates | `DashboardController` | `modules/dashboard/` — usage stats, recent screenings |
+| Dashboard aggregates | `DashboardController` | `modules/dashboard/` - usage stats, recent screenings |
 | User settings | `ProfileController`, 2FA | better-auth APIs + frontend |
 | Admin impersonation | if any | Defer or port last |
 
 ---
 
-### Phase 7 — Public & config
+### Phase 7 - Public & config
 
 | Task | Target |
 |---|---|
@@ -364,11 +364,11 @@ Landing page content stays frontend; backend only serves config JSON.
 
 ```
 src/queues/
-  emails.queue.ts      # existing — verify, invite
+  emails.queue.ts      # existing - verify, invite
   screening.queue.ts   # default + priority (priority option on job)
   roles.queue.ts       # document OCR + PDF export
   queues.ts            # registry
-  dashboard.ts         # Bull Board — all queues
+  dashboard.ts         # Bull Board - all queues
 ```
 
 No `transcriptions` queue. Workers start only in `index.ts` (not in tests). Concurrency: tune screening separately from emails.
@@ -383,11 +383,11 @@ Port from `php-migration/app/Services/Mistral/`:
 
 | Concern | Notes |
 |---|---|
-| Chat completions | Screening prompts — **copy prompt text verbatim** initially |
+| Chat completions | Screening prompts - **copy prompt text verbatim** initially |
 | OCR | CV + role documents |
-| ~~Transcription~~ | **Not used** — no Voxtral, no `MISTRAL_TRANSCRIPTION_MODEL` |
+| ~~Transcription~~ | **Not used** - no Voxtral, no `MISTRAL_TRANSCRIPTION_MODEL` |
 | Timeouts / retries | Laravel HTTP client settings → fetch/axios with retry |
-| No fallback | Product requires real Mistral — fail job if API down |
+| No fallback | Product requires real Mistral - fail job if API down |
 
 Store prompts in `modules/screening/prompts/` as typed constants (easier to diff against PHP).
 
@@ -406,7 +406,7 @@ See [async-job-ui-updates.md](./async-job-ui-updates.md) for full detail.
 | Report data | `GET /api/candidates/:id` on terminal state (client invalidates React Query cache) |
 | Role export progress | Same pattern → `role_export.updated` + `download_url` when `complete` |
 | Auth | WS handshake validates better-auth session; rooms scoped by `organizationId` |
-| Stripe webhooks | **Separate** — subscription/pack events update `billing`, not screening UI |
+| Stripe webhooks | **Separate** - subscription/pack events update `billing`, not screening UI |
 
 Add `src/realtime/` (publisher, WS server, channel constants). Hook screening and role-export workers after DB commit. Cosmetic progress stages in the UI remain client-side unless `currentStep` is added later.
 
@@ -429,9 +429,9 @@ Never trust `teamSlug` from body; always from URL + membership check.
 
 | Layer | Approach |
 |---|---|
-| Unit | Services, score calculator, `billing` debit/reset math, plan gating, cursor pagination — Vitest |
+| Unit | Services, score calculator, `billing` debit/reset math, plan gating, cursor pagination - Vitest |
 | Integration | Mistral client mocked; DB via test container or sqlite/pg test db |
-| E2e | Extend `test/e2e/` — auth → create team → create role → screen candidate (mock Mistral) |
+| E2e | Extend `test/e2e/` - auth → create team → create role → screen candidate (mock Mistral) |
 | Golden scenarios | Port PHP fixture JSON from `php-migration/tests/fixtures/scenarios/` |
 
 Add `test/fixtures/scenarios/` mirroring Laravel structure.
@@ -459,19 +459,19 @@ src/lib/pagination.ts       # cursor parse + paginateByCursor helper
 src/dtos/pagination.dto.ts  # shared list request/response Zod schemas
 src/modules/
   auth/           # exists
-  billing/        # exists — extend: billing table, screening debit, packs, webhooks
+  billing/        # exists - extend: billing table, screening debit, packs, webhooks
   emails/         # exists
   users/          # exists
   roles/
   candidates/
   screening/
-  mistral/        # chat + OCR only — no transcription client
+  mistral/        # chat + OCR only - no transcription client
   storage/
   dashboard/
 src/realtime/     # WS server, Redis pub/sub publisher, channel names
 ```
 
-No `transcription/` or `tokens/` modules — screening balance is owned by `billing/`.
+No `transcription/` or `tokens/` modules - screening balance is owned by `billing/`.
 
 Each module: `*.module.ts`, `*.service.ts`, `*.controller.ts`, `dtos/`, optional `*.worker.ts`, `*.test.ts`.
 
@@ -484,7 +484,7 @@ Each module: `*.module.ts`, `*.service.ts`, `*.controller.ts`, `dtos/`, optional
 | PDF visual parity | Choose HTML→PDF if DomPDF layout hard to replicate; compare side-by-side with Laravel exports |
 | Score drift | Unit tests with fixed Mistral mocks + same fixture inputs as PHP tests |
 | Team vs Organization model | Single source of truth: better-auth org; attach product fields via `team_profiles` table |
-| Session → API | Frontend uses cookies + React Query; no Inertia shared props — explicit endpoints for `auth`, `team`, `flash` |
+| Session → API | Frontend uses cookies + React Query; no Inertia shared props - explicit endpoints for `auth`, `team`, `flash` |
 | Long-running screenings | Job timeout > max Mistral latency; WS disconnect fallback (slow poll or refetch on reconnect) |
 | WS auth / room leaks | Verify org membership before join; never subscribe by id alone without org check |
 
@@ -494,7 +494,7 @@ Each module: `*.module.ts`, `*.service.ts`, `*.controller.ts`, `dtos/`, optional
 
 1. Phase 0 env + org authorization (1–2 weeks)
 2. Roles + storage + OCR job (1 week)
-3. Candidates + screening pipeline (2–3 weeks) — **critical path**
+3. Candidates + screening pipeline (2–3 weeks) - **critical path**
 4. PDF exports (1 week)
 5. Billing table + screening packs + webhooks (1 week)
 6. Dashboard API + polish (1 week)

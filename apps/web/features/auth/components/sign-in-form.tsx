@@ -2,31 +2,33 @@
 
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 import {
   Field,
   FieldError,
-  FieldLabel,
   FieldGroup,
+  FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Required } from "@/components/required";
 import { Button } from "@/components/ui/button";
 import { LoadingSwap } from "@/components/loading-swap";
-import { authClient } from "@/lib/auth-client";
-import { toast } from "sonner";
-import { useRouter, useSearchParams } from "next/navigation";
-
 import Link from "@/components/ui/link";
-import { routes } from "@/lib/routes";
 import {
   signInSchema,
-  SignInSchema,
+  type SignInSchema,
 } from "@/features/auth/schemas/sign-in-schema";
+import { authClient } from "@/lib/auth-client";
+import { useTranslations } from "@/lib/i18n/client";
+import { routes } from "@/lib/routes";
 
 export function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("auth");
+  const tCommon = useTranslations("common");
   const callbackURL =
     searchParams.get("callbackURL") ??
     process.env.NEXT_PUBLIC_WEB_APP_DASHBOARD_URL;
@@ -50,11 +52,10 @@ export function SignInForm() {
             router.push(`/auth/verify-email?${q.toString()}`);
             return;
           }
-          toast.error(error.error.message || "Something went wrong.");
+          toast.error(error.error.message || tCommon("errors.generic"));
         },
-
         onSuccess: () => {
-          toast.success("Successfully signed in.");
+          toast.success(t("signIn.success"));
           router.refresh();
         },
       },
@@ -71,7 +72,7 @@ export function SignInForm() {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="sign-in-form-email">
-                  <Required>Email</Required>
+                  <Required>{t("signIn.email")}</Required>
                 </FieldLabel>
                 <Input
                   {...field}
@@ -79,11 +80,11 @@ export function SignInForm() {
                   id="sign-in-form-email"
                   aria-invalid={fieldState.invalid}
                   required
-                  placeholder="max.mustermann@example.com"
+                  placeholder={t("placeholders.email")}
                 />
-                {fieldState.invalid && (
+                {fieldState.invalid ? (
                   <FieldError errors={[fieldState.error]} />
-                )}
+                ) : null}
               </Field>
             )}
           />
@@ -94,13 +95,13 @@ export function SignInForm() {
               <Field data-invalid={fieldState.invalid}>
                 <div className="flex w-full items-center justify-between gap-2">
                   <FieldLabel htmlFor="sign-in-form-password">
-                    <Required>Password</Required>
+                    <Required>{t("signIn.password")}</Required>
                   </FieldLabel>
                   <Link
                     href={routes.forgotPassword()}
                     className="text-xs text-muted-foreground hover:text-foreground hover:underline"
                   >
-                    Forgot your password?
+                    {t("signIn.forgotPassword")}
                   </Link>
                 </div>
                 <Input
@@ -109,12 +110,12 @@ export function SignInForm() {
                   id="sign-in-form-password"
                   aria-invalid={fieldState.invalid}
                   autoComplete="current-password"
-                  placeholder="Password"
+                  placeholder={t("placeholders.password")}
                   required
                 />
-                {fieldState.invalid && (
+                {fieldState.invalid ? (
                   <FieldError errors={[fieldState.error]} />
-                )}
+                ) : null}
               </Field>
             )}
           />
@@ -125,13 +126,15 @@ export function SignInForm() {
           disabled={isSubmitting}
           className="h-12 w-full rounded-md bg-primary text-base font-bold text-primary-foreground hover:bg-primary/90"
         >
-          <LoadingSwap isLoading={isSubmitting}>Sign in</LoadingSwap>
+          <LoadingSwap isLoading={isSubmitting}>
+            {t("signIn.submit")}
+          </LoadingSwap>
         </Button>
 
         <p className="text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
+          {t("signIn.noAccount")}{" "}
           <Link href={routes.signUp()} className="font-medium hover:underline">
-            Sign up
+            {t("signIn.signUpLink")}
           </Link>
         </p>
       </form>

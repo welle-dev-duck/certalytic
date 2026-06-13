@@ -2,6 +2,8 @@
 
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import {
   Field,
@@ -12,18 +14,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Required } from "@/components/required";
 import { Button } from "@/components/ui/button";
+import Link from "@/components/ui/link";
 import { LoadingSwap } from "@/components/loading-swap";
-import { authClient } from "@/lib/auth-client";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-
 import {
   signUpSchema,
-  SignUpSchema,
+  type SignUpSchema,
 } from "@/features/auth/schemas/sign-up-schema";
+import { authClient } from "@/lib/auth-client";
+import { useTranslations } from "@/lib/i18n/client";
+import { routes } from "@/lib/routes";
 
 export function SignUpForm() {
   const router = useRouter();
+  const t = useTranslations("auth");
+  const tCommon = useTranslations("common");
 
   const form = useForm<SignUpSchema>({
     resolver: zodResolver(signUpSchema),
@@ -47,18 +51,11 @@ export function SignUpForm() {
       },
       {
         onError: (error) => {
-          toast.error(error.error.message || "Something went wrong.");
+          toast.error(error.error.message || tCommon("errors.generic"));
         },
         onSuccess: () => {
-          toast.success(
-            "Account created successfully. Please verify your email.",
-          );
-
-          const q = new URLSearchParams({
-            email: data.email,
-          });
-
-          router.push(`/auth/verify-email?${q.toString()}`);
+          toast.success(t("signUp.success"));
+          router.push(`/auth/verify-email?email=${encodeURIComponent(data.email)}`);
         },
       },
     );
@@ -74,97 +71,86 @@ export function SignUpForm() {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="sign-up-form-name">
-                  <Required>Name</Required>
+                  <Required>{t("signUp.name")}</Required>
                 </FieldLabel>
-
                 <Input
                   {...field}
                   id="sign-up-form-name"
                   aria-invalid={fieldState.invalid}
                   required
-                  placeholder="Max Mustermann"
+                  placeholder={t("placeholders.name")}
                 />
-
-                {fieldState.invalid && (
+                {fieldState.invalid ? (
                   <FieldError errors={[fieldState.error]} />
-                )}
+                ) : null}
               </Field>
             )}
           />
-
           <Controller
             name="email"
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="sign-up-form-email">
-                  <Required>Email</Required>
+                  <Required>{t("signUp.email")}</Required>
                 </FieldLabel>
-
                 <Input
                   {...field}
                   type="email"
                   id="sign-up-form-email"
                   aria-invalid={fieldState.invalid}
                   required
-                  placeholder="max.mustermann@example.com"
+                  placeholder={t("placeholders.email")}
                 />
-
-                {fieldState.invalid && (
+                {fieldState.invalid ? (
                   <FieldError errors={[fieldState.error]} />
-                )}
+                ) : null}
               </Field>
             )}
           />
-
           <Controller
             name="password"
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="sign-up-form-password">
-                  <Required>Password</Required>
+                  <Required>{t("signUp.password")}</Required>
                 </FieldLabel>
-
                 <Input
                   {...field}
                   type="password"
                   id="sign-up-form-password"
                   aria-invalid={fieldState.invalid}
                   autoComplete="new-password"
-                  placeholder="Password"
+                  placeholder={t("placeholders.password")}
                   required
                 />
-
-                {fieldState.invalid && (
+                {fieldState.invalid ? (
                   <FieldError errors={[fieldState.error]} />
-                )}
+                ) : null}
               </Field>
             )}
           />
-
           <Controller
             name="confirmPassword"
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="sign-up-form-confirm-password">
-                  <Required>Confirm password</Required>
+                  <Required>{t("signUp.confirmPassword")}</Required>
                 </FieldLabel>
-
                 <Input
                   {...field}
                   type="password"
                   id="sign-up-form-confirm-password"
                   aria-invalid={fieldState.invalid}
                   autoComplete="new-password"
-                  placeholder="Confirm password"
+                  placeholder={t("placeholders.confirmPassword")}
                   required
                 />
-
-                {fieldState.invalid && (
+                {fieldState.invalid ? (
                   <FieldError errors={[fieldState.error]} />
-                )}
+                ) : null}
               </Field>
             )}
           />
@@ -175,8 +161,17 @@ export function SignUpForm() {
           disabled={isSubmitting}
           className="h-12 w-full rounded-md bg-primary text-base font-bold text-primary-foreground hover:bg-primary/90"
         >
-          <LoadingSwap isLoading={isSubmitting}>Create account</LoadingSwap>
+          <LoadingSwap isLoading={isSubmitting}>
+            {t("signUp.submit")}
+          </LoadingSwap>
         </Button>
+
+        <p className="text-center text-sm text-muted-foreground">
+          {t("signUp.hasAccount")}{" "}
+          <Link href={routes.signIn()} className="font-medium hover:underline">
+            {t("signUp.signInLink")}
+          </Link>
+        </p>
       </form>
     </div>
   );

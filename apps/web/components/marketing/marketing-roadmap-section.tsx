@@ -1,6 +1,11 @@
+"use client";
+
 import { MARKETING_ROADMAP } from "@/lib/marketing-data";
+import { useTranslations } from "@/lib/i18n/client";
 
 export function MarketingRoadmapSection() {
+  const t = useTranslations("marketing");
+
   return (
     <section
       id="roadmap"
@@ -9,18 +14,15 @@ export function MarketingRoadmapSection() {
       <div className="mx-auto max-w-6xl px-6">
         <div className="mb-10 max-w-2xl">
           <h2 className="font-serif text-3xl tracking-tight md:text-4xl">
-            Roadmap
+            {t("roadmap.title")}
           </h2>
-          <p className="mt-3 text-muted-foreground">
-            What we&apos;re building next — approximate delivery quarters based
-            on current engineering priorities.
-          </p>
+          <p className="mt-3 text-muted-foreground">{t("roadmap.description")}</p>
         </div>
 
         <ol className="grid gap-4 md:grid-cols-2">
           {MARKETING_ROADMAP.map((item, index) => (
             <li
-              key={item.title}
+              key={item.id}
               className="relative border border-border bg-background p-6"
             >
               <div className="flex items-start justify-between gap-4">
@@ -32,10 +34,10 @@ export function MarketingRoadmapSection() {
                 </span>
               </div>
               <h3 className="mt-4 text-lg font-semibold text-foreground">
-                {item.title}
+                {t(`roadmap.items.${item.id}.title`)}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {item.description}
+                {t(`roadmap.items.${item.id}.description`)}
               </p>
             </li>
           ))}

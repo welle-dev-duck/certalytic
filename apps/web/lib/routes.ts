@@ -14,11 +14,10 @@ export const routes = {
   settingsProfile: () => "/settings/profile",
   settingsSecurity: () => "/settings/security",
   settingsAppearance: () => "/settings/appearance",
+  settingsLanguage: () => "/settings/language",
   settingsOrganization: () => "/settings/organization",
   invitation: (id?: string) =>
     id ? `/invitation?id=${encodeURIComponent(id)}` : "/invitation",
-  settingsTeams: () => "/settings/teams",
-  settingsTeam: (teamId: string) => `/settings/teams/${teamId}`,
   legal: {
     privacy: () => "/legal/privacy",
     terms: () => "/legal/terms",

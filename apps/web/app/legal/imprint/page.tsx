@@ -1,16 +1,30 @@
-import Link from "@/components/ui/link"
+import Link from "@/components/ui/link";
 
 import { LegalDocumentLayout } from "@/components/marketing/legal-document-layout";
 import { COMPANY } from "@/lib/company";
+import { getTranslations } from "@/lib/i18n/server";
 import { routes } from "@/lib/routes";
 
-export default function ImprintPage() {
+const companyParams = {
+  company: COMPANY.name,
+  legalName: COMPANY.legalName,
+  email: COMPANY.email,
+  addressLine: COMPANY.addressLine,
+  zip: COMPANY.zip,
+  city: COMPANY.city,
+  registrationNumber: COMPANY.registrationNumber,
+  vatId: COMPANY.vatId,
+};
+
+export default async function ImprintPage() {
+  const t = await getTranslations("legal");
+
   return (
     <LegalDocumentLayout
-      title="Imprint (Impressum)"
-      description="Legal disclosure pursuant to § 5 TMG (Germany) and applicable EU requirements."
+      title={t("imprint.title")}
+      description={t("imprint.description")}
     >
-      <h2>Service provider</h2>
+      <h2>{t("imprint.providerHeading")}</h2>
       <p>
         <strong>{COMPANY.legalName}</strong>
         <br />
@@ -20,32 +34,32 @@ export default function ImprintPage() {
         <br />
         {COMPANY.country}
       </p>
-      <h2>Represented by</h2>
+      <h2>{t("imprint.representedHeading")}</h2>
       <p>{COMPANY.managingDirector}</p>
-      <h2>Contact</h2>
+      <h2>{t("imprint.contactHeading")}</h2>
       <p>
-        Email:{" "}
+        {t("imprint.contactEmailPrefix")}
         <a href={`mailto:${COMPANY.email}`} className="text-primary">
           {COMPANY.email}
         </a>
       </p>
-      <h2>Register entry</h2>
+      <h2>{t("imprint.registerHeading")}</h2>
       <p>
-        Commercial register: {COMPANY.registrationNumber}
+        {t("imprint.registerCommercial", companyParams)}
         <br />
-        VAT ID: {COMPANY.vatId}
+        {t("imprint.registerVat", companyParams)}
       </p>
-      <h2>Platform</h2>
+      <h2>{t("imprint.platformHeading")}</h2>
       <p>
-        {COMPANY.name} — interview integrity decision support. See{" "}
+        {t("imprint.platformPrefix", companyParams)}
         <Link href={routes.legal.privacy()} className="text-primary">
-          Privacy Policy
-        </Link>{" "}
-        and{" "}
-        <Link href={routes.legal.terms()} className="text-primary">
-          Terms of Service
+          {t("imprint.platformPrivacyLink")}
         </Link>
-        .
+        {t("imprint.platformMiddle")}
+        <Link href={routes.legal.terms()} className="text-primary">
+          {t("imprint.platformTermsLink")}
+        </Link>
+        {t("imprint.platformSuffix")}
       </p>
     </LegalDocumentLayout>
   );

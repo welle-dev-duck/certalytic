@@ -1,32 +1,38 @@
 import { z } from "zod";
 
+import type { Translator } from "@/lib/i18n/translate";
+
 import { MAX_TRANSCRIPT_FILES, type ScreeningLimits } from "./screening-limits";
 
 const githubUrlPattern =
   /^(?:https?:\/\/)?(?:www\.)?github\.com\/[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?\/?(?:\?.*)?$/i;
 
-export function createScreeningSchema(limits: ScreeningLimits) {
+export function createScreeningSchema(t: Translator, limits: ScreeningLimits) {
   return z
     .object({
       name: z
         .string()
         .trim()
-        .min(1, "Candidate name is required.")
+        .min(1, t("screening.validation.nameRequired"))
         .max(
           limits.name_max_characters,
-          `Name must not exceed ${limits.name_max_characters.toLocaleString()} characters.`,
+          t("screening.validation.nameMaxLength", {
+            max: limits.name_max_characters.toLocaleString(),
+          }),
         ),
       email: z
         .string()
         .trim()
-        .email("Enter a valid email address.")
+        .email(t("screening.validation.emailInvalid"))
         .max(
           limits.email_max_characters,
-          `Email must not exceed ${limits.email_max_characters.toLocaleString()} characters.`,
+          t("screening.validation.emailMaxLength", {
+            max: limits.email_max_characters.toLocaleString(),
+          }),
         )
         .optional()
         .or(z.literal("")),
-      roleId: z.string().uuid("Select a role.").nullable(),
+      roleId: z.string().uuid(t("screening.validation.roleRequired")).nullable(),
       cvInputMode: z.enum(["auto", "manual"]),
       cvFile: z.instanceof(File).nullable(),
       cvText: z.string(),
@@ -41,7 +47,7 @@ export function createScreeningSchema(limits: ScreeningLimits) {
       if (data.roleId === null) {
         ctx.addIssue({
           code: "custom",
-          message: "Select a role.",
+          message: t("screening.validation.roleRequired"),
           path: ["roleId"],
         });
       }
@@ -49,7 +55,7 @@ export function createScreeningSchema(limits: ScreeningLimits) {
       if (data.cvInputMode === "auto" && data.cvFile === null) {
         ctx.addIssue({
           code: "custom",
-          message: "Upload a CV file or switch to manual text input.",
+          message: t("screening.validation.cvFileRequired"),
           path: ["cv"],
         });
       }
@@ -61,7 +67,9 @@ export function createScreeningSchema(limits: ScreeningLimits) {
       ) {
         ctx.addIssue({
           code: "custom",
-          message: `CV file must not exceed ${Math.round(limits.cv_max_kilobytes / 1024)} MB.`,
+          message: t("screening.validation.cvFileMaxSize", {
+            maxMb: Math.round(limits.cv_max_kilobytes / 1024),
+          }),
           path: ["cv"],
         });
       }
@@ -74,7 +82,7 @@ export function createScreeningSchema(limits: ScreeningLimits) {
         if (data.cvText.trim().length < 50) {
           ctx.addIssue({
             code: "custom",
-            message: "Paste at least 50 characters of CV content.",
+            message: t("screening.validation.cvTextMinLength"),
             path: ["cv_text"],
           });
         }
@@ -82,7 +90,9 @@ export function createScreeningSchema(limits: ScreeningLimits) {
         if (data.cvText.length > limits.cv_text_max_characters) {
           ctx.addIssue({
             code: "custom",
-            message: `CV text must not exceed ${limits.cv_text_max_characters.toLocaleString()} characters.`,
+            message: t("screening.validation.cvTextMaxLength", {
+              max: limits.cv_text_max_characters.toLocaleString(),
+            }),
             path: ["cv_text"],
           });
         }
@@ -90,7 +100,9 @@ export function createScreeningSchema(limits: ScreeningLimits) {
         if (wordCount > limits.cv_text_max_words) {
           ctx.addIssue({
             code: "custom",
-            message: `CV text exceeds the maximum of ${limits.cv_text_max_words.toLocaleString()} words.`,
+            message: t("screening.validation.cvTextMaxWords", {
+              max: limits.cv_text_max_words.toLocaleString(),
+            }),
             path: ["cv_text"],
           });
         }
@@ -99,7 +111,9 @@ export function createScreeningSchema(limits: ScreeningLimits) {
       if (data.linkedinText.length > limits.linkedin_text_max_characters) {
         ctx.addIssue({
           code: "custom",
-          message: `LinkedIn content must not exceed ${limits.linkedin_text_max_characters.toLocaleString()} characters.`,
+          message: t("screening.validation.linkedinMaxLength", {
+            max: limits.linkedin_text_max_characters.toLocaleString(),
+          }),
           path: ["linkedin_text"],
         });
       }
@@ -107,7 +121,9 @@ export function createScreeningSchema(limits: ScreeningLimits) {
       if (data.githubUrl.length > limits.github_url_max_characters) {
         ctx.addIssue({
           code: "custom",
-          message: `GitHub URL must not exceed ${limits.github_url_max_characters.toLocaleString()} characters.`,
+          message: t("screening.validation.githubMaxLength", {
+            max: limits.github_url_max_characters.toLocaleString(),
+          }),
           path: ["github_url"],
         });
       }
@@ -115,8 +131,7 @@ export function createScreeningSchema(limits: ScreeningLimits) {
       if (data.githubUrl && !githubUrlPattern.test(data.githubUrl)) {
         ctx.addIssue({
           code: "custom",
-          message:
-            "Enter a valid GitHub profile URL (e.g. https://github.com/username).",
+          message: t("screening.validation.githubInvalid"),
           path: ["github_url"],
         });
       }
@@ -126,7 +141,9 @@ export function createScreeningSchema(limits: ScreeningLimits) {
       ) {
         ctx.addIssue({
           code: "custom",
-          message: `Internal notes must not exceed ${limits.interviewer_notes_max_characters.toLocaleString()} characters.`,
+          message: t("screening.validation.notesMaxLength", {
+            max: limits.interviewer_notes_max_characters.toLocaleString(),
+          }),
           path: ["interviewer_notes.0"],
         });
       }
@@ -137,13 +154,13 @@ export function createScreeningSchema(limits: ScreeningLimits) {
         if (transcript.length === 0) {
           ctx.addIssue({
             code: "custom",
-            message: "Paste an interview transcript.",
+            message: t("screening.validation.transcriptRequired"),
             path: ["transcripts"],
           });
         } else if (transcript.length < 10) {
           ctx.addIssue({
             code: "custom",
-            message: "Transcript must be at least 10 characters.",
+            message: t("screening.validation.transcriptMinLength"),
             path: ["transcripts.0"],
           });
         }
@@ -153,7 +170,9 @@ export function createScreeningSchema(limits: ScreeningLimits) {
         if (transcript.length > limits.transcript_text_max_characters) {
           ctx.addIssue({
             code: "custom",
-            message: `Transcript must not exceed ${limits.transcript_text_max_characters.toLocaleString()} characters.`,
+            message: t("screening.validation.transcriptMaxLength", {
+              max: limits.transcript_text_max_characters.toLocaleString(),
+            }),
             path: ["transcripts"],
           });
         }
@@ -161,7 +180,9 @@ export function createScreeningSchema(limits: ScreeningLimits) {
         if (wordCount > limits.transcript_text_max_words) {
           ctx.addIssue({
             code: "custom",
-            message: `Transcript exceeds the maximum of ${limits.transcript_text_max_words.toLocaleString()} words.`,
+            message: t("screening.validation.transcriptMaxWords", {
+              max: limits.transcript_text_max_words.toLocaleString(),
+            }),
             path: ["transcripts"],
           });
         }
@@ -171,8 +192,7 @@ export function createScreeningSchema(limits: ScreeningLimits) {
         if (data.transcriptFiles.length === 0) {
           ctx.addIssue({
             code: "custom",
-            message:
-              "Upload at least one Zoom .vtt or Teams .docx transcript file.",
+            message: t("screening.validation.transcriptFilesRequired"),
             path: ["transcript_files"],
           });
         }
@@ -180,7 +200,9 @@ export function createScreeningSchema(limits: ScreeningLimits) {
         if (data.transcriptFiles.length > MAX_TRANSCRIPT_FILES) {
           ctx.addIssue({
             code: "custom",
-            message: `You can upload up to ${MAX_TRANSCRIPT_FILES} transcript files.`,
+            message: t("screening.validation.transcriptFilesMax", {
+              max: MAX_TRANSCRIPT_FILES,
+            }),
             path: ["transcript_files"],
           });
         }
@@ -190,8 +212,7 @@ export function createScreeningSchema(limits: ScreeningLimits) {
           if (!extension || !["vtt", "docx"].includes(extension)) {
             ctx.addIssue({
               code: "custom",
-              message:
-                "Upload a Zoom .vtt caption file or a Teams .docx export.",
+              message: t("screening.validation.transcriptFileInvalid"),
               path: [`transcript_files.${index}`],
             });
           }
@@ -209,6 +230,6 @@ export function formatZodErrors(error: z.ZodError): Record<string, string> {
   return errors;
 }
 
-export function firstZodError(error: z.ZodError): string {
-  return error.issues[0]?.message ?? "Validation failed.";
+export function firstZodError(error: z.ZodError, t: Translator): string {
+  return error.issues[0]?.message ?? t("screening.validation.failed");
 }

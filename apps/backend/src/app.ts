@@ -23,6 +23,9 @@ import { BillingRouter } from './modules/billing/billing.router';
 import { CandidatesController } from './modules/candidates/candidates.controller';
 import { CandidatesRouter } from './modules/candidates/candidates.router';
 import { CandidatesService } from './modules/candidates/candidates.service';
+import { DashboardController } from './modules/dashboard/dashboard.controller';
+import { DashboardRouter } from './modules/dashboard/dashboard.router';
+import { DashboardService } from './modules/dashboard/dashboard.service';
 import { ScreeningReportPdfExporter } from './modules/exports/screening-report-pdf.exporter';
 import { OrganizationsController } from './modules/organizations/organizations.controller';
 import { OrganizationsRouter } from './modules/organizations/organizations.router';
@@ -161,6 +164,14 @@ export function createApp(container: AppContainer): CreateAppResult {
     rateLimitScreening,
   );
   app.use('/api/candidates', candidatesRouter.router);
+
+  const dashboardService = new DashboardService(db);
+  const dashboardController = new DashboardController(dashboardService);
+  const dashboardRouter = new DashboardRouter(
+    dashboardController,
+    requireOrganization,
+  );
+  app.use('/api/dashboard', dashboardRouter.router);
 
   mountQueueDashboard(app, container.queues, [requireAdmin]);
   logger.info(

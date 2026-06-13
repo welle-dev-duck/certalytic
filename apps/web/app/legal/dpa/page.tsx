@@ -1,41 +1,46 @@
-import Link from "@/components/ui/link"
+import Link from "@/components/ui/link";
 
 import { LegalDocumentLayout } from "@/components/marketing/legal-document-layout";
 import { COMPANY } from "@/lib/company";
+import { getTranslations } from "@/lib/i18n/server";
 import { routes } from "@/lib/routes";
 
-export default function DpaPage() {
+const companyParams = {
+  company: COMPANY.name,
+  legalName: COMPANY.legalName,
+  email: COMPANY.email,
+  addressLine: COMPANY.addressLine,
+  zip: COMPANY.zip,
+  city: COMPANY.city,
+  registrationNumber: COMPANY.registrationNumber,
+  vatId: COMPANY.vatId,
+};
+
+export default async function DpaPage() {
+  const t = await getTranslations("legal");
+
   return (
     <LegalDocumentLayout
-      title="Data Processing Agreement"
-      description={`Processor terms for candidate data handled on behalf of ${COMPANY.name} customers.`}
+      title={t("dpa.title")}
+      description={t("dpa.description", companyParams)}
     >
+      <p>{t("dpa.intro", companyParams)}</p>
+      <h2>{t("dpa.subjectHeading")}</h2>
       <p>
-        This DPA forms part of the agreement between the Customer (Controller)
-        and {COMPANY.legalName} (Processor) when Customer uses {COMPANY.name}{" "}
-        to process personal data relating to job candidates.
-      </p>
-      <h2>1. Subject matter & duration</h2>
-      <p>
-        Processor will process candidate personal data only to provide integrity
-        screening and related features described in the{" "}
+        {t("dpa.subjectPrefix")}
         <Link href={routes.legal.terms()} className="text-primary">
-          Terms of Service
+          {t("dpa.subjectTermsLink")}
         </Link>
-        .
+        {t("dpa.subjectSuffix")}
       </p>
-      <h2>2. Nature & purpose of processing</h2>
+      <h2>{t("dpa.natureHeading")}</h2>
       <ul>
-        <li>Storage and parsing of CVs and interview transcripts</li>
-        <li>AI-assisted analysis to generate integrity scores and flags</li>
-        <li>Display of results to authorised Customer users</li>
+        <li>{t("dpa.natureItemStorage")}</li>
+        <li>{t("dpa.natureItemAnalysis")}</li>
+        <li>{t("dpa.natureItemDisplay")}</li>
       </ul>
-      <h2>3. Sub-processors</h2>
-      <p>
-        EU-based infrastructure (Hetzner) and AI inference (Mistral AI, France).
-        Customer authorises these sub-processors subject to GDPR Article 28
-        requirements.
-      </p>
+      <h2>{t("dpa.subProcessorsHeading")}</h2>
+      <p>{t("dpa.subProcessorsParagraph")}</p>
     </LegalDocumentLayout>
   );
 }

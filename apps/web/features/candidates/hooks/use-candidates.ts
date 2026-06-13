@@ -97,6 +97,7 @@ export function useDeleteCandidate() {
       api(`/api/candidates/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: candidateKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -113,6 +114,7 @@ export function useRetryCandidate() {
         queryKey: candidateKeys.detail(orgId, id),
       });
       queryClient.invalidateQueries({ queryKey: candidateKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -128,6 +130,7 @@ export function useCreateCandidate() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: candidateKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }

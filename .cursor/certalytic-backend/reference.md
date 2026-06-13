@@ -1,4 +1,4 @@
-# Certalytic Backend — Reference
+# Certalytic Backend - Reference
 
 ## Key files
 
@@ -124,13 +124,13 @@ queues/
 | `organization()` | Invites → `emailsProducer.enqueueInvitation` |
 | `stripe()` | `authorizeReference` → `billingService.canManageStripeSubscription` |
 
-Standalone `export const auth = betterAuth({...})` at top of `auth.ts` for `pnpm auth:generate` — schema-relevant config only (plugins, DB adapter, generateId).
+Standalone `export const auth = betterAuth({...})` at top of `auth.ts` for `pnpm auth:generate` - schema-relevant config only (plugins, DB adapter, generateId).
 
 ---
 
 ## E2E conventions
 
-- Factory: `test/e2e/create-test-app.ts` — no workers
+- Factory: `test/e2e/create-test-app.ts` - no workers
 - DB name must contain `_test` (or set `E2E_ALLOW_SHARED_DB=true`)
 - Verify email via token from queued job URL (not DB)
 - `supertest` agent for cookie persistence

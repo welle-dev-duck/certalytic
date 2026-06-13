@@ -14,14 +14,18 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { authClient } from "@/lib/auth-client";
-import { routes } from "@/lib/routes";
 import {
   forgotPasswordSchema,
   type ForgotPasswordValues,
 } from "@/features/auth/schemas/forgot-password-schema";
+import { authClient } from "@/lib/auth-client";
+import { useTranslations } from "@/lib/i18n/client";
+import { routes } from "@/lib/routes";
 
 export function ForgotPasswordForm() {
+  const t = useTranslations("auth");
+  const tCommon = useTranslations("common");
+
   const form = useForm<ForgotPasswordValues>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: { email: "" },
@@ -37,10 +41,10 @@ export function ForgotPasswordForm() {
       },
       {
         onSuccess: () => {
-          toast.success("If an account exists, a reset link has been sent.");
+          toast.success(t("forgotPassword.success"));
         },
         onError: (error) => {
-          toast.error(error.error.message || "Something went wrong.");
+          toast.error(error.error.message || tCommon("errors.generic"));
         },
       },
     );
@@ -56,19 +60,19 @@ export function ForgotPasswordForm() {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="forgot-password-email">
-                  Email address
+                  {t("forgotPassword.email")}
                 </FieldLabel>
                 <Input
                   {...field}
                   id="forgot-password-email"
                   type="email"
                   autoComplete="email"
-                  placeholder="email@example.com"
+                  placeholder={t("placeholders.email")}
                   required
                 />
-                {fieldState.invalid && (
+                {fieldState.invalid ? (
                   <FieldError errors={[fieldState.error]} />
-                )}
+                ) : null}
               </Field>
             )}
           />
@@ -76,15 +80,15 @@ export function ForgotPasswordForm() {
 
         <Button type="submit" disabled={isSubmitting} className="h-12 w-full">
           <LoadingSwap isLoading={isSubmitting}>
-            Email password reset link
+            {t("forgotPassword.submit")}
           </LoadingSwap>
         </Button>
       </form>
 
       <p className="text-center text-sm text-muted-foreground">
-        Or, return to{" "}
+        {t("forgotPassword.backToSignIn")}{" "}
         <Link href={routes.signIn()} className="font-medium hover:underline">
-          log in
+          {t("forgotPassword.signInLink")}
         </Link>
       </p>
     </div>

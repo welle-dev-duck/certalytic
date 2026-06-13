@@ -34,6 +34,7 @@ import { RoleFormDialog } from "@/features/roles/components/role-form-dialog";
 import { useDeleteRole, useRoles } from "@/features/roles/hooks/use-roles";
 import type { RoleListItem } from "@/features/roles/types";
 import { useCursorPagination, cursorPageRange } from "@/hooks/use-cursor-pagination";
+import { useTranslations } from "@/lib/i18n/client";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
@@ -47,6 +48,7 @@ function formatDate(value: string | null): string {
 }
 
 export function RolesList() {
+  const t = useTranslations("app");
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -92,13 +94,15 @@ export function RolesList() {
 
     deleteRole.mutate(roleToDelete.id, {
       onSuccess: () => {
-        toast.success("Role deleted.");
+        toast.success(t("roles.list.toast.deleted"));
         setDeleteOpen(false);
         setRoleToDelete(null);
       },
       onError: (error) => {
         toast.error(
-          error instanceof Error ? error.message : "Failed to delete role.",
+          error instanceof Error
+            ? error.message
+            : t("roles.list.toast.deleteFailed"),
         );
       },
     });
@@ -121,23 +125,27 @@ export function RolesList() {
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete role?</DialogTitle>
+            <DialogTitle>{t("roles.deleteDialog.title")}</DialogTitle>
             <DialogDescription>
               {roleToDelete
-                ? `This will permanently delete "${roleToDelete.title}". Candidates linked to this role will keep their data but lose the role association.`
-                : "This action cannot be undone."}
+                ? t("roles.deleteDialog.description", {
+                    title: roleToDelete.title,
+                  })
+                : t("roles.deleteDialog.descriptionFallback")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setDeleteOpen(false)}>
-              Cancel
+              {t("roles.deleteDialog.cancel")}
             </Button>
             <Button
               variant="destructive"
               disabled={deleteRole.isPending}
               onClick={confirmDelete}
             >
-              {deleteRole.isPending ? "Deleting…" : "Delete role"}
+              {deleteRole.isPending
+                ? t("roles.deleteDialog.confirming")
+                : t("roles.deleteDialog.confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -145,14 +153,16 @@ export function RolesList() {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Roles</h1>
+          <h1 className="text-xl font-bold text-foreground">
+            {t("roles.list.title")}
+          </h1>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            Saved role profiles for repeatable screening context
+            {t("roles.list.subtitle")}
           </p>
         </div>
         <Button size="sm" onClick={() => setCreateOpen(true)}>
           <Plus size={13} />
-          New role
+          {t("roles.list.newRole")}
         </Button>
       </div>
 
@@ -161,7 +171,7 @@ export function RolesList() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search roles…"
+          placeholder={t("roles.list.searchPlaceholder")}
           className="w-full bg-transparent text-sm text-foreground outline-none"
         />
       </div>
@@ -169,7 +179,7 @@ export function RolesList() {
       <div className="rounded-lg border border-border bg-card">
         {isLoading ? (
           <div className="px-4 py-12 text-center text-sm text-muted-foreground">
-            Loading roles…
+            {t("roles.list.loading")}
           </div>
         ) : (
           <>
@@ -178,10 +188,22 @@ export function RolesList() {
                 <thead>
                   <tr className="border-b border-border">
                     {[
-                      { label: "Role", className: "w-[28%] max-w-[220px]" },
-                      { label: "Candidates", className: "" },
-                      { label: "Avg Integrity", className: "" },
-                      { label: "Created", className: "" },
+                      {
+                        label: t("roles.list.headers.role"),
+                        className: "w-[28%] max-w-[220px]",
+                      },
+                      {
+                        label: t("roles.list.headers.candidates"),
+                        className: "",
+                      },
+                      {
+                        label: t("roles.list.headers.avgIntegrity"),
+                        className: "",
+                      },
+                      {
+                        label: t("roles.list.headers.created"),
+                        className: "",
+                      },
                     ].map((header) => (
                       <th
                         key={header.label}
@@ -190,8 +212,14 @@ export function RolesList() {
                         {header.label}
                       </th>
                     ))}
-                    <th className="w-10 px-2 py-3" aria-label="Actions" />
-                    <th className="w-10 px-2 py-3" aria-label="View" />
+                    <th
+                      className="w-10 px-2 py-3"
+                      aria-label={t("roles.list.aria.actions")}
+                    />
+                    <th
+                      className="w-10 px-2 py-3"
+                      aria-label={t("roles.list.aria.view")}
+                    />
                   </tr>
                 </thead>
                 <tbody>
@@ -201,7 +229,7 @@ export function RolesList() {
                         colSpan={6}
                         className="px-4 py-12 text-center text-sm text-muted-foreground"
                       >
-                        No roles yet. Create your first role to get started.
+                        {t("roles.list.empty")}
                       </td>
                     </tr>
                   )}
@@ -271,7 +299,7 @@ export function RolesList() {
                               }}
                             >
                               <Pencil />
-                              Edit
+                              {t("roles.list.edit")}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               className="text-destructive focus:text-destructive"
@@ -281,7 +309,7 @@ export function RolesList() {
                               }}
                             >
                               <Trash2 />
-                              Delete
+                              {t("roles.list.delete")}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

@@ -1,3 +1,5 @@
+import type { Translator } from "@/lib/i18n/translate";
+
 export type IntegrityLevel = "high" | "medium" | "low";
 
 export type FlagType =
@@ -112,7 +114,14 @@ export function getNominalStatusStyle(): {
 }
 
 export const INTEGRITY_DISTRIBUTION_META = [
-  { key: "high" as const, label: "High (75+)", color: "#10B981" },
-  { key: "medium" as const, label: "Medium (50–74)", color: "#F59E0B" },
-  { key: "low" as const, label: "Low (<50)", color: "#EF4444" },
+  { key: "high" as const, color: "#10B981" },
+  { key: "medium" as const, color: "#F59E0B" },
+  { key: "low" as const, color: "#EF4444" },
 ] as const;
+
+export function getIntegrityDistributionLabels(t: Translator) {
+  return INTEGRITY_DISTRIBUTION_META.map((item) => ({
+    ...item,
+    label: t(`integrity.distribution.${item.key}`),
+  }));
+}

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { COMPANY } from "@/lib/company";
 import { authClient } from "@/lib/auth-client";
 import { routes } from "@/lib/routes";
+import { useTranslations } from "@/lib/i18n/client";
 import { useAuth } from "@/providers/auth-provider";
 
 type InvitationDetails = {
@@ -24,6 +25,7 @@ type InvitationDetails = {
 };
 
 export function InvitationPanel() {
+  const t = useTranslations("app");
   const router = useRouter();
   const searchParams = useSearchParams();
   const invitationId = searchParams.get("id");
@@ -49,7 +51,7 @@ export function InvitationPanel() {
       if (cancelled) return;
 
       if (result.error || !result.data) {
-        toast.error(result.error?.message ?? "Invitation not found.");
+        toast.error(result.error?.message ?? t("invitation.toast.notFound"));
         setInvitation(null);
         setIsLoading(false);
         return;
@@ -76,7 +78,7 @@ export function InvitationPanel() {
     });
 
     if (result.error) {
-      toast.error(result.error.message ?? "Failed to accept invitation.");
+      toast.error(result.error.message ?? t("invitation.toast.acceptFailed"));
       setIsAccepting(false);
       return;
     }
@@ -87,7 +89,7 @@ export function InvitationPanel() {
       });
     }
 
-    toast.success("Invitation accepted.");
+    toast.success(t("invitation.toast.accepted"));
     window.location.href = routes.dashboard();
   }
 
@@ -101,19 +103,19 @@ export function InvitationPanel() {
     });
 
     if (result.error) {
-      toast.error(result.error.message ?? "Failed to reject invitation.");
+      toast.error(result.error.message ?? t("invitation.toast.rejectFailed"));
       setIsRejecting(false);
       return;
     }
 
-    toast.success("Invitation declined.");
+    toast.success(t("invitation.toast.declined"));
     router.replace(routes.dashboard());
   }
 
   const organizationName =
     invitation?.organizationName ??
     invitation?.organization?.name ??
-    "an organization";
+    t("invitation.defaultOrganization");
 
   return (
     <div className="flex min-h-dvh flex-col bg-background">
@@ -133,19 +135,24 @@ export function InvitationPanel() {
               <Building2 className="h-6 w-6 text-primary" />
             </div>
             <h1 className="font-display text-2xl font-semibold tracking-tight">
-              Organization invitation
+              {t("invitation.title")}
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {isLoading
-                ? "Loading invitation…"
+                ? t("invitation.loading")
                 : invitation
-                  ? `You've been invited to join ${organizationName} as ${invitation.role}.`
-                  : "This invitation is invalid or has expired."}
+                  ? t("invitation.invited", {
+                      organization: organizationName,
+                      role: invitation.role,
+                    })
+                  : t("invitation.invalid")}
             </p>
             {user?.email && invitation?.email && user.email !== invitation.email ? (
               <p className="mt-2 text-xs text-destructive">
-                Signed in as {user.email}. This invitation was sent to{" "}
-                {invitation.email}.
+                {t("invitation.emailMismatch", {
+                  signedInEmail: user.email,
+                  invitationEmail: invitation.email,
+                })}
               </p>
             ) : null}
           </div>
@@ -158,7 +165,9 @@ export function InvitationPanel() {
                 disabled={isAccepting || isRejecting}
                 onClick={() => void handleAccept()}
               >
-                <LoadingSwap isLoading={isAccepting}>Accept</LoadingSwap>
+                <LoadingSwap isLoading={isAccepting}>
+                  {t("invitation.accept")}
+                </LoadingSwap>
               </Button>
               <Button
                 type="button"
@@ -167,7 +176,9 @@ export function InvitationPanel() {
                 disabled={isAccepting || isRejecting}
                 onClick={() => void handleReject()}
               >
-                <LoadingSwap isLoading={isRejecting}>Decline</LoadingSwap>
+                <LoadingSwap isLoading={isRejecting}>
+                  {t("invitation.decline")}
+                </LoadingSwap>
               </Button>
             </div>
           ) : null}

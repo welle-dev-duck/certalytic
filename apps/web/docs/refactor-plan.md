@@ -14,7 +14,7 @@ Multi-phase cleanup from the architecture audit. Each phase is independently mer
 
 ---
 
-## Phase 1 — Dead code & backend alignment
+## Phase 1 - Dead code & backend alignment
 
 - [x] Remove bulk import flow; redirect orphan create/import routes to modal flow
 - [x] Remove debug logging and dead route helpers
@@ -22,7 +22,7 @@ Multi-phase cleanup from the architecture audit. Each phase is independently mer
 
 ---
 
-## Phase 2 — API & error-handling consistency
+## Phase 2 - API & error-handling consistency
 
 - [x] Standardize mutation error helper (`lib/mutation-errors.ts`)
 - [x] Use validation errors in screening flow; fix role export swallowing
@@ -31,22 +31,22 @@ Multi-phase cleanup from the architecture audit. Each phase is independently mer
 
 ---
 
-## Phase 3 — Component extraction
+## Phase 3 - Component extraction
 
 - [x] `CandidatesTable`, `ScreeningDialogs`, start-screening step split, candidate-detail split, organization-settings split
 
 ---
 
-## Phase 4 — Auth & session hardening
+## Phase 4 - Auth & session hardening
 
-- [x] ~~Next.js middleware auth redirect~~ — **intentionally out of scope** (see `todo.md`)
+- [x] ~~Next.js middleware auth redirect~~ - **intentionally out of scope** (see `todo.md`)
 - [x] Move auth forms/components into `features/auth/`; pages under `app/auth/` are thin shells
 - [x] Replace org-create full page reload with query invalidation
 - [x] Typed parsers for organization directory responses (members + invitations)
 
 ---
 
-## Phase 5 — Design system & marketing parity
+## Phase 5 - Design system & marketing parity
 
 - [x] Route score/integrity colors through `lib/integrity.ts` (dashboard, billing, dossier, marketing)
 - [x] Unify enterprise contact email (`COMPANY.email`)
@@ -56,15 +56,15 @@ Multi-phase cleanup from the architecture audit. Each phase is independently mer
 
 ---
 
-## Phase 6 — Type safety & shared contracts
+## Phase 6 - Type safety & shared contracts
 
-- [ ] ~~`packages/api-types`~~ — **deferred** to `todo.md`
+- [ ] ~~`packages/api-types`~~ - **deferred** to `todo.md`
 - [x] Typed screening evaluation schema + `parseScreeningEvaluation` at candidate detail boundary
 - [x] Screening limit constants documented
 
 ---
 
-## Phase 7 — Testing foundation
+## Phase 7 - Testing foundation
 
 - [x] Vitest + React Testing Library (`test` / `test:watch`)
 - [x] Unit tests: integrity, mutation-errors, pagination, screening schema, auth schemas, start-screening utils
@@ -76,9 +76,9 @@ Multi-phase cleanup from the architecture audit. Each phase is independently mer
 
 ## Explicitly out of scope
 
-- **Next.js middleware auth redirect** — keep client-only `AuthProvider` gate
-- **`packages/api-types`** — deferred to `todo.md`
-- **`PAGE_SIZES` dev option `1`** — remove at prod cutover
+- **Next.js middleware auth redirect** - keep client-only `AuthProvider` gate
+- **`packages/api-types`** - deferred to `todo.md`
+- **`PAGE_SIZES` dev option `1`** - remove at prod cutover
 - Regenerating shadcn/ui primitives, full rebrand, Better Auth server config, Stripe UX redesign, marketing copy accuracy, re-adding bulk import
 
 ---

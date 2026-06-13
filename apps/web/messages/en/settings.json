@@ -1,0 +1,118 @@
+{
+  "layout": {
+    "title": "Settings",
+    "description": "Manage your profile and account settings"
+  },
+  "nav": {
+    "profile": "Profile",
+    "security": "Security",
+    "appearance": "Appearance",
+    "language": "Language",
+    "organization": "Organization"
+  },
+  "languagePage": {
+    "label": "LANGUAGE",
+    "title": "Language",
+    "description": "Choose the language for the Certalytic interface. Screening summaries and exports can use a separate language per candidate (coming soon).",
+    "current": "Interface language",
+    "note": "Your preference is stored in a cookie on this device. API error messages from the backend remain in English."
+  },
+  "profilePage": {
+    "title": "Profile",
+    "description": "Update your name and email address",
+    "fields": {
+      "name": "Name",
+      "email": "Email address",
+      "namePlaceholder": "Max Mustermann",
+      "emailPlaceholder": "max.mustermann@example.com"
+    },
+    "unverified": "Your email address is unverified.",
+    "resendVerification": "Resend verification email",
+    "validation": {
+      "nameRequired": "Name is required",
+      "emailInvalid": "Enter a valid email"
+    },
+    "toasts": {
+      "updateFailed": "Failed to update profile.",
+      "updateSuccess": "Profile updated."
+    }
+  },
+  "securityPage": {
+    "title": "Security",
+    "description": "Ensure your account uses a long, random password",
+    "fields": {
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password",
+      "currentPasswordPlaceholder": "Current password",
+      "newPasswordPlaceholder": "At least 8 characters",
+      "confirmPasswordPlaceholder": "Repeat new password"
+    },
+    "validation": {
+      "currentPasswordRequired": "Current password is required",
+      "newPasswordMinLength": "Password must be at least 8 characters",
+      "confirmPasswordRequired": "Confirm your new password",
+      "passwordsMismatch": "Passwords do not match"
+    },
+    "toasts": {
+      "updateFailed": "Failed to update password.",
+      "updateSuccess": "Password updated."
+    }
+  },
+  "appearancePage": {
+    "title": "Appearance",
+    "description": "Update the appearance settings for your account",
+    "themeLabel": "Theme"
+  },
+  "appearanceToggle": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "organizationPage": {
+    "title": "Organization",
+    "description": "{name} - workspace name, members, and invitations",
+    "noOrganization": "Select or create an organization to manage its settings.",
+    "sections": {
+      "workspace": "WORKSPACE",
+      "teamMembers": "TEAM MEMBERS",
+      "inviteMember": "INVITE MEMBER",
+      "pendingInvitations": "PENDING INVITATIONS"
+    },
+    "profileForm": {
+      "organizationName": "Organization name",
+      "namePlaceholder": "Acme Hiring"
+    },
+    "inviteForm": {
+      "email": "Email",
+      "role": "Role",
+      "emailPlaceholder": "colleague@company.com",
+      "sendInvitation": "Send invitation"
+    },
+    "membersList": {
+      "loading": "Loading members…",
+      "empty": "No members yet."
+    },
+    "pendingInvitations": {
+      "loading": "Loading invitations…",
+      "empty": "No pending invitations.",
+      "cancelAriaLabel": "Cancel invitation"
+    },
+    "roles": {
+      "member": "Member",
+      "admin": "Admin"
+    },
+    "validation": {
+      "nameRequired": "Organization name is required",
+      "emailInvalid": "Enter a valid email"
+    },
+    "toasts": {
+      "updateFailed": "Failed to update organization.",
+      "updateSuccess": "Organization updated.",
+      "inviteSent": "Invitation sent.",
+      "inviteFailed": "Failed to send invitation.",
+      "cancelSuccess": "Invitation cancelled.",
+      "cancelFailed": "Failed to cancel invitation."
+    }
+  }
+}

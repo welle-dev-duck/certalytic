@@ -29,11 +29,13 @@ import {
   useRole,
 } from "@/features/roles/hooks/use-roles";
 import { useCursorPagination, cursorPageRange } from "@/hooks/use-cursor-pagination";
-import { INTEGRITY_DISTRIBUTION_META } from "@/lib/integrity";
+import { useTranslations } from "@/lib/i18n/client";
+import { getIntegrityDistributionLabels } from "@/lib/integrity";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
 function CollapsibleJobDescription({ text }: { text: string }) {
+  const t = useTranslations("app");
   const [expanded, setExpanded] = useState(false);
   const [isTruncated, setIsTruncated] = useState(false);
   const ref = useRef<HTMLParagraphElement>(null);
@@ -72,7 +74,7 @@ function CollapsibleJobDescription({ text }: { text: string }) {
           onClick={() => setExpanded((open) => !open)}
           className="mt-2 text-xs font-medium text-primary hover:underline"
         >
-          {expanded ? "Show less" : "Show more"}
+          {expanded ? t("roles.detail.showLess") : t("roles.detail.showMore")}
         </button>
       ) : null}
     </div>
@@ -80,6 +82,8 @@ function CollapsibleJobDescription({ text }: { text: string }) {
 }
 
 export function RoleDetail({ roleId }: { roleId: string }) {
+  const t = useTranslations("app");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
   const [pageSize, setPageSize] = useState(25);
@@ -123,7 +127,7 @@ export function RoleDetail({ roleId }: { roleId: string }) {
   if (isLoading || !role) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center p-6 text-sm text-muted-foreground">
-        Loading role…
+        {t("roles.detail.loading")}
       </div>
     );
   }
@@ -140,9 +144,7 @@ export function RoleDetail({ roleId }: { roleId: string }) {
 
   function handleDeleteRole() {
     if (
-      !confirm(
-        `Delete "${role.title}"? Candidates keep their snapshot title and description.`,
-      )
+      !confirm(t("roles.detail.deleteConfirm", { title: role.title }))
     ) {
       return;
     }
@@ -176,7 +178,7 @@ export function RoleDetail({ roleId }: { roleId: string }) {
         <Button variant="ghost" size="sm" asChild>
           <Link href={routes.roles()}>
             <ArrowLeft size={13} />
-            Back to Roles
+            {t("roles.detail.backToRoles")}
           </Link>
         </Button>
 
@@ -189,7 +191,7 @@ export function RoleDetail({ roleId }: { roleId: string }) {
             onClick={() => setEditOpen(true)}
           >
             <Pencil size={14} />
-            Edit
+            {t("roles.detail.edit")}
           </Button>
           <Button
             type="button"
@@ -200,7 +202,7 @@ export function RoleDetail({ roleId }: { roleId: string }) {
             disabled={deleteRole.isPending}
           >
             <Trash2 size={14} />
-            Delete
+            {t("roles.detail.delete")}
           </Button>
         </div>
       </div>
@@ -208,8 +210,17 @@ export function RoleDetail({ roleId }: { roleId: string }) {
       <div>
         <h1 className="text-2xl font-bold text-foreground">{role.title}</h1>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          Created {formatCandidateDate(role.createdAt)} · {role.candidatesCount}{" "}
-          screening{role.candidatesCount === 1 ? "" : "s"}
+          {t("roles.detail.created", {
+            date: formatCandidateDate(role.createdAt),
+          })}{" "}
+          ·{" "}
+          {role.candidatesCount === 1
+            ? t("roles.detail.screeningsSingular", {
+                count: role.candidatesCount,
+              })
+            : t("roles.detail.screeningsPlural", {
+                count: role.candidatesCount,
+              })}
         </p>
       </div>
 
@@ -217,7 +228,7 @@ export function RoleDetail({ roleId }: { roleId: string }) {
         <div className="space-y-5">
           <div className="rounded-lg border border-border bg-card p-5">
             <p className="mb-4 text-[10px] font-bold tracking-widest text-muted-foreground">
-              AVG INTEGRITY
+              {t("roles.detail.avgIntegrity")}
             </p>
             <div className="flex flex-col items-center">
               {stats.avgIntegrity !== null ? (
@@ -229,17 +240,22 @@ export function RoleDetail({ roleId }: { roleId: string }) {
                 />
               ) : (
                 <div className="flex h-[132px] w-[132px] items-center justify-center rounded-full border-2 border-dashed border-border text-sm text-muted-foreground">
-                  No scores
+                  {t("roles.detail.noScores")}
                 </div>
               )}
               <p className="mt-3 text-xs text-muted-foreground">
-                across {stats.scored} scored candidate
-                {stats.scored === 1 ? "" : "s"}
+                {stats.scored === 1
+                  ? t("roles.detail.acrossScoredSingular", {
+                      count: stats.scored,
+                    })
+                  : t("roles.detail.acrossScoredPlural", {
+                      count: stats.scored,
+                    })}
               </p>
             </div>
 
             <div className="mt-5 space-y-2.5">
-              {INTEGRITY_DISTRIBUTION_META.map((item) => {
+              {getIntegrityDistributionLabels(tCommon).map((item) => {
                 const value = stats.distribution[item.key];
                 const pct =
                   stats.scored > 0 ? (value / stats.scored) * 100 : 0;
@@ -276,13 +292,13 @@ export function RoleDetail({ roleId }: { roleId: string }) {
         <div className="space-y-5">
           <div className="rounded-lg border border-border bg-card p-5">
             <p className="mb-2 text-[10px] font-bold tracking-widest text-muted-foreground">
-              JOB DESCRIPTION
+              {t("roles.detail.jobDescription")}
             </p>
             {role.description ? (
               <CollapsibleJobDescription text={role.description} />
             ) : (
               <p className="text-sm italic text-muted-foreground">
-                No description provided.
+                {t("roles.detail.noDescription")}
               </p>
             )}
           </div>
@@ -291,11 +307,11 @@ export function RoleDetail({ roleId }: { roleId: string }) {
             <div className="space-y-3 border-b border-border px-4 py-3">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-semibold text-foreground">
-                  Candidates
+                  {t("roles.detail.candidates")}
                 </p>
                 <Button size="sm" onClick={() => setScreenOpen(true)}>
                   <Plus size={13} />
-                  New Candidate
+                  {t("roles.detail.newCandidate")}
                 </Button>
               </div>
               <div className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-2">
@@ -303,7 +319,7 @@ export function RoleDetail({ roleId }: { roleId: string }) {
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Search by name or email…"
+                  placeholder={t("roles.detail.searchPlaceholder")}
                   className="w-full bg-transparent text-sm text-foreground outline-none"
                 />
               </div>
@@ -316,8 +332,8 @@ export function RoleDetail({ roleId }: { roleId: string }) {
                 isLoading={candidatesLoading}
                 emptyMessage={
                   debouncedSearch
-                    ? "No candidates match your search."
-                    : "No candidates screened for this role yet."
+                    ? t("candidates.empty.roleSearch")
+                    : t("candidates.empty.roleDefault")
                 }
                 onRerun={openRerunCandidate}
                 onDelete={openDeleteCandidate}

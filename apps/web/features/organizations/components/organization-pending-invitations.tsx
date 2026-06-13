@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useCancelOrganizationInvitation } from "@/features/organizations/hooks/use-organization-directory";
 import { formatOrganizationRole } from "@/features/organizations/schemas/organization-settings.schema";
 import type { OrganizationInvitation } from "@/features/organizations/types";
+import { useTranslations } from "@/lib/i18n/client";
 
 type OrganizationPendingInvitationsProps = {
   organizationId: string;
@@ -20,25 +21,32 @@ export function OrganizationPendingInvitations({
   invitations,
   isLoading,
 }: OrganizationPendingInvitationsProps) {
+  const t = useTranslations("settings");
   const cancelInvitation = useCancelOrganizationInvitation(organizationId);
 
   async function handleCancelInvitation(invitationId: string) {
     try {
       await cancelInvitation.mutateAsync(invitationId);
-      toast.success("Invitation cancelled.");
+      toast.success(t("organizationPage.toasts.cancelSuccess"));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to cancel invitation.",
+        error instanceof Error
+          ? error.message
+          : t("organizationPage.toasts.cancelFailed"),
       );
     }
   }
 
   return (
-    <SettingsSection label="PENDING INVITATIONS">
+    <SettingsSection label={t("organizationPage.sections.pendingInvitations")}>
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading invitations…</p>
+        <p className="text-sm text-muted-foreground">
+          {t("organizationPage.pendingInvitations.loading")}
+        </p>
       ) : invitations.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No pending invitations.</p>
+        <p className="text-sm text-muted-foreground">
+          {t("organizationPage.pendingInvitations.empty")}
+        </p>
       ) : (
         <div className="space-y-3">
           {invitations.map((invitation) => (
@@ -55,7 +63,7 @@ export function OrganizationPendingInvitations({
                     {invitation.email}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {formatOrganizationRole(invitation.role)} ·{" "}
+                    {formatOrganizationRole(t, invitation.role)} ·{" "}
                     {invitation.status}
                   </p>
                 </div>
@@ -69,7 +77,9 @@ export function OrganizationPendingInvitations({
                 onClick={() => void handleCancelInvitation(invitation.id)}
               >
                 <X size={14} />
-                <span className="sr-only">Cancel invitation</span>
+                <span className="sr-only">
+                  {t("organizationPage.pendingInvitations.cancelAriaLabel")}
+                </span>
               </Button>
             </div>
           ))}

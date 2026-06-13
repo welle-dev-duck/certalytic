@@ -9,6 +9,7 @@ import {
   MAX_TRANSCRIPT_FILES,
   SCREENING_LIMITS,
 } from "@/features/candidates/lib/screening-limits";
+import { useTranslations } from "@/lib/i18n/client";
 
 type InterviewsStepProps = ScreeningStepProps & {
   mergedTranscriptWords: number;
@@ -20,11 +21,12 @@ export function InterviewsStep({
   updateForm,
   mergedTranscriptWords,
 }: InterviewsStepProps) {
+  const t = useTranslations("app");
+
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Add interview transcripts as pasted text or uploaded files. Multiple
-        files are merged into one dossier for analysis.
+        {t("screening.interviewsStep.description")}
       </p>
 
       <div className="space-y-3 border border-border p-4">
@@ -38,12 +40,16 @@ export function InterviewsStep({
           }
         >
           <TabsList>
-            <TabsTrigger value="manual">Paste text</TabsTrigger>
-            <TabsTrigger value="auto">Upload file</TabsTrigger>
+            <TabsTrigger value="manual">
+              {t("screening.interviewsStep.pasteTab")}
+            </TabsTrigger>
+            <TabsTrigger value="auto">
+              {t("screening.interviewsStep.uploadTab")}
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="manual" className="space-y-2 pt-2">
             <Label htmlFor="merged-transcript">
-              <Required>Interview transcript</Required>
+              <Required>{t("screening.interviewsStep.transcriptLabel")}</Required>
             </Label>
             <textarea
               id="merged-transcript"
@@ -53,14 +59,16 @@ export function InterviewsStep({
               }
               rows={8}
               className="flex min-h-[180px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs"
-              placeholder="Paste transcript from Zoom, Teams, or other sources…"
+              placeholder={t("screening.interviewsStep.transcriptPlaceholder")}
             />
             <p className="text-xs text-muted-foreground">
-              {form.mergedTranscript.length.toLocaleString()} /{" "}
-              {SCREENING_LIMITS.transcript_text_max_characters.toLocaleString()}{" "}
-              characters · {mergedTranscriptWords.toLocaleString()} /{" "}
-              {SCREENING_LIMITS.transcript_text_max_words.toLocaleString()}{" "}
-              words max
+              {t("screening.interviewsStep.characterCount", {
+                current: form.mergedTranscript.length.toLocaleString(),
+                max: SCREENING_LIMITS.transcript_text_max_characters.toLocaleString(),
+                words: mergedTranscriptWords.toLocaleString(),
+                maxWords:
+                  SCREENING_LIMITS.transcript_text_max_words.toLocaleString(),
+              })}
             </p>
             {errors["transcripts.0"] || errors.transcripts ? (
               <p className="text-sm text-destructive">
@@ -70,11 +78,12 @@ export function InterviewsStep({
           </TabsContent>
           <TabsContent value="auto" className="space-y-2 pt-2">
             <Label htmlFor="transcript-files">
-              <Required>Transcript files</Required>
+              <Required>{t("screening.interviewsStep.filesLabel")}</Required>
             </Label>
             <p className="text-sm text-muted-foreground">
-              Upload up to {MAX_TRANSCRIPT_FILES} Zoom .vtt captions or Teams
-              .docx exports.
+              {t("screening.interviewsStep.filesHint", {
+                max: MAX_TRANSCRIPT_FILES,
+              })}
             </p>
             <FileDropzone
               id="transcript-files"
@@ -87,7 +96,7 @@ export function InterviewsStep({
                   nextFiles.slice(0, MAX_TRANSCRIPT_FILES),
                 )
               }
-              description="or click to browse (up to 3 files)"
+              description={t("screening.interviewsStep.dropzoneDescription")}
               aria-invalid={Boolean(errors.transcript_files)}
             />
             {errors.transcript_files ? (
@@ -99,7 +108,9 @@ export function InterviewsStep({
         </Tabs>
 
         <div className="grid gap-2 pt-2">
-          <Label htmlFor="interviewer-notes">Internal notes</Label>
+          <Label htmlFor="interviewer-notes">
+            {t("screening.interviewsStep.notesLabel")}
+          </Label>
           <textarea
             id="interviewer-notes"
             value={form.interviewerNotes}
@@ -109,7 +120,7 @@ export function InterviewsStep({
             maxLength={SCREENING_LIMITS.interviewer_notes_max_characters}
             rows={3}
             className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs"
-            placeholder="Private recruiter observations…"
+            placeholder={t("screening.interviewsStep.notesPlaceholder")}
           />
           {errors["interviewer_notes.0"] ? (
             <p className="text-sm text-destructive">

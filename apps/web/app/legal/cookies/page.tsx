@@ -1,46 +1,57 @@
-import Link from "@/components/ui/link"
+import Link from "@/components/ui/link";
 
 import { LegalDocumentLayout } from "@/components/marketing/legal-document-layout";
 import { COMPANY } from "@/lib/company";
+import { getTranslations } from "@/lib/i18n/server";
 import { routes } from "@/lib/routes";
 
-export default function CookiePolicyPage() {
+const companyParams = {
+  company: COMPANY.name,
+  legalName: COMPANY.legalName,
+  email: COMPANY.email,
+  addressLine: COMPANY.addressLine,
+  zip: COMPANY.zip,
+  city: COMPANY.city,
+  registrationNumber: COMPANY.registrationNumber,
+  vatId: COMPANY.vatId,
+};
+
+export default async function CookiePolicyPage() {
+  const t = await getTranslations("legal");
+
   return (
     <LegalDocumentLayout
-      title="Cookie Policy"
-      description={`How ${COMPANY.name} uses cookies and similar technologies.`}
+      title={t("cookies.title")}
+      description={t("cookies.description", companyParams)}
     >
-      <p>
-        We use cookies primarily for strictly necessary and functional
-        purposes—not for third-party advertising profiles.
-      </p>
-      <h2>1. Strictly necessary</h2>
+      <p>{t("cookies.intro")}</p>
+      <h2>{t("cookies.necessaryHeading")}</h2>
       <ul>
         <li>
-          <strong>Session cookie</strong> — maintains your login session
+          <strong>{t("cookies.necessarySessionLabel")}</strong> -{" "}
+          {t("cookies.necessarySessionDescription")}
         </li>
       </ul>
-      <h2>2. Functional</h2>
+      <h2>{t("cookies.functionalHeading")}</h2>
       <ul>
         <li>
-          <strong>appearance</strong> — stores light/dark theme preference
+          <strong>{t("cookies.functionalAppearanceLabel")}</strong> -{" "}
+          {t("cookies.functionalAppearanceDescription")}
         </li>
       </ul>
-      <h2>3. Payment (Stripe)</h2>
+      <h2>{t("cookies.paymentHeading")}</h2>
+      <p>{t("cookies.paymentParagraph")}</p>
+      <h2>{t("cookies.contactHeading")}</h2>
       <p>
-        Stripe may set cookies required to complete payment and prevent fraud.
-      </p>
-      <h2>4. Contact</h2>
-      <p>
-        Questions:{" "}
+        {t("cookies.contactQuestionsPrefix")}
         <a href={`mailto:${COMPANY.email}`} className="text-primary">
           {COMPANY.email}
         </a>
-        . See also our{" "}
+        {t("cookies.contactQuestionsMiddle")}
         <Link href={routes.legal.privacy()} className="text-primary">
-          Privacy Policy
+          {t("cookies.contactPrivacyLink")}
         </Link>
-        .
+        {t("cookies.contactSuffix")}
       </p>
     </LegalDocumentLayout>
   );

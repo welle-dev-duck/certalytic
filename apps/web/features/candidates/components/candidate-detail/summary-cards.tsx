@@ -11,6 +11,7 @@ import type {
   CandidateDetail,
   CandidateReport,
 } from "@/features/candidates/types";
+import { useTranslations } from "@/lib/i18n/client";
 
 type CandidateDetailSummaryProps = {
   candidate: CandidateDetail;
@@ -29,6 +30,12 @@ export function CandidateDetailSummary({
   flagCount,
   roundCount,
 }: CandidateDetailSummaryProps) {
+  const t = useTranslations("app");
+  const flagsKey =
+    flagCount === 1
+      ? "candidates.detail.flagsCountSingular"
+      : "candidates.detail.flagsCountPlural";
+
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <div className="rounded-lg border border-border bg-card p-5">
@@ -43,13 +50,11 @@ export function CandidateDetailSummary({
               />
             ) : (
               <div className="flex h-[120px] w-[120px] items-center justify-center rounded-full border-2 border-dashed border-border text-xs text-muted-foreground">
-                —
+                -
               </div>
             )}
             <p className="mt-3 text-center text-[10px] font-bold tracking-widest text-muted-foreground">
-              HIRING INTEGRITY
-              <br />
-              SCORE
+              {t("candidates.detail.hiringIntegrityScore")}
             </p>
             {isComplete && report ? (
               <div className="mt-3">
@@ -64,7 +69,7 @@ export function CandidateDetailSummary({
                   {candidate.name}
                 </h1>
                 <p className="mt-0.5 text-sm text-muted-foreground">
-                  {candidate.roleTitle ?? "—"}
+                  {candidate.roleTitle ?? "-"}
                 </p>
               </div>
               <StatusBadge status={candidate.status} />
@@ -72,7 +77,7 @@ export function CandidateDetailSummary({
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded bg-muted p-2.5">
                 <p className="text-[10px] font-medium text-muted-foreground">
-                  Status
+                  {t("candidates.detail.status")}
                 </p>
                 <div className="mt-1">
                   <StatusBadge status={candidate.status} />
@@ -80,7 +85,7 @@ export function CandidateDetailSummary({
               </div>
               <div className="rounded bg-muted p-2.5">
                 <p className="text-[10px] font-medium text-muted-foreground">
-                  Scan Created At
+                  {t("candidates.detail.scanCreatedAt")}
                 </p>
                 <p className="mt-0.5 font-mono text-xs font-semibold text-foreground">
                   {formatReportDate(candidate.processedAt)}
@@ -88,15 +93,15 @@ export function CandidateDetailSummary({
               </div>
               <div className="rounded bg-muted p-2.5">
                 <p className="text-[10px] font-medium text-muted-foreground">
-                  Flags Raised
+                  {t("candidates.detail.flagsRaised")}
                 </p>
                 <p className="mt-0.5 text-sm font-semibold text-foreground">
-                  {flagCount} flag{flagCount !== 1 ? "s" : ""}
+                  {t(flagsKey, { count: flagCount })}
                 </p>
               </div>
               <div className="rounded bg-muted p-2.5">
                 <p className="text-[10px] font-medium text-muted-foreground">
-                  Interview Rounds
+                  {t("candidates.detail.interviewRounds")}
                 </p>
                 <p className="mt-0.5 text-sm font-semibold text-foreground">
                   {roundCount}
@@ -109,7 +114,7 @@ export function CandidateDetailSummary({
 
       <div className="flex flex-col rounded-lg border border-border bg-card p-5">
         <p className="mb-2 text-[10px] font-bold tracking-widest text-muted-foreground">
-          SIGNAL PROFILE
+          {t("candidates.detail.signalProfile")}
         </p>
         {isComplete && report ? (
           <IntegrityRadarChart
@@ -118,7 +123,7 @@ export function CandidateDetailSummary({
           />
         ) : (
           <div className="flex flex-1 items-center justify-center py-8 text-xs text-muted-foreground">
-            Available when screening completes
+            {t("candidates.detail.availableWhenComplete")}
           </div>
         )}
       </div>

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { env } from '../../config/env';
 import { logger } from '../../lib/logger';
 import {
   invitationJob,
@@ -11,40 +12,46 @@ import { emailJobSchema } from './dtos/email-job.dto';
 
 describe('EmailsService', () => {
   it('processes reset-password jobs', async () => {
-    const debug = vi.spyOn(logger, 'debug').mockImplementation(() => undefined);
+    const log = vi
+      .spyOn(logger, env.NODE_ENV === 'development' ? 'info' : 'debug')
+      .mockImplementation(() => undefined);
     const service = new EmailsService();
 
     await service.process(resetPasswordJob);
 
-    expect(debug).toHaveBeenCalledWith(
+    expect(log).toHaveBeenCalledWith(
       { userId: resetPasswordJob.user.id, url: resetPasswordJob.url },
       'sendResetPassword',
     );
 
-    debug.mockRestore();
+    log.mockRestore();
   });
 
   it('processes verification jobs', async () => {
-    const debug = vi.spyOn(logger, 'debug').mockImplementation(() => undefined);
+    const log = vi
+      .spyOn(logger, env.NODE_ENV === 'development' ? 'info' : 'debug')
+      .mockImplementation(() => undefined);
     const service = new EmailsService();
 
     await service.process(verificationJob);
 
-    expect(debug).toHaveBeenCalledWith(
+    expect(log).toHaveBeenCalledWith(
       { userId: verificationJob.user.id, url: verificationJob.url },
       'sendVerificationEmail',
     );
 
-    debug.mockRestore();
+    log.mockRestore();
   });
 
   it('processes invitation jobs', async () => {
-    const debug = vi.spyOn(logger, 'debug').mockImplementation(() => undefined);
+    const log = vi
+      .spyOn(logger, env.NODE_ENV === 'development' ? 'info' : 'debug')
+      .mockImplementation(() => undefined);
     const service = new EmailsService();
 
     await service.process(invitationJob);
 
-    expect(debug).toHaveBeenCalledWith(
+    expect(log).toHaveBeenCalledWith(
       {
         email: invitationJob.email,
         organizationId: invitationJob.organization.id,
@@ -53,7 +60,7 @@ describe('EmailsService', () => {
       'sendInvitationEmail',
     );
 
-    debug.mockRestore();
+    log.mockRestore();
   });
 });
 

@@ -13,6 +13,7 @@ import Link from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
 import type { CandidateDetail as CandidateDetailType } from "@/features/candidates/types";
 import { apiUrl } from "@/lib/api-client";
+import { useTranslations } from "@/lib/i18n/client";
 import { routes } from "@/lib/routes";
 
 type CandidateDetailHeaderProps = {
@@ -28,12 +29,14 @@ export function CandidateDetailHeader({
   onRerun,
   onDelete,
 }: CandidateDetailHeaderProps) {
+  const t = useTranslations("app");
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <Button variant="ghost" size="sm" asChild>
         <Link href={routes.candidates()}>
           <ArrowLeft size={14} />
-          Back to Candidates
+          {t("candidates.detail.backToCandidates")}
         </Link>
       </Button>
       <div className="flex flex-wrap items-center gap-2">
@@ -45,13 +48,13 @@ export function CandidateDetailHeader({
               rel="noreferrer"
             >
               <Download size={14} />
-              Export PDF
+              {t("candidates.detail.exportPdf")}
             </a>
           </Button>
         ) : null}
         <Button type="button" variant="outline" size="sm" onClick={onRerun}>
           <RefreshCw size={14} />
-          Re-run
+          {t("candidates.detail.rerun")}
         </Button>
         <Button
           type="button"
@@ -61,7 +64,7 @@ export function CandidateDetailHeader({
           onClick={onDelete}
         >
           <Trash2 size={14} />
-          Delete
+          {t("candidates.detail.delete")}
         </Button>
       </div>
     </div>

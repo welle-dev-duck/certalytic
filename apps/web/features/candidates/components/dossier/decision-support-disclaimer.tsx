@@ -1,10 +1,13 @@
+"use client";
+
 import { MessageCircleWarning } from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useTranslations } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
 export function DecisionSupportDisclaimer({
-  message = "This score represents a probability heuristic, not an absolute verdict. Use it to guide your human follow-up questions.",
+  message,
   className,
   variant = "prominent",
 }: {
@@ -12,6 +15,9 @@ export function DecisionSupportDisclaimer({
   className?: string;
   variant?: "prominent" | "subtle";
 }) {
+  const t = useTranslations("app");
+  const resolvedMessage = message ?? t("dossier.disclaimer.message");
+
   return (
     <Alert
       variant="default"
@@ -26,7 +32,7 @@ export function DecisionSupportDisclaimer({
         className="shrink-0 text-amber-700 dark:text-amber-300"
       />
       <AlertDescription className="text-amber-950 dark:text-amber-50/95">
-        {message}
+        {resolvedMessage}
       </AlertDescription>
     </Alert>
   );

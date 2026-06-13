@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { apiUrl } from "@/lib/api-client";
+import { useTranslations } from "@/lib/i18n/client";
 import { handleMutationError } from "@/lib/mutation-errors";
 import {
   useRequestRoleExport,
@@ -19,6 +20,7 @@ type RoleExportActionProps = {
 };
 
 export function RoleExportAction({ roleId }: RoleExportActionProps) {
+  const t = useTranslations("app");
   const [optimisticExporting, setOptimisticExporting] = useState(false);
   const exportInitiatedRef = useRef(false);
   const downloadedExportIdRef = useRef<string | null>(null);
@@ -71,7 +73,7 @@ export function RoleExportAction({ roleId }: RoleExportActionProps) {
     } catch (error) {
       setOptimisticExporting(false);
       exportInitiatedRef.current = false;
-      handleMutationError(error, { fallbackMessage: "Export failed." });
+      handleMutationError(error, { fallbackMessage: t("roles.export.failed") });
     }
   }
 
@@ -91,11 +93,13 @@ export function RoleExportAction({ roleId }: RoleExportActionProps) {
         ) : (
           <Download size={14} />
         )}
-        {exporting ? "Generating PDF…" : "Export PDF"}
+        {exporting ? t("roles.export.generating") : t("roles.export.exportPdf")}
       </Button>
       {exportFailed && latestExport?.errorMessage ? (
         <p className="max-w-xs text-right text-[10px] text-destructive">
-          Export failed: {latestExport.errorMessage}
+          {t("roles.export.failedWithMessage", {
+            message: latestExport.errorMessage,
+          })}
         </p>
       ) : null}
     </div>

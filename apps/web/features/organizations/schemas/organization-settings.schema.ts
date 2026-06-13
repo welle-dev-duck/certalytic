@@ -1,26 +1,40 @@
 import { z } from "zod";
 
-export const organizationSchema = z.object({
-  name: z.string().trim().min(1, "Organization name is required").max(100),
-  slug: z
-    .string()
-    .trim()
-    .min(1, "Slug is required")
-    .max(100)
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Use lowercase letters, numbers, and hyphens only",
-    ),
-});
+import type { Translator } from "@/lib/i18n/translate";
 
-export const inviteSchema = z.object({
-  email: z.string().trim().email("Enter a valid email"),
-  role: z.enum(["member", "admin"]),
-});
+export type OrganizationValues = {
+  name: string;
+};
 
-export type OrganizationValues = z.infer<typeof organizationSchema>;
-export type InviteValues = z.infer<typeof inviteSchema>;
+export type InviteValues = {
+  email: string;
+  role: "member" | "admin";
+};
 
-export function formatOrganizationRole(role: string): string {
+export function createOrganizationSettingsSchema(t: Translator) {
+  return z.object({
+    name: z
+      .string()
+      .trim()
+      .min(1, t("organizationPage.validation.nameRequired"))
+      .max(100),
+  });
+}
+
+export function createInviteSchema(t: Translator) {
+  return z.object({
+    email: z
+      .string()
+      .trim()
+      .email(t("organizationPage.validation.emailInvalid")),
+    role: z.enum(["member", "admin"]),
+  });
+}
+
+export function formatOrganizationRole(t: Translator, role: string): string {
+  if (role === "member" || role === "admin") {
+    return t(`organizationPage.roles.${role}`);
+  }
+
   return role.charAt(0).toUpperCase() + role.slice(1);
 }
