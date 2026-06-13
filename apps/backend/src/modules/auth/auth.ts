@@ -19,6 +19,7 @@ import type { AuthService } from './auth.service';
 import { organizationSchemaConfig } from './organization-fields';
 import { organization } from 'better-auth/plugins/organization';
 import { stripe } from '@better-auth/stripe';
+import { dash } from "@better-auth/infra";
 import Stripe from 'stripe';
 
 /** Used by the Better Auth CLI (`auth:generate`) to derive the Drizzle schema. */
@@ -88,6 +89,7 @@ export class Auth {
       },
       emailAndPassword: {
         enabled: true,
+        disableSignUp: env.SIGNUP_DISABLED,
         requireEmailVerification: true,
         minPasswordLength: 8,
         sendResetPassword: async ({ user, url }) => {
@@ -186,6 +188,7 @@ export class Auth {
             },
           },
         }),
+        dash()
       ],
       databaseHooks: {
         user: {

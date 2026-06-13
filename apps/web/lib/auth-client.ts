@@ -1,6 +1,7 @@
 import { stripeClient } from "@better-auth/stripe/client";
 import { createAuthClient } from "better-auth/react";
 import { adminClient, organizationClient } from "better-auth/client/plugins";
+import { sentinelClient } from "@better-auth/infra/client"
 
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_AUTH_URL!,
@@ -24,5 +25,6 @@ export const authClient = createAuthClient({
       },
     }),
     stripeClient({ subscription: true }),
+    sentinelClient(),
   ],
 });
