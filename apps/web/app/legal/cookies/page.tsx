@@ -2,8 +2,13 @@ import Link from "@/components/ui/link";
 
 import { LegalDocumentLayout } from "@/components/marketing/legal-document-layout";
 import { COMPANY } from "@/lib/company";
+import { getLegalPageMetadata } from "@/lib/seo/page-metadata";
 import { getTranslations } from "@/lib/i18n/server";
 import { routes } from "@/lib/routes";
+
+export async function generateMetadata() {
+  return getLegalPageMetadata("cookies");
+}
 
 const companyParams = {
   company: COMPANY.name,

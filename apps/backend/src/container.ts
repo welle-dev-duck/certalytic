@@ -15,6 +15,7 @@ import { CandidateReportService } from './modules/candidates/candidate-report.se
 import { EmailsProducer } from './modules/emails/emails.producer';
 import { EmailsService } from './modules/emails/emails.service';
 import { EmailsWorkers } from './modules/emails/emails.worker';
+import { HealthService } from './modules/health/health.service';
 import { DocumentExtractor } from './modules/mistral/document-extractor';
 import { MistralClient } from './modules/mistral/mistral.client';
 import { RolesDocumentService } from './modules/roles/roles-document.service';
@@ -64,6 +65,7 @@ export type AppContainer = {
   screeningWorkers: ScreeningWorkers | null;
   roleExportsWorkers: RoleExportsWorkers | null;
   billingRefundWorkers: BillingRefundWorkers | null;
+  healthService: HealthService;
   close(options?: { closeDb?: boolean }): Promise<void>;
 };
 
@@ -140,6 +142,7 @@ export function createContainer(
   const billingRefundWorkers = startWorkers
     ? new BillingRefundWorkers(redisConnection, billingService)
     : null;
+  const healthService = new HealthService(pool, redis);
 
   return {
     db,
@@ -168,6 +171,7 @@ export function createContainer(
     screeningWorkers,
     roleExportsWorkers,
     billingRefundWorkers,
+    healthService,
     async close(options?: { closeDb?: boolean }) {
       await Promise.all(
         [

@@ -123,5 +123,27 @@
       "cancelSuccess": "Einladung widerrufen.",
       "cancelFailed": "Einladung konnte nicht widerrufen werden."
     }
+  },
+  "metadata": {
+    "profile": {
+      "title": "Profileinstellungen",
+      "description": "Name und E-Mail-Adresse aktualisieren."
+    },
+    "security": {
+      "title": "Sicherheitseinstellungen",
+      "description": "Passwort ändern und Kontosicherheit verwalten."
+    },
+    "appearance": {
+      "title": "Darstellungseinstellungen",
+      "description": "Hell-, Dunkel- oder Systemmodus für Certalytic wählen."
+    },
+    "language": {
+      "title": "Spracheinstellungen",
+      "description": "Oberflächensprache für Certalytic wählen."
+    },
+    "organization": {
+      "title": "Organisationseinstellungen",
+      "description": "Team, Einladungen und Organisationsprofil verwalten."
+    }
   }
 }

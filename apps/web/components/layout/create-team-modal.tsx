@@ -60,7 +60,7 @@ export function CreateTeamModal({
   const tSettings = useTranslations("settings");
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
-  const { refetchOrganizations } = useAuth();
+  const { refetchOrganizations, switchOrganization } = useAuth();
 
   const createTeamSchema = useMemo(
     () => createOrganizationFormSchema(tSettings),
@@ -91,6 +91,11 @@ export function CreateTeamModal({
     if (result.error) {
       toast.error(result.error.message ?? t("org.createTeam.toast.failed"));
       return;
+    }
+
+    const organizationId = result.data?.id;
+    if (organizationId) {
+      await switchOrganization(organizationId);
     }
 
     toast.success(t("org.createTeam.toast.created"));

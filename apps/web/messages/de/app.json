@@ -575,5 +575,43 @@
   },
   "realtime": {
     "roleExportFailed": "Rollenexport fehlgeschlagen."
+  },
+  "metadata": {
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Übersicht über Screenings, Integritätswerte und Hiring-Aktivitäten in Ihrer Organisation."
+    },
+    "candidates": {
+      "title": "Kandidaten",
+      "description": "Kandidaten-Integritäts-Screenings durchsuchen und verwalten."
+    },
+    "candidateDetail": {
+      "title": "Kandidat",
+      "description": "Integritäts-Dossier, Markierungen und Interview-Analyse eines Kandidaten einsehen."
+    },
+    "candidatesCreate": {
+      "title": "Kandidat screenen",
+      "description": "Ein neues Hiring-Integritäts-Screening starten."
+    },
+    "candidatesImport": {
+      "title": "Kandidaten importieren",
+      "description": "Kandidaten in Certalytic für Screenings importieren."
+    },
+    "roles": {
+      "title": "Rollen",
+      "description": "Rollenprofile verwalten, die Integritätswerte einordnen."
+    },
+    "roleDetail": {
+      "title": "Rolle",
+      "description": "Rollendetails, Kandidaten und Integritätsstatistiken ansehen."
+    },
+    "billing": {
+      "title": "Abrechnung",
+      "description": "Certalytic-Tarif, Token und Rechnungen verwalten."
+    },
+    "invitation": {
+      "title": "Organisationseinladung",
+      "description": "Einladung annehmen oder ablehnen, einer Certalytic-Organisation beizutreten."
+    }
   }
 }

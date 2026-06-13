@@ -45,22 +45,24 @@ a failed screening then every data about it everything needs to be wiped.
 4. [x] Replace `console.error` in `EmailsWorkers` failed handler with structured logger (Phase 5)
 5. [x] Add unit tests for templates, mailer stub, and service dispatch
 
+### 404 Page (Low)
+- [x] Global 404 page
+
+### Propert Metadata & SEO (Medium)
+- [x] Marketing page has proper SEO set up, only 1 h1 tag, clear hierarchy, canonical links, etc
+- [x] App pages have at least title and description set up
+- [x] Favicon
+- [x] Twitter cards
+- [x] OG Data
+- [x] Auth pages have at least title and description set up
+
+
+### Error Page + Sentry for frontend (High)
+- [x] Branded `error.tsx` and `global-error.tsx` with Sentry reporting
+- [x] `@sentry/nextjs` wired via instrumentation and Next config
+- [x] Env vars documented in `apps/web/.env.example`
+
 
 ### Analytics (Low)
 [ ] - We need to measure how many screenings is done in total, an avg screening a month for an org with which plan the org is on, avg time a screening takes (probably we need just to push to redis and aggregate like every hour or posthog, you need to plan this)
 [ ] - We need to measure churn, and subscription things, we need to measure behaviour on the marketing page (number of visitors, where they came from (referrer), how long are they on the landing page, what buttons they click on it, how many times, etc)
-
-### 404 Page (Low)
-- [x] Global 404 page
-
-### Propert Metadata & SEO
-- [ ] Marketing page has proper SEO set up, only 1 h1 tag, clear hierarchy, canonical links, etc
-- [ ] App pages have at least title and description set up
-- [ ] Favicon
-- [ ] Twitter cards
-- [ ] OG Data
-- [ ] Auth pages have at least title and description set up
-
-
-### Error Page + Sentry for frontend (Medium)
-

@@ -7,8 +7,15 @@ import { env } from './config/env';
 import { createContainer } from './container';
 import { CandidateRetentionScheduler } from './modules/candidates/candidate-retention.scheduler';
 import { logger } from './lib/logger';
+import {
+  captureException,
+  flushSentry,
+  initSentry,
+} from './lib/sentry';
 import { RealtimeSubscriber } from './realtime/subscriber';
 import { RealtimeServer } from './realtime/ws.server';
+
+initSentry();
 
 const container = createContainer();
 const candidateRetentionScheduler = new CandidateRetentionScheduler(
@@ -33,7 +40,7 @@ server.listen(env.PORT, () => {
   );
 });
 
-async function shutdown(signal: string) {
+async function shutdown(signal: string, exitCode = 0) {
   logger.info({ signal }, 'Shutting down');
 
   await realtimeSubscriber.close();
@@ -51,7 +58,8 @@ async function shutdown(signal: string) {
   });
 
   await container.close({ closeDb: true });
-  process.exit(0);
+  await flushSentry();
+  process.exit(exitCode);
 }
 
 process.on('SIGINT', () => {
@@ -63,6 +71,19 @@ process.on('SIGINT', () => {
 process.on('SIGTERM', () => {
   void shutdown('SIGTERM').catch((error) => {
     logger.error({ err: error }, 'Shutdown failed');
+    process.exit(1);
+  });
+});
+process.on('unhandledRejection', (reason) => {
+  logger.error({ err: reason }, 'Unhandled promise rejection');
+  captureException(reason, { source: 'unhandledRejection' });
+});
+process.on('uncaughtException', (error) => {
+  logger.fatal({ err: error }, 'Uncaught exception');
+  captureException(error, { source: 'uncaughtException' });
+
+  void shutdown('uncaughtException', 1).catch((shutdownError) => {
+    logger.error({ err: shutdownError }, 'Shutdown after uncaught exception failed');
     process.exit(1);
   });
 });

@@ -12,6 +12,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 import { I18nProvider } from "@/lib/i18n/client";
 import { getLocale } from "@/lib/i18n/server";
+import { createRootMetadata } from "@/lib/seo/metadata";
+import { getNamespaceMessages } from "@/lib/i18n/messages";
+import { createTranslator } from "@/lib/i18n/translate";
 import { AuthProvider } from "@/providers/auth-provider";
 import { QueryProvider } from "@/providers/query-provider";
 import { RealtimeProvider } from "@/providers/realtime-provider";
@@ -37,14 +40,12 @@ const firaCode = Fira_Code({
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
-  const { getNamespaceMessages } = await import("@/lib/i18n/messages");
-  const { createTranslator } = await import("@/lib/i18n/translate");
   const t = createTranslator(getNamespaceMessages(locale, "common"));
 
-  return {
-    title: "Certalytic",
+  return createRootMetadata({
     description: t("metadata.description"),
-  };
+    locale,
+  });
 }
 
 export default async function RootLayout({

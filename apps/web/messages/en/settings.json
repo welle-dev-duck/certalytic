@@ -123,5 +123,27 @@
       "cancelSuccess": "Invitation cancelled.",
       "cancelFailed": "Failed to cancel invitation."
     }
+  },
+  "metadata": {
+    "profile": {
+      "title": "Profile settings",
+      "description": "Update your name and email address."
+    },
+    "security": {
+      "title": "Security settings",
+      "description": "Change your password and manage account security."
+    },
+    "appearance": {
+      "title": "Appearance settings",
+      "description": "Choose light, dark, or system appearance for Certalytic."
+    },
+    "language": {
+      "title": "Language settings",
+      "description": "Choose the interface language for Certalytic."
+    },
+    "organization": {
+      "title": "Organization settings",
+      "description": "Manage your team, invitations, and organization profile."
+    }
   }
 }

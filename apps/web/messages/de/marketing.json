@@ -9,6 +9,10 @@
     "startFree": "Kostenlos starten",
     "dashboard": "Dashboard"
   },
+  "seo": {
+    "title": "Certalytic – EU-souveränes Hiring-Integritäts-Screening",
+    "description": "CVs, zusammengeführte Interview-Transkripte und öffentliche Profile abgleichen, bevor Sie das Angebot senden. EU-souveräne Infrastruktur für Senior-Tech-Hiring-Teams."
+  },
   "hero": {
     "eyebrow": "Die Kontrollstelle vor dem Angebot",
     "titlePrefix": "Verhindern Sie den",

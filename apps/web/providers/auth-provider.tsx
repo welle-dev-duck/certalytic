@@ -7,6 +7,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -79,6 +80,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refetchOrganizations = useCallback(() => {
     void refetchOrganizationsQuery();
   }, [refetchOrganizationsQuery]);
+
+  const defaultOrgSelectionStarted = useRef(false);
+
+  useEffect(() => {
+    if (!session) {
+      defaultOrgSelectionStarted.current = false;
+    }
+  }, [session]);
+
+  useEffect(() => {
+    if (isLoading || isSessionPending || isOrgsPending) return;
+    if (!session?.user) return;
+    if (session.session?.activeOrganizationId) return;
+    if (organizations.length === 0) return;
+    if (defaultOrgSelectionStarted.current) return;
+
+    const defaultOrgId = organizations[0]?.id;
+    if (!defaultOrgId) return;
+
+    defaultOrgSelectionStarted.current = true;
+    void switchOrganization(defaultOrgId).catch(() => {
+      defaultOrgSelectionStarted.current = false;
+    });
+  }, [
+    isLoading,
+    isOrgsPending,
+    isSessionPending,
+    organizations,
+    session,
+    switchOrganization,
+  ]);
 
   useEffect(() => {
     if (isLoading) return;

@@ -109,5 +109,27 @@
     "platformMiddle": " and ",
     "platformTermsLink": "Terms of Service",
     "platformSuffix": "."
+  },
+  "metadata": {
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "How Certalytic processes personal data for recruiters, team members, and candidates."
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "description": "Terms governing use of the Certalytic hiring integrity platform."
+    },
+    "dpa": {
+      "title": "Data Processing Agreement",
+      "description": "Data processing terms for Certalytic customers under the GDPR."
+    },
+    "cookies": {
+      "title": "Cookie Policy",
+      "description": "How Certalytic uses cookies and similar technologies."
+    },
+    "imprint": {
+      "title": "Imprint",
+      "description": "Legal imprint and company information for Certalytic."
+    }
   }
 }

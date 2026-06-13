@@ -4,6 +4,15 @@
   "metadata": {
     "description": "EU-sovereign hiring integrity screening - cross-check CVs, transcripts, and public profiles."
   },
+  "error": {
+    "metadataTitle": "Something went wrong",
+    "metadataDescription": "An unexpected error occurred while loading this page.",
+    "eyebrow": "Error",
+    "title": "Something went wrong",
+    "description": "We hit an unexpected problem. Try again, or return home if the issue persists.",
+    "retry": "Try again",
+    "home": "Back to home"
+  },
   "notFound": {
     "metadataTitle": "Page not found · Certalytic",
     "metadataDescription": "The page you requested does not exist or has been moved.",

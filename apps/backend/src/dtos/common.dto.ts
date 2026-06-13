@@ -1,7 +1,19 @@
 import { z } from 'zod';
 
+export const healthCheckResultSchema = z.object({
+  status: z.enum(['ok', 'error']),
+  latencyMs: z.number().int().nonnegative(),
+  message: z.string().optional(),
+});
+
+export type HealthCheckResult = z.infer<typeof healthCheckResultSchema>;
+
 export const healthResponseSchema = z.object({
-  status: z.literal('ok'),
+  status: z.enum(['ok', 'error']),
+  checks: z.object({
+    database: healthCheckResultSchema,
+    redis: healthCheckResultSchema,
+  }),
 });
 
 export type HealthResponseDto = z.infer<typeof healthResponseSchema>;

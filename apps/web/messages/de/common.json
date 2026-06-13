@@ -4,6 +4,15 @@
   "metadata": {
     "description": "EU-souveränes Hiring-Integritäts-Screening - CVs, Transkripte und öffentliche Profile abgleichen."
   },
+  "error": {
+    "metadataTitle": "Etwas ist schiefgelaufen",
+    "metadataDescription": "Beim Laden dieser Seite ist ein unerwarteter Fehler aufgetreten.",
+    "eyebrow": "Fehler",
+    "title": "Etwas ist schiefgelaufen",
+    "description": "Es ist ein unerwartetes Problem aufgetreten. Versuchen Sie es erneut oder kehren Sie zur Startseite zurück.",
+    "retry": "Erneut versuchen",
+    "home": "Zur Startseite"
+  },
   "notFound": {
     "metadataTitle": "Seite nicht gefunden · Certalytic",
     "metadataDescription": "Die angeforderte Seite existiert nicht oder wurde verschoben.",

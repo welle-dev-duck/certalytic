@@ -9,6 +9,10 @@
     "startFree": "Start free",
     "dashboard": "Dashboard"
   },
+  "seo": {
+    "title": "Certalytic – EU-sovereign hiring integrity screening",
+    "description": "Cross-check CVs, merged interview transcripts, and public profiles before you send the offer. EU-sovereign infrastructure for senior technical hiring teams."
+  },
   "hero": {
     "eyebrow": "The checkpoint before the offer letter",
     "titlePrefix": "Prevent the",

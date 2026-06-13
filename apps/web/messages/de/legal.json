@@ -109,5 +109,27 @@
     "platformMiddle": " und ",
     "platformTermsLink": "Nutzungsbedingungen",
     "platformSuffix": "."
+  },
+  "metadata": {
+    "privacy": {
+      "title": "Datenschutzerklärung",
+      "description": "Wie Certalytic personenbezogene Daten von Recruitern, Teammitgliedern und Kandidaten verarbeitet."
+    },
+    "terms": {
+      "title": "Nutzungsbedingungen",
+      "description": "Bedingungen für die Nutzung der Certalytic Hiring-Integritäts-Plattform."
+    },
+    "dpa": {
+      "title": "Auftragsverarbeitungsvertrag",
+      "description": "Auftragsverarbeitungsbedingungen für Certalytic-Kunden nach der DSGVO."
+    },
+    "cookies": {
+      "title": "Cookie-Richtlinie",
+      "description": "Wie Certalytic Cookies und ähnliche Technologien verwendet."
+    },
+    "imprint": {
+      "title": "Impressum",
+      "description": "Impressum und Unternehmensangaben zu Certalytic."
+    }
   }
 }

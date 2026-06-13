@@ -72,6 +72,9 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().default(''),
   RESEND_FROM_ADDRESS: z.string().default(''),
   RESEND_FROM_NAME: z.string().min(1).default('Certalytic'),
+  SENTRY_DSN: z.string().default(''),
+  SENTRY_ENVIRONMENT: z.string().optional(),
+  SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
 }).superRefine((value, ctx) => {
   if (value.NODE_ENV !== 'production') {
     return;

@@ -575,5 +575,43 @@
   },
   "realtime": {
     "roleExportFailed": "Role export failed."
+  },
+  "metadata": {
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Overview of screenings, integrity scores, and hiring activity in your organization."
+    },
+    "candidates": {
+      "title": "Candidates",
+      "description": "Browse and manage candidate integrity screenings."
+    },
+    "candidateDetail": {
+      "title": "Candidate",
+      "description": "Review a candidate integrity dossier, flags, and interview analysis."
+    },
+    "candidatesCreate": {
+      "title": "Screen candidate",
+      "description": "Start a new hiring integrity screening."
+    },
+    "candidatesImport": {
+      "title": "Import candidates",
+      "description": "Import candidates into Certalytic for screening."
+    },
+    "roles": {
+      "title": "Roles",
+      "description": "Manage role profiles used to contextualize integrity scores."
+    },
+    "roleDetail": {
+      "title": "Role",
+      "description": "View role details, candidates, and integrity statistics."
+    },
+    "billing": {
+      "title": "Billing",
+      "description": "Manage your Certalytic plan, tokens, and invoices."
+    },
+    "invitation": {
+      "title": "Organization invitation",
+      "description": "Accept or decline an invitation to join a Certalytic organization."
+    }
   }
 }

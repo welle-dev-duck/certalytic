@@ -21,10 +21,22 @@ describe('health and routing (e2e)', () => {
     await testApp.close();
   });
 
-  it('GET /api/health returns ok', async () => {
+  it('GET /api/health returns dependency checks', async () => {
     const response = await request(testApp.app).get('/api/health').expect(200);
 
-    expect(response.body).toEqual({ status: 'ok' });
+    expect(response.body).toEqual({
+      status: 'ok',
+      checks: {
+        database: {
+          status: 'ok',
+          latencyMs: expect.any(Number),
+        },
+        redis: {
+          status: 'ok',
+          latencyMs: expect.any(Number),
+        },
+      },
+    });
   });
 
   it('returns a structured 404 for unknown routes', async () => {

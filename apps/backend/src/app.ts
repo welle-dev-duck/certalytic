@@ -85,8 +85,11 @@ export function createApp(container: AppContainer): CreateAppResult {
     }),
   );
 
-  app.get('/api/health', (_req, res) => {
-    sendJson(res, healthResponseSchema, { status: 'ok' });
+  app.get('/api/health', async (_req, res) => {
+    const health = await container.healthService.check();
+    const statusCode = health.status === 'ok' ? 200 : 503;
+
+    sendJson(res, healthResponseSchema, health, statusCode);
   });
 
   const authService = new AuthService(db);

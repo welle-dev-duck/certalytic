@@ -4,6 +4,7 @@ import { ZodError } from 'zod';
 import { apiErrorSchema } from '../dtos/common.dto';
 import { AppError, ValidationError } from '../lib/errors';
 import { logger } from '../lib/logger';
+import { captureException } from '../lib/sentry';
 import { sendJson } from '../lib/response';
 
 function getRequestLogger(req: Request) {
@@ -52,6 +53,16 @@ export function errorHandler(
       { err, code: err.code, statusCode: err.statusCode },
       err.message,
     );
+
+    if (err.statusCode >= 500) {
+      captureException(err, {
+        code: err.code,
+        statusCode: err.statusCode,
+        path: req.path,
+        method: req.method,
+      });
+    }
+
     sendJson(res, apiErrorSchema, {
       error: {
         message: err.message,
@@ -62,6 +73,10 @@ export function errorHandler(
   }
 
   log.error({ err }, 'Unhandled request error');
+  captureException(err, {
+    path: req.path,
+    method: req.method,
+  });
   sendJson(res, apiErrorSchema, {
     error: {
       message: 'Internal server error',

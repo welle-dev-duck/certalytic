@@ -1,9 +1,19 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { AppLayout } from "@/components/layout/app-layout";
 import { SettingsNav } from "@/components/settings/settings-nav";
 import { Separator } from "@/components/ui/separator";
 import { getTranslations } from "@/lib/i18n/server";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    robots: {
+      index: false,
+      follow: false,
+    },
+  };
+}
 
 export default async function SettingsLayout({
   children,
