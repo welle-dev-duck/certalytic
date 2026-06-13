@@ -12,7 +12,7 @@ export function NoOrganizationPanel() {
   const t = useTranslations("app");
 
   return (
-    <div className="flex min-h-dvh flex-col bg-background">
+    <div className="flex min-h-[calc(100dvh-var(--banner-height,0px))] flex-col bg-background">
       <header className="flex items-center gap-2.5 border-b border-border px-6 py-4">
         <div className="flex h-7 w-7 items-center justify-center rounded border border-primary/30 bg-primary/15">
           <ShieldCheck size={14} className="text-primary" />

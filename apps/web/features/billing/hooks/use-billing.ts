@@ -51,6 +51,7 @@ export function useSubscriptionUpgrade() {
       const result = await authClient.subscription.upgrade({
         plan,
         referenceId: orgId,
+        customerType: "organization",
         successUrl: `${WEB_APP_URL}/billing`,
         cancelUrl: `${WEB_APP_URL}/billing`,
         disableRedirect: false,
@@ -74,6 +75,7 @@ export function useBillingPortal() {
 
       const result = await authClient.subscription.billingPortal({
         referenceId: orgId,
+        customerType: "organization",
         returnUrl: `${WEB_APP_URL}/billing`,
         disableRedirect: false,
       });

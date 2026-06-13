@@ -71,7 +71,8 @@ export default async function RootLayout({
       <body
         className={cn(
           "h-full font-sans antialiased",
-          systemMessageBannerText && "pt-11",
+          systemMessageBannerText &&
+            "pt-11 [--banner-height:2.75rem]",
         )}
       >
         {systemMessageBannerText ? (
