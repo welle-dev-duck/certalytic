@@ -6,7 +6,20 @@ export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_AUTH_URL!,
   plugins: [
     adminClient(),
-    organizationClient(),
+    organizationClient({
+      schema: {
+        organization: {
+          additionalFields: {
+            country: {
+              type: "string",
+            },
+            language: {
+              type: "string",
+            },
+          },
+        },
+      },
+    }),
     stripeClient({ subscription: true }),
   ],
 });

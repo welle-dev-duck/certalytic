@@ -11,12 +11,16 @@ import { SettingsSection } from "@/components/settings/settings-section";
 import { Button } from "@/components/ui/button";
 import {
   Field,
+  FieldDescription,
   FieldError,
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { CountryCombobox } from "@/features/organizations/components/country-combobox";
+import { OrganizationLanguageSelect } from "@/features/organizations/components/organization-language-select";
 import {
   createOrganizationSettingsSchema,
+  resolveOrganizationFormValues,
   type OrganizationValues,
 } from "@/features/organizations/schemas/organization-settings.schema";
 import { authClient } from "@/lib/auth-client";
@@ -25,12 +29,16 @@ import { useTranslations } from "@/lib/i18n/client";
 type OrganizationProfileFormProps = {
   organizationId: string;
   name: string;
+  country?: string | null;
+  language?: string | null;
   onUpdated: () => void;
 };
 
 export function OrganizationProfileForm({
   organizationId,
   name,
+  country,
+  language,
   onUpdated,
 }: OrganizationProfileFormProps) {
   const t = useTranslations("settings");
@@ -43,7 +51,7 @@ export function OrganizationProfileForm({
 
   const form = useForm<OrganizationValues>({
     resolver: zodResolver(organizationSchema),
-    values: { name },
+    values: resolveOrganizationFormValues({ name, country, language }),
   });
 
   const { isSubmitting } = form.formState;
@@ -53,6 +61,8 @@ export function OrganizationProfileForm({
       organizationId,
       data: {
         name: values.name,
+        country: values.country,
+        language: values.language,
       },
     });
 
@@ -69,7 +79,7 @@ export function OrganizationProfileForm({
 
   return (
     <SettingsSection label={t("organizationPage.sections.workspace")}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <Controller
             name="name"
@@ -105,6 +115,63 @@ export function OrganizationProfileForm({
               {tCommon("actions.save")}
             </LoadingSwap>
           </Button>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Controller
+            name="country"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="org-country">
+                  <Required>
+                    {t("organizationPage.profileForm.country")}
+                  </Required>
+                </FieldLabel>
+                <CountryCombobox
+                  id="org-country"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  disabled={isSubmitting}
+                  placeholder={t("organizationPage.profileForm.countryPlaceholder")}
+                  searchPlaceholder={t(
+                    "organizationPage.profileForm.countrySearchPlaceholder",
+                  )}
+                  emptyMessage={t("organizationPage.profileForm.countryEmpty")}
+                />
+                {fieldState.invalid ? (
+                  <FieldError errors={[fieldState.error]} />
+                ) : null}
+              </Field>
+            )}
+          />
+
+          <Controller
+            name="language"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="org-language">
+                  <Required>
+                    {t("organizationPage.profileForm.language")}
+                  </Required>
+                </FieldLabel>
+                <OrganizationLanguageSelect
+                  id="org-language"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  disabled={isSubmitting}
+                  placeholder={t("organizationPage.profileForm.languagePlaceholder")}
+                />
+                <FieldDescription>
+                  {t("organizationPage.profileForm.languageDescription")}
+                </FieldDescription>
+                {fieldState.invalid ? (
+                  <FieldError errors={[fieldState.error]} />
+                ) : null}
+              </Field>
+            )}
+          />
         </div>
       </form>
     </SettingsSection>

@@ -1,6 +1,5 @@
 import { betterAuth } from 'better-auth';
-import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { admin as adminPlugin } from 'better-auth/plugins/admin';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';import { admin as adminPlugin } from 'better-auth/plugins/admin';
 import { organization } from 'better-auth/plugins/organization';
 import { stripe } from '@better-auth/stripe';
 import Stripe from 'stripe';
@@ -16,6 +15,7 @@ import {
 } from '../billing/billing.service';
 import type { EmailsProducer } from '../emails/emails.producer';
 import type { AuthService } from './auth.service';
+import { organizationSchemaConfig } from './organization-fields';
 
 /** Used by the Better Auth CLI (`auth:generate`) to derive the Drizzle schema. */
 export const auth = betterAuth({
@@ -29,7 +29,9 @@ export const auth = betterAuth({
   },
   plugins: [
     adminPlugin(),
-    organization(),
+    organization({
+      schema: organizationSchemaConfig,
+    }),
     stripe({
       stripeClient: new Stripe(env.STRIPE_SECRET_KEY, {
         apiVersion: '2026-05-27.dahlia',
@@ -133,6 +135,7 @@ export class Auth {
             });
           },
           invitationExpiresIn: 48 * 3600,
+          schema: organizationSchemaConfig,
         }),
         stripe({
           stripeClient: this.billingService.getStripeClient(),

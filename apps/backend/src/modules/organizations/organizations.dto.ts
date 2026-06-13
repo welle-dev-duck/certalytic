@@ -6,6 +6,8 @@ export const organizationSummarySchema = z.object({
   id: z.uuid(),
   name: z.string(),
   slug: z.string(),
+  country: z.string().nullable().optional(),
+  language: z.enum(['en', 'de']).nullable().optional(),
 });
 
 export const activeOrganizationResponseSchema = z.object({

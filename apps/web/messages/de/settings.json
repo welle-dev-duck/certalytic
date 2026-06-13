@@ -13,7 +13,7 @@
   "languagePage": {
     "label": "SPRACHE",
     "title": "Sprache",
-    "description": "Wählen Sie die Sprache für die Certalytic-Oberfläche. Screening-Zusammenfassungen und Exporte können pro Kandidat eine eigene Sprache erhalten (demnächst).",
+    "description": "Wählen Sie die Sprache für die Certalytic-Oberfläche. In den Organisationseinstellungen legen Sie die Standardsprache für Screening-Zusammenfassungen und Exporte fest.",
     "current": "Oberflächensprache",
     "note": "Ihre Auswahl wird in einem Cookie auf diesem Gerät gespeichert. API-Fehlermeldungen vom Backend bleiben auf Englisch."
   },
@@ -81,7 +81,14 @@
     },
     "profileForm": {
       "organizationName": "Organisationsname",
-      "namePlaceholder": "Acme Hiring"
+      "namePlaceholder": "Acme Hiring",
+      "country": "Land",
+      "countryPlaceholder": "Land auswählen",
+      "countrySearchPlaceholder": "Länder suchen…",
+      "countryEmpty": "Kein Land gefunden.",
+      "language": "Sprache",
+      "languagePlaceholder": "Sprache auswählen",
+      "languageDescription": "Standardsprache für Screening-Zusammenfassungen und PDF-Exporte."
     },
     "inviteForm": {
       "email": "E-Mail",
@@ -104,6 +111,8 @@
     },
     "validation": {
       "nameRequired": "Organisationsname ist erforderlich",
+      "countryInvalid": "Wählen Sie ein gültiges Land",
+      "languageInvalid": "Wählen Sie eine gültige Sprache",
       "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein"
     },
     "toasts": {

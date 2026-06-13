@@ -43,6 +43,8 @@ export function OrganizationSettings() {
       <OrganizationProfileForm
         organizationId={orgId}
         name={activeOrganization.name}
+        country={activeOrganization.country}
+        language={activeOrganization.language}
         onUpdated={refetchOrganizations}
       />
 

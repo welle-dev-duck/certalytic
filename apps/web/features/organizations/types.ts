@@ -2,6 +2,8 @@ export type OrganizationSummary = {
   id: string;
   name: string;
   slug: string;
+  country?: string | null;
+  language?: string | null;
   createdAt?: Date;
   logo?: string | null;
 };

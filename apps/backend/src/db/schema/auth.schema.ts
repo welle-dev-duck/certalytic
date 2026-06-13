@@ -98,6 +98,8 @@ export const organization = pgTable(
     logo: text('logo'),
     createdAt: timestamp('created_at').notNull(),
     metadata: text('metadata'),
+    country: text("country"),
+    language: text("language"),
     stripeCustomerId: text('stripe_customer_id'),
   },
   (table) => [uniqueIndex('organization_slug_uidx').on(table.slug)],

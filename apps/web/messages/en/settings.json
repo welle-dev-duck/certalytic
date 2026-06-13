@@ -13,7 +13,7 @@
   "languagePage": {
     "label": "LANGUAGE",
     "title": "Language",
-    "description": "Choose the language for the Certalytic interface. Screening summaries and exports can use a separate language per candidate (coming soon).",
+    "description": "Choose the language for the Certalytic interface. Organization settings define the default language for screening summaries and exports.",
     "current": "Interface language",
     "note": "Your preference is stored in a cookie on this device. API error messages from the backend remain in English."
   },
@@ -81,7 +81,14 @@
     },
     "profileForm": {
       "organizationName": "Organization name",
-      "namePlaceholder": "Acme Hiring"
+      "namePlaceholder": "Acme Hiring",
+      "country": "Country",
+      "countryPlaceholder": "Select country",
+      "countrySearchPlaceholder": "Search countries…",
+      "countryEmpty": "No country found.",
+      "language": "Language",
+      "languagePlaceholder": "Select language",
+      "languageDescription": "Default language for screening summaries and PDF exports."
     },
     "inviteForm": {
       "email": "Email",
@@ -104,6 +111,8 @@
     },
     "validation": {
       "nameRequired": "Organization name is required",
+      "countryInvalid": "Select a valid country",
+      "languageInvalid": "Select a valid language",
       "emailInvalid": "Enter a valid email"
     },
     "toasts": {

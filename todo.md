@@ -10,8 +10,11 @@
 - [x] Marketing page and legal pages are translated
 
 ### Add org fields (better auth config organization plugin schema, additionalFields) (High)
-- [ ] Country (defaults to Österreich (we only store AT or HU or one of these ISO values))
-- [ ] Preferred Language (for evaluation text in details and export (keep prompt in english, calculate score should remain untouched, summaries and insigths should be in the preferred language, defaults to English))
+- [x] Add fields to better auth config in backend
+- [x] Add proper zod validation for these fields
+- [x] Country (defaults to Österreich (we only store iso values like at))
+- [x] Language (for evaluation text in details and export (keep prompt in english, calculate score should remain untouched, summaries and insigths should be in the preferred language, defaults to English, only the field is important here, dont change evaluation))
+- [x] These are be added to the create org dialog and the org settings page
 
 ### Screening Process (High)
 - Modify the multi step form:
