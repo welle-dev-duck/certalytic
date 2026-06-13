@@ -92,25 +92,105 @@ Local development uses MinIO from `apps/backend/docker-compose.yml`; production 
 3. Name: `certalytic-api`
 4. Domain: `api.welle-digital.at`
 5. Enable **HTTPS** (Let's Encrypt)
-6. Enable **WebSocket** support (required for `/api/realtime`)
+6. Set **Ports Exposes** to `3000` (must match `PORT` in env)
 
-### 4.2 Build & start commands
+### 4.2 WebSocket support (no separate toggle)
 
-**Install / build command:**
+Coolify routes traffic through **Traefik**, which forwards WebSocket upgrades automatically. There is **no dedicated “Enable WebSocket” switch** in the API app settings for most Coolify versions.
 
-```bash
-pnpm install --frozen-lockfile && pnpm --filter backend build && pnpm --filter backend db:migrate
+Certalytic’s realtime endpoint:
+
+```
+wss://api.welle-digital.at/api/realtime
 ```
 
-**Start command:**
+The browser derives this from `NEXT_PUBLIC_API_URL` (see `apps/web/lib/realtime.ts`).
+
+**What you need to get right:**
+
+| Setting | Value |
+|---------|--------|
+| API domain + HTTPS | `https://api.welle-digital.at` with a valid certificate |
+| `NEXT_PUBLIC_API_URL` (web, build-time) | `https://api.welle-digital.at` |
+| Ports Exposes (API app) | `3000` |
+
+**If WebSockets fail after deploy:**
+
+1. **Cloudflare** — if the domain is proxied (orange cloud), enable **Network → WebSockets** in the Cloudflare dashboard. Clients must use `wss://`, not `ws://`.
+2. **Gzip / compression** — in the API app’s Coolify **Advanced** settings, try disabling gzip for that resource (compression can break long-lived connections).
+3. **Verify in browser** — DevTools → Network → filter **WS** → open a screening; you should see a `101 Switching Protocols` response for `/api/realtime`.
+4. **Do not** point the browser at an internal Docker hostname; the client must connect to the public API URL.
+
+### 4.3 Health check (API)
+
+Coolify runs health checks **inside the container** against `localhost` — not via your public domain. Use the app’s internal port and HTTP (not HTTPS).
+
+Open the API application → **Healthcheck** (or **Advanced → Health Check**) and configure:
+
+| Field | Value |
+|-------|--------|
+| Enabled | Yes |
+| Method | `GET` |
+| Scheme | `http` |
+| Host | `localhost` (or leave default) |
+| Port | `3000` |
+| Path | `/api/health` |
+| Expected status code | `200` |
+| Interval | `30` s |
+| Timeout | `10` s |
+| Retries | `3` |
+| Start period | `90` s (migrations run on container start, then API boot) |
+
+**What the endpoint returns:**
+
+- **`200`** — Postgres and Redis both OK (`status: "ok"`)
+- **`503`** — Postgres or Redis unreachable (`status: "error"`)
+
+Example healthy body:
+
+```json
+{
+  "status": "ok",
+  "checks": {
+    "database": { "status": "ok", "latencyMs": 2 },
+    "redis": { "status": "ok", "latencyMs": 1 }
+  }
+}
+```
+
+Manual check from your machine (through Traefik):
 
 ```bash
-pnpm --filter backend start
+curl -i https://api.welle-digital.at/api/health
 ```
+
+Manual check inside the running container:
+
+```bash
+curl -i http://localhost:3000/api/health
+```
+
+> **Note:** Nixpacks Node images may not include `curl`. Coolify falls back to other probe methods, or you can add a Dockerfile later with an explicit `HEALTHCHECK`. If deploys fail with “health check failed” but the app works, increase **Start period** or verify `DATABASE_URL` / `REDIS_URL` are reachable from the container.
+
+### 4.4 Build & start commands
+
+**Install / build command** (compile only — no database access during build):
+
+```bash
+pnpm install --frozen-lockfile && pnpm --filter backend build
+```
+
+**Start command** (migrations run here, when `DATABASE_URL` is available):
+
+```bash
+pnpm --filter backend start:prod
+```
+
+`start:prod` runs `node dist/migrate.js` then `node dist/index.js`. Do **not** put `db:migrate` in the build command — the Docker build container cannot reach your Postgres instance, which causes the `drizzle-kit migrate` failure you saw in Coolify logs.
 
 **Port:** `3000` (Coolify sets `PORT`; the backend reads it from env)
 
-### 4.3 Environment variables (API)
+### 4.5 Environment variables (API)
 
 ```bash
 # Server
@@ -164,7 +244,7 @@ SENTRY_ENVIRONMENT=production
 SENTRY_TRACES_SAMPLE_RATE=0.1
 ```
 
-### 4.4 Deploy the API first
+### 4.6 Deploy the API first
 
 Deploy and verify:
 
@@ -185,7 +265,23 @@ Expect `200` with `"status": "ok"` when Postgres and Redis are reachable.
 3. Domain: `welle-digital.at`
 4. Enable **HTTPS**
 
-### 5.2 Build & start commands
+### 5.2 Health check (Web)
+
+The web app has no dedicated health route. Use the homepage:
+
+| Field | Value |
+|-------|--------|
+| Enabled | Yes (optional but recommended) |
+| Method | `GET` |
+| Scheme | `http` |
+| Port | `3000` |
+| Path | `/` |
+| Expected status code | `200` |
+| Start period | `90` s (Next.js build + boot can be slow) |
+
+Or disable the health check for the web app if deploys fail spuriously — the API health check is the important one for dependency monitoring.
+
+### 5.3 Build & start commands
 
 **Install / build command:**
 
@@ -203,7 +299,7 @@ pnpm --filter web start
 
 > **Important:** `NEXT_PUBLIC_*` variables are embedded at **build time**. Set them in Coolify **before** the first build, and trigger a **rebuild** whenever you change them.
 
-### 5.3 Environment variables (Web)
+### 5.4 Environment variables (Web)
 
 ```bash
 NODE_ENV=production
@@ -355,16 +451,30 @@ pnpm dev
 
 ### WebSocket / realtime not updating
 
-- Enable WebSocket on the API domain in Coolify
-- Confirm `NEXT_PUBLIC_API_URL` points to `https://api.welle-digital.at`
-- Check browser console for WebSocket connection errors
+- Confirm `NEXT_PUBLIC_API_URL=https://api.welle-digital.at` and **rebuild** the web app
+- DevTools → Network → WS → expect `101` on `wss://api.welle-digital.at/api/realtime`
+- If using Cloudflare, enable WebSockets on the zone
+- Try disabling gzip on the API app in Coolify Advanced settings
+
+### Health check failing but app works
+
+- Health checks run on `http://localhost:3000` inside the container — not `https://api.welle-digital.at`
+- Increase **Start period** to `60–120` s (migrations + worker startup)
+- Confirm `DATABASE_URL` and `REDIS_URL` are set before the first deploy
+- Test manually: `curl http://localhost:3000/api/health` inside the container logs/shell
 
 ### Migrations failed on deploy
 
-Run manually on the API container:
+**Build failed at `drizzle-kit migrate`:** remove migrations from the build command. Use the start command above (`start:prod`).
+
+**Runtime migration failed:** confirm `DATABASE_URL` is set on the **running** API container (not build-time only), the database exists, and the Coolify Postgres service is on the same Docker network / reachable from the app.
+
+Run manually inside the running API container:
 
 ```bash
-pnpm --filter backend db:migrate
+pnpm --filter backend start:prod
+# or migrate only:
+node apps/backend/dist/migrate.js
 ```
 
 Ensure `DATABASE_URL` is correct and the database exists.
