@@ -8,3 +8,6 @@ process.env.DATABASE_URL =
 process.env.REDIS_URL = 'redis://localhost:6379';
 process.env.STRIPE_SECRET_KEY = 'sk_test_mock';
 process.env.STRIPE_WEBHOOK_SECRET = 'whsec_mock';
+process.env.RESEND_API_KEY = '';
+process.env.RESEND_FROM_ADDRESS = '';
+process.env.RESEND_FROM_NAME = 'Certalytic';

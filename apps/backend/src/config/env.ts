@@ -69,6 +69,29 @@ const envSchema = z.object({
     .positive()
     .default(10),
   CERTALYTIC_QUEUE: z.string().default('default'),
+  RESEND_API_KEY: z.string().default(''),
+  RESEND_FROM_ADDRESS: z.string().default(''),
+  RESEND_FROM_NAME: z.string().min(1).default('Certalytic'),
+}).superRefine((value, ctx) => {
+  if (value.NODE_ENV !== 'production') {
+    return;
+  }
+
+  if (!value.RESEND_API_KEY) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['RESEND_API_KEY'],
+      message: 'RESEND_API_KEY is required in production.',
+    });
+  }
+
+  if (!value.RESEND_FROM_ADDRESS) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['RESEND_FROM_ADDRESS'],
+      message: 'RESEND_FROM_ADDRESS is required in production.',
+    });
+  }
 });
 
 export const env = envSchema.parse(process.env);

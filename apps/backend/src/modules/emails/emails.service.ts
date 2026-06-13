@@ -1,51 +1,40 @@
 import type { EmailJob } from './dtos/email-job.dto';
-import { env } from '../../config/env';
-import { logger } from '../../lib/logger';
-
-function readEntityId(value: unknown): string | undefined {
-  if (typeof value !== 'object' || value === null || !('id' in value)) {
-    return undefined;
-  }
-
-  return typeof value.id === 'string' ? value.id : undefined;
-}
-
-function logEmailStub(
-  payload: Record<string, unknown>,
-  message: string,
-): void {
-  if (env.NODE_ENV === 'development') {
-    logger.info(payload, message);
-    return;
-  }
-
-  logger.debug(payload, message);
-}
+import {
+  createResendMailer,
+  type EmailMailer,
+} from './resend-mailer';
+import { buildInvitationEmail } from './templates/invitation.template';
+import { buildResetPasswordEmail } from './templates/reset-password.template';
+import { buildVerificationEmail } from './templates/verification.template';
 
 export class EmailsService {
+  constructor(private readonly mailer: EmailMailer = createResendMailer()) {}
+
   async process(job: EmailJob): Promise<void> {
     switch (job.type) {
       case 'reset-password':
-        logEmailStub(
-          { userId: job.user.id, url: job.url },
-          'sendResetPassword',
-        );
+        await this.mailer.send({
+          ...buildResetPasswordEmail(job),
+          tags: [
+            { name: 'type', value: 'reset-password' },
+            { name: 'user_id', value: job.user.id },
+          ],
+        });
         break;
       case 'verification':
-        logEmailStub(
-          { userId: job.user.id, url: job.url },
-          'sendVerificationEmail',
-        );
+        await this.mailer.send({
+          ...buildVerificationEmail(job),
+          tags: [
+            { name: 'type', value: 'verification' },
+            { name: 'user_id', value: job.user.id },
+          ],
+        });
         break;
       case 'invitation':
-        logEmailStub(
-          {
-            email: job.email,
-            organizationId: readEntityId(job.organization),
-            invitationId: readEntityId(job.invitation),
-          },
-          'sendInvitationEmail',
-        );
+        await this.mailer.send({
+          ...buildInvitationEmail(job),
+          tags: [{ name: 'type', value: 'invitation' }],
+        });
         break;
     }
   }

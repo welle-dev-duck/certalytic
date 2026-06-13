@@ -31,7 +31,7 @@ a failed screening then every data about it everything needs to be wiped.
 
 ### Email delivery (required before production)
 
-`EmailsService` currently logs to stdout instead of sending mail. Auth already enqueues jobs for:
+`EmailsService` sends via Resend when configured. Auth enqueues jobs for:
 
 - Password reset (`sendResetPassword`)
 - Email verification (`sendVerificationEmail`)
@@ -39,11 +39,11 @@ a failed screening then every data about it everything needs to be wiped.
 
 **Work required:**
 
-1. Choose provider (e.g. Resend, Postmark, AWS SES EU region)
-2. Implement `EmailsService.process()` with HTML/text templates (emails in english only for now)
-3. Add env vars for API keys and from-address
-4. Replace `console.error` in `EmailsWorkers` failed handler with structured logger (Phase 5)
-5. Add integration test or e2e smoke test with provider sandbox
+1. [x] Choose provider (Resend)
+2. [x] Implement `EmailsService.process()` with HTML/text templates (emails in english only for now)
+3. [x] Add env vars for API keys and from-address (`RESEND_API_KEY`, `RESEND_FROM_ADDRESS`, `RESEND_FROM_NAME`)
+4. [x] Replace `console.error` in `EmailsWorkers` failed handler with structured logger (Phase 5)
+5. [x] Add unit tests for templates, mailer stub, and service dispatch
 
 
 ### Analytics (Low)

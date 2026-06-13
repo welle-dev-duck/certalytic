@@ -1,7 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { env } from '../../config/env';
-import { logger } from '../../lib/logger';
 import {
   invitationJob,
   resetPasswordJob,
@@ -9,58 +7,71 @@ import {
 } from '../../test/fixtures/email-jobs';
 import { EmailsService } from './emails.service';
 import { emailJobSchema } from './dtos/email-job.dto';
+import type { EmailMailer } from './resend-mailer';
+
+function createMailerMock(): EmailMailer {
+  return {
+    isConfigured: vi.fn(() => true),
+    send: vi.fn(async () => undefined),
+  };
+}
 
 describe('EmailsService', () => {
-  it('processes reset-password jobs', async () => {
-    const log = vi
-      .spyOn(logger, env.NODE_ENV === 'development' ? 'info' : 'debug')
-      .mockImplementation(() => undefined);
-    const service = new EmailsService();
+  it('sends reset-password emails', async () => {
+    const mailer = createMailerMock();
+    const service = new EmailsService(mailer);
 
     await service.process(resetPasswordJob);
 
-    expect(log).toHaveBeenCalledWith(
-      { userId: resetPasswordJob.user.id, url: resetPasswordJob.url },
-      'sendResetPassword',
+    expect(mailer.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: resetPasswordJob.user.email,
+        subject: 'Reset your Certalytic password',
+        html: expect.stringContaining('Reset your password'),
+        text: expect.stringContaining(resetPasswordJob.url),
+        tags: [
+          { name: 'type', value: 'reset-password' },
+          { name: 'user_id', value: resetPasswordJob.user.id },
+        ],
+      }),
     );
-
-    log.mockRestore();
   });
 
-  it('processes verification jobs', async () => {
-    const log = vi
-      .spyOn(logger, env.NODE_ENV === 'development' ? 'info' : 'debug')
-      .mockImplementation(() => undefined);
-    const service = new EmailsService();
+  it('sends verification emails', async () => {
+    const mailer = createMailerMock();
+    const service = new EmailsService(mailer);
 
     await service.process(verificationJob);
 
-    expect(log).toHaveBeenCalledWith(
-      { userId: verificationJob.user.id, url: verificationJob.url },
-      'sendVerificationEmail',
+    expect(mailer.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: verificationJob.user.email,
+        subject: 'Verify your Certalytic email',
+        html: expect.stringContaining('Verify your email'),
+        text: expect.stringContaining(verificationJob.url),
+        tags: [
+          { name: 'type', value: 'verification' },
+          { name: 'user_id', value: verificationJob.user.id },
+        ],
+      }),
     );
-
-    log.mockRestore();
   });
 
-  it('processes invitation jobs', async () => {
-    const log = vi
-      .spyOn(logger, env.NODE_ENV === 'development' ? 'info' : 'debug')
-      .mockImplementation(() => undefined);
-    const service = new EmailsService();
+  it('sends invitation emails', async () => {
+    const mailer = createMailerMock();
+    const service = new EmailsService(mailer);
 
     await service.process(invitationJob);
 
-    expect(log).toHaveBeenCalledWith(
-      {
-        email: invitationJob.email,
-        organizationId: invitationJob.organization.id,
-        invitationId: invitationJob.invitation.id,
-      },
-      'sendInvitationEmail',
+    expect(mailer.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: invitationJob.email,
+        subject: 'Join Acme Inc on Certalytic',
+        html: expect.stringContaining('You have been invited'),
+        text: expect.stringContaining(invitationJob.inviteLink),
+        tags: [{ name: 'type', value: 'invitation' }],
+      }),
     );
-
-    log.mockRestore();
   });
 });
 
