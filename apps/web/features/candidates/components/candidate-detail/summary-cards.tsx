@@ -117,10 +117,7 @@ export function CandidateDetailSummary({
           {t("candidates.detail.signalProfile")}
         </p>
         {isComplete && report ? (
-          <IntegrityRadarChart
-            data={report.radar}
-            className="flex flex-1 items-center"
-          />
+          <IntegrityRadarChart data={report.radar} />
         ) : (
           <div className="flex flex-1 items-center justify-center py-8 text-xs text-muted-foreground">
             {t("candidates.detail.availableWhenComplete")}

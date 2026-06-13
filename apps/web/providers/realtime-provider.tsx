@@ -73,17 +73,20 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
 
         void queryClient.invalidateQueries({ queryKey: candidateKeys.lists() });
 
-        if (status === "complete" || status === "failed") {
-          void queryClient.invalidateQueries({ queryKey: detailKey });
-          void queryClient.invalidateQueries({
-            queryKey: candidateKeys.report(currentOrgId, candidateId),
-          });
-          return;
-        }
-
         queryClient.setQueryData<CandidateDetail>(detailKey, (old) =>
           old ? { ...old, status, errorMessage } : old,
         );
+
+        if (status === "complete" || status === "failed") {
+          void queryClient.refetchQueries({ queryKey: detailKey });
+          if (status === "complete") {
+            void queryClient.refetchQueries({
+              queryKey: candidateKeys.report(currentOrgId, candidateId),
+            });
+          }
+          return;
+        }
+
         return;
       }
 
@@ -96,6 +99,9 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
           queryKey: roleKeys.detail(currentOrgId, roleId),
         });
         void queryClient.invalidateQueries({
+          queryKey: roleKeys.latestExport(currentOrgId, roleId),
+        });
+        void queryClient.refetchQueries({
           queryKey: roleKeys.latestExport(currentOrgId, roleId),
         });
 

@@ -26,8 +26,11 @@ export function IntegrityRadarChart({
   const theme = useChartTheme();
 
   return (
-    <div className={className} style={{ height, width: "100%" }}>
-      <ResponsiveContainer width="100%" height="100%">
+    <div
+      className={className}
+      style={{ height, width: "100%", minHeight: height, minWidth: 0 }}
+    >
+      <ResponsiveContainer width="100%" height={height}>
         <RadarChart
           data={data}
           margin={{ top: 16, right: 24, bottom: 16, left: 24 }}

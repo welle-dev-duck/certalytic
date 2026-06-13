@@ -144,7 +144,7 @@ export function RoleDetail({ roleId }: { roleId: string }) {
 
   function handleDeleteRole() {
     if (
-      !confirm(t("roles.detail.deleteConfirm", { title: role.title }))
+      !confirm(t("roles.detail.deleteConfirm", { title: role?.title ?? "" }))
     ) {
       return;
     }

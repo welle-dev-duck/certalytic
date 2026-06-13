@@ -145,8 +145,12 @@ export function useRoleLatestExport(roleId: string) {
 
   return useQuery({
     queryKey: roleKeys.latestExport(orgId, roleId),
-    queryFn: () =>
-      api<RoleExportSummary>(`/api/roles/${roleId}/exports/latest`),
+    queryFn: async () => {
+      const latest = await api<RoleExportSummary | undefined>(
+        `/api/roles/${roleId}/exports/latest`,
+      );
+      return latest ?? null;
+    },
     enabled: !!roleId && !!orgId,
     refetchInterval: (query) => {
       const status = query.state.data?.status;

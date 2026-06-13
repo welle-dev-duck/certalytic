@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { locales } from "@/lib/i18n/config";
 import {
   isValidCountryCode,
   ORGANIZATION_COUNTRY_DEFAULT,
@@ -7,13 +8,14 @@ import {
 import {
   isOrganizationLanguage,
   ORGANIZATION_LANGUAGE_DEFAULT,
+  type OrganizationLanguage,
 } from "@/lib/i18n/organization-language";
 import type { Translator } from "@/lib/i18n/translate";
 
 export type OrganizationValues = {
   name: string;
   country: string;
-  language: "en" | "de";
+  language: OrganizationLanguage;
 };
 
 export type InviteValues = {
@@ -36,13 +38,9 @@ export function createOrganizationSettingsSchema(t: Translator) {
         (value) => isValidCountryCode(value),
         t("organizationPage.validation.countryInvalid"),
       ),
-    language: z
-      .string()
-      .trim()
-      .refine(
-        (value) => isOrganizationLanguage(value),
-        t("organizationPage.validation.languageInvalid"),
-      ),
+    language: z.enum(locales, {
+      message: t("organizationPage.validation.languageInvalid"),
+    }),
   });
 }
 

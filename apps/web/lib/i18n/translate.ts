@@ -1,4 +1,6 @@
-type MessageTree = Record<string, string | MessageTree>;
+export interface MessageTree {
+  [key: string]: string | MessageTree;
+}
 
 function readPath(tree: MessageTree, key: string): string | undefined {
   const value = key.split(".").reduce<string | MessageTree | undefined>(

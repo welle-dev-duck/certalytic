@@ -1,4 +1,5 @@
 import type { Locale } from "@/lib/i18n/config";
+import type { MessageTree } from "@/lib/i18n/translate";
 
 import authDe from "@/messages/de/auth.json";
 import appDe from "@/messages/de/app.json";
@@ -26,29 +27,29 @@ export type MessageNamespace = (typeof namespaces)[number];
 
 const catalog: Record<
   Locale,
-  Record<MessageNamespace, Record<string, unknown>>
+  Record<MessageNamespace, MessageTree>
 > = {
   en: {
-    common: commonEn,
-    auth: authEn,
-    marketing: marketingEn,
-    settings: settingsEn,
-    app: appEn,
-    legal: legalEn,
+    common: commonEn as MessageTree,
+    auth: authEn as MessageTree,
+    marketing: marketingEn as MessageTree,
+    settings: settingsEn as MessageTree,
+    app: appEn as MessageTree,
+    legal: legalEn as MessageTree,
   },
   de: {
-    common: commonDe,
-    auth: authDe,
-    marketing: marketingDe,
-    settings: settingsDe,
-    app: appDe,
-    legal: legalDe,
+    common: commonDe as MessageTree,
+    auth: authDe as MessageTree,
+    marketing: marketingDe as MessageTree,
+    settings: settingsDe as MessageTree,
+    app: appDe as MessageTree,
+    legal: legalDe as MessageTree,
   },
 };
 
 export function getNamespaceMessages(
   locale: Locale,
   namespace: MessageNamespace,
-): Record<string, unknown> {
+): MessageTree {
   return catalog[locale][namespace];
 }

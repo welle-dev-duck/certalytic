@@ -72,9 +72,7 @@ export function useTranslations(namespace: MessageNamespace): Translator {
 
   return useMemo(
     () =>
-      createTranslator(
-        getNamespaceMessages(locale, namespace) as Record<string, unknown>,
-      ),
+      createTranslator(getNamespaceMessages(locale, namespace)),
     [locale, namespace],
   );
 }

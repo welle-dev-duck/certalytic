@@ -8,11 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ScreeningStepProps } from "@/features/candidates/components/start-screening/types";
 import { SCREENING_LIMITS } from "@/features/candidates/lib/screening-limits";
-import type { RoleListItem } from "@/features/roles/types";
+import type { RoleOption } from "@/features/roles/types";
 import { useTranslations } from "@/lib/i18n/client";
 
 type CandidateStepProps = ScreeningStepProps & {
-  selectedRole: RoleListItem | undefined;
+  selectedRole: RoleOption | undefined;
   lockRole: boolean;
   cvTextWords: number;
   onChangeRole: () => void;

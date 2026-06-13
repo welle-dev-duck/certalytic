@@ -23,7 +23,7 @@ export function resolveLocaleFromHeader(
   const tokens = acceptLanguage
     .split(",")
     .map((part) => part.trim().split(";")[0]?.toLowerCase())
-    .filter(Boolean);
+    .filter((token): token is string => Boolean(token));
 
   for (const token of tokens) {
     if (token === "de" || token.startsWith("de-")) return "de";

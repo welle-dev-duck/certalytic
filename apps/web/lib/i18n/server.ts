@@ -9,9 +9,7 @@ export async function getTranslations(
   namespace: MessageNamespace,
 ): Promise<Translator> {
   const locale = await getLocale();
-  return createTranslator(
-    getNamespaceMessages(locale, namespace) as Record<string, unknown>,
-  );
+  return createTranslator(getNamespaceMessages(locale, namespace));
 }
 
 export { getLocale };

@@ -30,8 +30,10 @@ export function CandidateDetail({ candidateId }: { candidateId: string }) {
   const { data: report } = useCandidateReport(candidateId, isComplete);
 
   useEffect(() => {
-    if (!isProcessing || isConnected) return;
-    const interval = setInterval(() => void refetch(), 10_000);
+    if (!isProcessing) return;
+
+    const intervalMs = isConnected ? 30_000 : 10_000;
+    const interval = setInterval(() => void refetch(), intervalMs);
     return () => clearInterval(interval);
   }, [isProcessing, isConnected, refetch]);
 
