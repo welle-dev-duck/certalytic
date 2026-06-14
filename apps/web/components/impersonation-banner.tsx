@@ -6,7 +6,9 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
+import { isDashImpersonation } from "@/lib/auth/impersonation";
 import { useTranslations } from "@/lib/i18n/client";
+import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
 const IMPERSONATION_BANNER_HEIGHT = "2.75rem";
@@ -36,6 +38,21 @@ export function ImpersonationBanner() {
 
   async function handleStopImpersonating() {
     setEnding(true);
+
+    const impersonatedBy = session?.session?.impersonatedBy;
+
+    if (impersonatedBy && isDashImpersonation(impersonatedBy)) {
+      const result = await authClient.signOut();
+
+      if (result.error) {
+        toast.error(result.error.message ?? t("errors.generic"));
+        setEnding(false);
+        return;
+      }
+
+      window.location.href = routes.home();
+      return;
+    }
 
     const result = await authClient.admin.stopImpersonating();
 
