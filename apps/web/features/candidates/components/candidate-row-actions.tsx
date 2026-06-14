@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { apiUrl } from "@/lib/api-client";
+import { AnalyticsEvents, captureEvent } from "@/lib/analytics";
 import { useTranslations } from "@/lib/i18n/client";
 import { routes } from "@/lib/routes";
 
@@ -61,6 +62,12 @@ export function CandidateRowActions({
             <a
               href={apiUrl(`/api/candidates/${candidateId}/export`)}
               className="flex cursor-pointer items-center gap-2"
+              onClick={() =>
+                captureEvent(AnalyticsEvents.candidatePdfExported, {
+                  candidateId,
+                  source: "candidates_list",
+                })
+              }
             >
               <Download />
               {t("candidates.rowActions.exportPdf")}

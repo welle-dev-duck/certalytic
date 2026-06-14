@@ -12,6 +12,7 @@ import {
   SubscriptionPlanCard,
 } from "@/features/billing/components/plan-cards";
 import { CONTACT_EMAIL } from "@/features/billing/plans";
+import { captureMarketingCta } from "@/lib/analytics";
 import { EuPrivacySection } from "@/features/marketing/eu-privacy-section";
 import { WelcomeHero } from "@/features/marketing/welcome-hero";
 import { useTranslations } from "@/lib/i18n/client";
@@ -84,6 +85,12 @@ export function PricingSection() {
             <Link
               href={routes.signUp()}
               className="font-medium text-primary underline-offset-2 hover:underline"
+              onClick={() =>
+                captureMarketingCta(
+                  "pricing.free_plan",
+                  t("sections.pricing.freePlanLink"),
+                )
+              }
             >
               {t("sections.pricing.freePlanLink")}
             </Link>
@@ -99,7 +106,15 @@ export function PricingSection() {
               highlighted={plan.value === "growth"}
               footer={
                 <Button className="w-full" variant="outline" asChild>
-                  <Link href={routes.signUp()}>
+                  <Link
+                    href={routes.signUp()}
+                    onClick={() =>
+                      captureMarketingCta(
+                        `pricing.plan.${plan.value}`,
+                        t("sections.pricing.getStarted"),
+                      )
+                    }
+                  >
                     {t("sections.pricing.getStarted")}
                   </Link>
                 </Button>
@@ -111,7 +126,13 @@ export function PricingSection() {
             footer={
               <Button className="w-full" variant="outline" asChild>
                 <a
-                  href={`mailto:${CONTACT_EMAIL}?subject=Certalytic%20Enterprise`}
+                  href={`mailto:${CONTACT_EMAIL}?subject=Certalytic%20General%20Inquiry`}
+                  onClick={() =>
+                    captureMarketingCta(
+                      "pricing.enterprise",
+                      t("sections.pricing.contactSales"),
+                    )
+                  }
                 >
                   {t("sections.pricing.contactSales")}
                 </a>
@@ -173,7 +194,12 @@ export function CtaSection() {
           </p>
         </div>
         <Button size="lg" variant="secondary" className="text-foreground" asChild>
-          <Link href={routes.signUp()}>
+          <Link
+            href={routes.signUp()}
+            onClick={() =>
+              captureMarketingCta("cta.bottom", t("sections.cta.button"))
+            }
+          >
             {t("sections.cta.button")}
             <ArrowRight size={16} />
           </Link>

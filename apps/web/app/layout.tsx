@@ -7,6 +7,7 @@ import {
 
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { GlobalChrome } from "@/components/global-chrome";
 import { SystemMessageBanner } from "@/components/system-message-banner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
@@ -16,6 +17,7 @@ import { createRootMetadata } from "@/lib/seo/metadata";
 import { getNamespaceMessages } from "@/lib/i18n/messages";
 import { createTranslator } from "@/lib/i18n/translate";
 import { AuthProvider } from "@/providers/auth-provider";
+import { PostHogProvider } from "@/providers/posthog-provider";
 import { QueryProvider } from "@/providers/query-provider";
 import { RealtimeProvider } from "@/providers/realtime-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
@@ -70,25 +72,27 @@ export default async function RootLayout({
     >
       <body
         className={cn(
-          "h-full font-sans antialiased",
-          systemMessageBannerText &&
-            "pt-11 [--banner-height:2.75rem]",
+          "h-full pt-[calc(var(--banner-height,0px)+var(--impersonation-banner-height,0px))] font-sans antialiased",
+          systemMessageBannerText && "[--banner-height:2.75rem]",
         )}
       >
         {systemMessageBannerText ? (
           <SystemMessageBanner text={systemMessageBannerText} />
         ) : null}
-        <ThemeProvider>
-          <QueryProvider>
-            <I18nProvider locale={locale}>
-              <TooltipProvider>
-                <AuthProvider>
-                  <RealtimeProvider>{children}</RealtimeProvider>
-                </AuthProvider>
-              </TooltipProvider>
-            </I18nProvider>
-          </QueryProvider>
-        </ThemeProvider>
+        <PostHogProvider>
+          <ThemeProvider>
+            <QueryProvider>
+              <I18nProvider locale={locale}>
+                <TooltipProvider>
+                  <AuthProvider>
+                    <RealtimeProvider>{children}</RealtimeProvider>
+                  </AuthProvider>
+                </TooltipProvider>
+                <GlobalChrome />
+              </I18nProvider>
+            </QueryProvider>
+          </ThemeProvider>
+        </PostHogProvider>
         <Toaster richColors position="bottom-right" />
       </body>
     </html>

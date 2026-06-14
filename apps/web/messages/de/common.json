@@ -75,5 +75,16 @@
       "medium": "Mittel (50–74)",
       "low": "Niedrig (<50)"
     }
+  },
+  "impersonation": {
+    "message": "Sie impersonieren {email}",
+    "end": "Impersonation beenden"
+  },
+  "cookieConsent": {
+    "title": "Wir verwenden Cookies",
+    "description": "Wir verwenden Cookies und ähnliche Technologien für wesentliche Funktionen und Analysen. Wählen Sie, wie Sie fortfahren möchten.",
+    "learnMore": "Cookie-Richtlinie",
+    "acceptAll": "Alle akzeptieren",
+    "acceptEssentials": "Nur essenzielle akzeptieren"
   }
 }

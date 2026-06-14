@@ -1,15 +1,15 @@
 export const COMPANY = {
   name: "Certalytic",
-  legalName: "Welle Digital UG (haftungsbeschränkt)",
-  email: "hello@certalytic.com",
-  phone: "+49 30 12345678",
-  addressLine: "Musterstraße 1",
-  zip: "10115",
-  city: "Berlin",
-  country: "Germany",
-  managingDirector: "Managing Director",
+  legalName: "Welle Digital Kft.",
+  email: "welledigital882@gmail.com",
+  phone: "+36 30 123 4567",
+  addressLine: "Akácos utca 1",
+  zip: "8626",
+  city: "Teleki",
+  country: "Hungary",
+  managingDirector: "Bertold Vincze",
   registrationNumber: "HRB 000000",
-  vatId: "DE000000000",
+  vatId: "HU123456789",
 } as const;
 
 export const SOCIAL_LINKS = {

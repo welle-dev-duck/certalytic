@@ -24,6 +24,7 @@ import {
 } from "@/features/candidates/lib/screening-schema";
 import { useRoleOptions } from "@/features/roles/hooks/use-roles";
 import { ApiError } from "@/lib/api-client";
+import { AnalyticsEvents, captureEvent } from "@/lib/analytics";
 import {
   ORGANIZATION_LANGUAGE_DEFAULT,
   resolveOrganizationLanguage,
@@ -138,6 +139,10 @@ export function useStartScreeningForm({
 
     createCandidate.mutate(payload, {
       onSuccess: (result) => {
+        captureEvent(AnalyticsEvents.screeningCreated, {
+          candidateId: result.id,
+          roleId: form.roleId ?? undefined,
+        });
         toast.success(t("screening.toast.started"));
         onOpenChange(false);
         router.push(routes.candidate(result.id));

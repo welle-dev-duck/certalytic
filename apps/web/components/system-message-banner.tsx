@@ -11,7 +11,7 @@ export function SystemMessageBanner({ text }: SystemMessageBannerProps) {
     <div
       role="status"
       className={cn(
-        "fixed inset-x-0 top-0 z-50 flex min-h-11 items-center justify-center gap-2",
+        "fixed inset-x-0 top-0 z-50 flex min-h-11 items-center justify-center gap-2 pointer-events-none",
         "border-b border-sky-500/20 bg-sky-500/10 px-4 py-2.5 text-sm text-sky-950",
         "dark:border-sky-400/20 dark:bg-sky-500/15 dark:text-sky-50",
       )}

@@ -156,6 +156,31 @@ export function SignUpForm() {
           />
         </FieldGroup>
 
+        <p className="text-center text-xs leading-relaxed text-muted-foreground">
+          {t("signUp.legalPrefix")}{" "}
+          <Link
+            href={routes.legal.terms()}
+            className="font-medium text-foreground underline-offset-2 hover:underline"
+          >
+            {t("signUp.legalTerms")}
+          </Link>
+          ,{" "}
+          <Link
+            href={routes.legal.privacy()}
+            className="font-medium text-foreground underline-offset-2 hover:underline"
+          >
+            {t("signUp.legalPrivacy")}
+          </Link>{" "}
+          {t("signUp.legalAnd")}{" "}
+          <Link
+            href={routes.legal.dpa()}
+            className="font-medium text-foreground underline-offset-2 hover:underline"
+          >
+            {t("signUp.legalDpa")}
+          </Link>
+          {t("signUp.legalSuffix")}
+        </p>
+
         <Button
           type="submit"
           disabled={isSubmitting}

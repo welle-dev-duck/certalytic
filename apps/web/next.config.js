@@ -5,6 +5,23 @@ const nextConfig = {
   experimental: {
     globalNotFound: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: "/ingest/static/:path*",
+        destination: `${process.env.NEXT_PUBLIC_POSTHOG_HOST}/static/:path*`,
+      },
+      {
+        source: "/ingest/:path*",
+        destination: `${process.env.NEXT_PUBLIC_POSTHOG_HOST}/:path*`,
+      },
+      {
+        source: "/ingest/decide",
+        destination: `${process.env.NEXT_PUBLIC_POSTHOG_HOST}/decide`,
+      },
+    ];
+  },
+  skipTrailingSlashRedirect: true,
 };
 
 export default withSentryConfig(nextConfig, {

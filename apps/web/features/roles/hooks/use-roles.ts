@@ -8,6 +8,7 @@ import {
 
 import { useOrgId } from "@/features/organizations/hooks/use-org-id";
 import { api } from "@/lib/api-client";
+import { AnalyticsEvents, captureEvent } from "@/lib/analytics";
 import type { Paginated } from "@/lib/pagination";
 import type {
   RoleDetail,
@@ -85,7 +86,11 @@ export function useCreateRole() {
   return useMutation({
     mutationFn: (body: { title: string; description?: string | null }) =>
       api<RoleDetail>("/api/roles", { method: "POST", body }),
-    onSuccess: () => {
+    onSuccess: (role) => {
+      captureEvent(AnalyticsEvents.roleCreated, {
+        roleId: role.id,
+        title: role.title,
+      });
       queryClient.invalidateQueries({ queryKey: roleKeys.lists() });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
@@ -172,6 +177,7 @@ export function useRequestRoleExport(roleId: string) {
         method: "POST",
       }),
     onSuccess: () => {
+      captureEvent(AnalyticsEvents.rolePdfExported, { roleId });
       queryClient.invalidateQueries({
         queryKey: roleKeys.latestExport(orgId, roleId),
       });

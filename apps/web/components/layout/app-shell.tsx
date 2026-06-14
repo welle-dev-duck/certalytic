@@ -12,7 +12,7 @@ type AppShellProps = PropsWithChildren<{
 
 export function AppShell({ breadcrumbs = [], children }: AppShellProps) {
   return (
-    <div className="flex h-[calc(100dvh-var(--banner-height,0px))] min-h-0 w-full min-w-0 flex-1 overflow-hidden bg-background">
+    <div className="flex h-[calc(100dvh-var(--banner-height,0px)-var(--impersonation-banner-height,0px))] min-h-0 w-full min-w-0 flex-1 overflow-hidden bg-background">
       <AppSidebar />
       <main className="min-h-0 min-w-0 flex-1 overflow-x-clip overflow-y-auto overscroll-y-contain overscroll-x-none">
         <div className="mx-auto w-full max-w-full min-w-0">

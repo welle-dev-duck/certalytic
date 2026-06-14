@@ -13,6 +13,7 @@ import Link from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
 import type { CandidateDetail as CandidateDetailType } from "@/features/candidates/types";
 import { apiUrl } from "@/lib/api-client";
+import { AnalyticsEvents, captureEvent } from "@/lib/analytics";
 import { useTranslations } from "@/lib/i18n/client";
 import { routes } from "@/lib/routes";
 
@@ -46,6 +47,12 @@ export function CandidateDetailHeader({
               href={apiUrl(`/api/candidates/${candidate.id}/export`)}
               target="_blank"
               rel="noreferrer"
+              onClick={() =>
+                captureEvent(AnalyticsEvents.candidatePdfExported, {
+                  candidateId: candidate.id,
+                  source: "candidate_detail",
+                })
+              }
             >
               <Download size={14} />
               {t("candidates.detail.exportPdf")}

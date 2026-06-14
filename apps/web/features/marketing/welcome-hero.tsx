@@ -6,12 +6,13 @@ import Link from "@/components/ui/link";
 
 import { Button } from "@/components/ui/button";
 import { COMPANY } from "@/lib/company";
+import { captureMarketingCta } from "@/lib/analytics";
 import { useTranslations } from "@/lib/i18n/client";
 import { routes } from "@/lib/routes";
 
 export function WelcomeHero() {
   const t = useTranslations("marketing");
-  const contactHref = `mailto:${COMPANY.email}?subject=Certalytic%20Enterprise%20inquiry`;
+  const contactHref = `mailto:${COMPANY.email}?subject=Certalytic%20General%20inquiry`;
 
   return (
     <section className="mx-auto flex min-h-[88vh] max-w-6xl items-center px-6 py-20 md:py-28">
@@ -30,13 +31,25 @@ export function WelcomeHero() {
           </p>
           <div className="mt-10 flex flex-wrap gap-3">
             <Button size="lg" asChild>
-              <Link href={routes.signUp()}>
+              <Link
+                href={routes.signUp()}
+                onClick={() =>
+                  captureMarketingCta("hero.primary", t("hero.ctaPrimary"))
+                }
+              >
                 {t("hero.ctaPrimary")}
                 <ArrowRight size={16} />
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <a href={contactHref}>{t("hero.ctaSecondary")}</a>
+              <a
+                href={contactHref}
+                onClick={() =>
+                  captureMarketingCta("hero.secondary", t("hero.ctaSecondary"))
+                }
+              >
+                {t("hero.ctaSecondary")}
+              </a>
             </Button>
           </div>
         </div>

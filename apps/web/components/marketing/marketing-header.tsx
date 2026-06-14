@@ -14,6 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { COMPANY } from "@/lib/company";
+import { captureMarketingCta } from "@/lib/analytics";
 import { useTranslations } from "@/lib/i18n/client";
 import { routes } from "@/lib/routes";
 import { useAuth } from "@/providers/auth-provider";
@@ -33,7 +34,14 @@ function AuthActions({ className }: { className?: string }) {
     return (
       <div className={className}>
         <Button size="sm" className="w-full" asChild>
-          <Link href={routes.dashboard()}>{t("header.dashboard")}</Link>
+          <Link
+            href={routes.dashboard()}
+            onClick={() =>
+              captureMarketingCta("header.dashboard", t("header.dashboard"))
+            }
+          >
+            {t("header.dashboard")}
+          </Link>
         </Button>
       </div>
     );
@@ -42,10 +50,24 @@ function AuthActions({ className }: { className?: string }) {
   return (
     <div className={className}>
       <Button variant="ghost" size="sm" className="w-full" asChild>
-        <Link href={routes.signIn()}>{t("header.logIn")}</Link>
+        <Link
+          href={routes.signIn()}
+          onClick={() =>
+            captureMarketingCta("header.sign_in", t("header.logIn"))
+          }
+        >
+          {t("header.logIn")}
+        </Link>
       </Button>
       <Button size="sm" className="w-full" asChild>
-        <Link href={routes.signUp()}>{t("header.startFree")}</Link>
+        <Link
+          href={routes.signUp()}
+          onClick={() =>
+            captureMarketingCta("header.sign_up", t("header.startFree"))
+          }
+        >
+          {t("header.startFree")}
+        </Link>
       </Button>
     </div>
   );
@@ -56,7 +78,7 @@ export function MarketingHeader() {
   const t = useTranslations("marketing");
 
   return (
-    <header className="sticky top-0 z-20 border-b border-border/80 bg-background/90 backdrop-blur-sm">
+    <header className="sticky top-0 z-30 border-b border-border/80 bg-background/90 backdrop-blur-sm">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center border border-primary bg-primary/10">
