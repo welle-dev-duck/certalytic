@@ -1,0 +1,1 @@
+ALTER TABLE "session" ALTER COLUMN "impersonated_by" SET DATA TYPE text;
